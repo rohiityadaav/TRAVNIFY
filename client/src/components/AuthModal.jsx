@@ -4,6 +4,7 @@ import { Mail, Lock, User, MapPin, X, ArrowRight, RefreshCw } from 'lucide-react
 import { useAuth } from '../context/AuthContext';
 import { trackEvent } from '../lib/analytics';
 import { auth } from '../lib/firebaseClient';
+import { safeFetch } from '../lib/api';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -50,7 +51,7 @@ export default function AuthModal({
   // Sync session and fetch/create user in backend
   const handleFirebaseSync = async (firebaseUser, nameValue, countryValue) => {
     try {
-      const syncRes = await fetch('/api/auth/firebase-sync', {
+      const syncRes = await safeFetch('/api/auth/firebase-sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -192,7 +193,7 @@ export default function AuthModal({
     setSuccessMsg('');
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/resend-verification', {
+      const res = await safeFetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

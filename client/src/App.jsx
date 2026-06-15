@@ -18,6 +18,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Footer from './components/Footer';
+import { safeFetch } from './lib/api';
 
 import { useAuth } from './context/AuthContext';
 import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
@@ -80,15 +81,13 @@ export default function App() {
 
   const fetchSavedTrips = async (token) => {
     try {
-      const response = await fetch('/api/trips', {
+      const response = await safeFetch('/api/trips', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      if (response.ok) {
-        const tripsData = await response.json();
-        setSavedTrips(tripsData);
-      }
+      const tripsData = await response.json();
+      setSavedTrips(tripsData);
     } catch (err) {
       console.error('Error fetching saved trips:', err);
     }
@@ -110,30 +109,13 @@ export default function App() {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const response = await fetch('/api/generateTrip', {
+      const response = await safeFetch('/api/generateTrip', {
         method: 'POST',
         headers,
         body: JSON.stringify(details)
       });
 
       const data = await response.json();
-      
-      if (!response.ok) {
-        if (response.status === 400) {
-          throw new Error('Please fill in destination and days correctly.');
-        }
-        if (response.status === 429) {
-          throw new Error('You’ve hit the limit, please wait a bit before asking more.');
-        }
-        if (response.status >= 500) {
-          throw new Error('Something went wrong with the AI. Please try again later.');
-        }
-        if (data.code === 'LIMIT_EXCEEDED') {
-          openPricingModal();
-        }
-        throw new Error(data.error || 'Failed to generate travel plan.');
-      }
-
       setActiveItinerary(data.itinerary);
       
       // Track plan generation success
@@ -147,7 +129,11 @@ export default function App() {
         setUser({ ...user, freeTripsGenerated: user.freeTripsGenerated + 1 });
       }
     } catch (err) {
-      alert(err.message || 'An error occurred generating your AI itinerary.');
+      if (err.code === 'LIMIT_EXCEEDED') {
+        openPricingModal();
+      } else {
+        alert(err.message || 'Trip generation failed. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +149,7 @@ export default function App() {
     setIsRefining(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/refineTrip', {
+      const response = await safeFetch('/api/refineTrip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,22 +162,9 @@ export default function App() {
       });
 
       const data = await response.json();
-      if (!response.ok) {
-        if (response.status === 400) {
-          throw new Error('Please check your fields and try again.');
-        }
-        if (response.status === 429) {
-          throw new Error('You’ve hit the limit, please wait a bit before asking more.');
-        }
-        if (response.status >= 500) {
-          throw new Error('Something went wrong with the AI. Please try again later.');
-        }
-        throw new Error(data.error || 'Failed to apply refinements.');
-      }
-
       setActiveItinerary(data.itinerary);
     } catch (err) {
-      alert(err.message || 'Error refining your trip plan.');
+      alert(err.message || 'Error refining your trip plan. Please try again later.');
     } finally {
       setIsRefining(false);
     }
@@ -206,7 +179,7 @@ export default function App() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/trips', {
+      await safeFetch('/api/trips', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -223,17 +196,12 @@ export default function App() {
         })
       });
 
-      if (response.ok) {
-        alert('🎉 Trip plan saved successfully to your account! Find it anytime in "My Trips".');
-        fetchSavedTrips(token);
-        setActiveTab('my-trips');
-        setActiveItinerary(null);
-      } else {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to save trip.');
-      }
+      alert('🎉 Trip plan saved successfully to your account! Find it anytime in "My Trips".');
+      fetchSavedTrips(token);
+      setActiveTab('my-trips');
+      setActiveItinerary(null);
     } catch (err) {
-      alert(err.message);
+      alert(err.message || 'Could not save trip. Please try again later.');
     }
   };
 
@@ -243,21 +211,15 @@ export default function App() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`/api/trips/${tripId}`, {
+      await safeFetch(`/api/trips/${tripId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      if (response.ok) {
-        fetchSavedTrips(token);
-      } else {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to delete trip.');
-      }
+      fetchSavedTrips(token);
     } catch (err) {
-      alert(err.message);
+      alert(err.message || 'Could not delete trip. Please try again later.');
     }
   };
 
@@ -402,6 +364,26 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {import.meta.env.PROD && !import.meta.env.VITE_API_BASE_URL && (
+        <div style={{
+          background: '#FEF3C7',
+          borderBottom: '1px solid #F59E0B',
+          color: '#D97706',
+          padding: '0.75rem 1rem',
+          textAlign: 'center',
+          fontSize: '0.88rem',
+          fontWeight: '600',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.5rem',
+          zIndex: 1000,
+          position: 'relative'
+        }}>
+          <span>⚠️</span>
+          <span>Server features (Near Me, AI planning, premium) are temporarily disabled because the backend is not yet deployed.</span>
+        </div>
+      )}
       <div className="app-container">
         {/* 1. Navbar */}
         <Navbar

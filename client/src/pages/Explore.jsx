@@ -5,6 +5,7 @@ import {
   Building2, PartyPopper, ShoppingBag, Sparkles,
   MapPin, AlertCircle, Lock, Calendar, Sparkle, ArrowRight
 } from 'lucide-react';
+import { safeFetch } from '../lib/api';
 import { tripsDatabase } from '../data/tripsDatabase';
 import TripDetailsModal from '../components/TripDetailsModal';
 import { trackEvent } from '../lib/analytics';
@@ -853,7 +854,7 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res  = await fetch('/api/discover/best-for-activity', { method:'POST', headers, body: JSON.stringify({ query: q }) });
+      const res  = await safeFetch('/api/discover/best-for-activity', { method:'POST', headers, body: JSON.stringify({ query: q }) });
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 400) {
@@ -899,7 +900,7 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res  = await fetch('/api/discover/hidden-gems', { method:'POST', headers, body: JSON.stringify({ query: q }) });
+      const res  = await safeFetch('/api/discover/hidden-gems', { method:'POST', headers, body: JSON.stringify({ query: q }) });
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 400) {

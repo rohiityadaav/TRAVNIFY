@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, ShieldCheck, RefreshCw, Star, Gem } from 'lucide-react';
 import { trackEvent } from '../lib/analytics';
+import { safeFetch } from '../lib/api';
 
 export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }) {
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' | 'yearly'
@@ -35,7 +36,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
     try {
       // 1. Create order on the backend
       const token = localStorage.getItem('token');
-      const orderResponse = await fetch('/api/payments/create-order', {
+      const orderResponse = await safeFetch('/api/payments/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -56,7 +57,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
         // --- DEVELOPMENT SANDBOX MOCK CODE BLOCK ---
         setTimeout(async () => {
           try {
-            const verifyRes = await fetch('/api/payments/verify', {
+            const verifyRes = await safeFetch('/api/payments/verify', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -103,7 +104,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
           },
           handler: async function (response) {
             try {
-              const verifyRes = await fetch('/api/payments/verify', {
+              const verifyRes = await safeFetch('/api/payments/verify', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

@@ -16,6 +16,7 @@ import {
   RefreshCw,
   ShieldCheck
 } from 'lucide-react';
+import { safeFetch } from '../lib/api';
 
 export default function NearMe({ destinationCity }) {
   const [hasLocation, setHasLocation] = useState(false);
@@ -113,7 +114,7 @@ export default function NearMe({ destinationCity }) {
         url += `&latitude=${coords.lat}&longitude=${coords.lng}`;
       }
 
-      const response = await fetch(url);
+      const response = await safeFetch(url);
       const data = await response.json();
 
       if (!response.ok) {

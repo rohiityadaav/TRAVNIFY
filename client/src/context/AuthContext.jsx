@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../lib/firebaseClient';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { safeFetch } from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
           return;
         }
         try {
-          const res = await fetch('/api/auth/me', {
+          const res = await safeFetch('/api/auth/me', {
             headers: {
               'Authorization': `Bearer ${token}`
             }

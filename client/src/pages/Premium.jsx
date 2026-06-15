@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ShieldCheck, CheckCircle, RefreshCw, Star, Gem, ArrowLeft, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { trackEvent } from '../lib/analytics';
+import { safeFetch } from '../lib/api';
 
 export default function Premium({ setActiveTab }) {
   const { user, setUser, isAuthenticated, openAuthModalWithMessage } = useAuth();
@@ -51,7 +52,7 @@ export default function Premium({ setActiveTab }) {
       const token = localStorage.getItem('token');
       
       // Call backend to create Razorpay order
-      const orderResponse = await fetch('/api/payments/create-order', {
+      const orderResponse = await safeFetch('/api/payments/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +77,7 @@ export default function Premium({ setActiveTab }) {
         // Simulating loading state for mock checkout
         setTimeout(async () => {
           try {
-            const verifyRes = await fetch('/api/payments/verify', {
+            const verifyRes = await safeFetch('/api/payments/verify', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ export default function Premium({ setActiveTab }) {
           handler: async function (response) {
             try {
               setIsLoading(true);
-              const verifyRes = await fetch('/api/payments/verify', {
+              const verifyRes = await safeFetch('/api/payments/verify', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
