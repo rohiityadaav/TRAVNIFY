@@ -18,7 +18,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      const token = localStorage.getItem('token');
+      let token = localStorage.getItem('token');
+      if (token === 'undefined' || token === 'null') {
+        token = null;
+        localStorage.removeItem('token');
+      }
+      
       if (firebaseUser && token) {
         if (token === 'client_auth_only') {
           setUser({
@@ -48,7 +53,13 @@ export function AuthProvider({ children }) {
             const resText = await res.text().catch(() => '');
             console.warn("Backend auth session check failed. Text:", resText);
             const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            if (!isDev) {
+            
+            if (res.status === 401 || res.status === 403) {
+              localStorage.removeItem('token');
+              await signOut(auth);
+              setUser(null);
+              setIsAuthenticated(false);
+            } else if (!isDev) {
               setUser({
                 id: firebaseUser.uid,
                 email: firebaseUser.email,
@@ -68,7 +79,15 @@ export function AuthProvider({ children }) {
         } catch (err) {
           console.error("Auth session verification failed:", err);
           const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-          if (!isDev) {
+          const isAuthError = err.status === 401 || err.status === 403;
+          
+          if (isAuthError) {
+            console.warn("Session expired or token invalid. Logging out.");
+            localStorage.removeItem('token');
+            await signOut(auth);
+            setUser(null);
+            setIsAuthenticated(false);
+          } else if (!isDev) {
             setUser({
               id: firebaseUser.uid,
               email: firebaseUser.email,
@@ -78,6 +97,11 @@ export function AuthProvider({ children }) {
               emailVerified: firebaseUser.emailVerified
             });
             setIsAuthenticated(true);
+          } else {
+            localStorage.removeItem('token');
+            await signOut(auth);
+            setUser(null);
+            setIsAuthenticated(false);
           }
         }
       } else {
@@ -91,7 +115,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginSuccess = (userData, token) => {
-    localStorage.setItem('token', token);
+    if (token && token !== 'undefined' && token !== 'null') {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
     setUser(userData);
     setIsAuthenticated(true);
     

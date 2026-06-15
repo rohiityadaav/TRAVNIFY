@@ -67,8 +67,12 @@ export default function AuthModal({
       const contentType = syncRes.headers.get("content-type");
       if (syncRes.ok && contentType && contentType.includes("application/json")) {
         const data = await syncRes.json();
-        localStorage.setItem('token', data.token);
-        onAuthSuccess(data.user);
+        if (data.token && data.token !== 'undefined' && data.token !== 'null') {
+          localStorage.setItem('token', data.token);
+        } else {
+          localStorage.removeItem('token');
+        }
+        onAuthSuccess(data.user, data.token);
         onClose();
       } else {
         const errorText = await syncRes.text().catch(() => '');

@@ -14,6 +14,24 @@ export async function safeFetch(path, options = {}) {
     throw new Error("Server features (Near Me, AI planning, premium) are temporarily disabled because the backend is not yet deployed.");
   }
 
+  // Sanitize headers to prevent sending 'Bearer undefined', 'Bearer null', or empty 'Bearer '
+  if (options.headers) {
+    if (typeof options.headers.get === 'function' && typeof options.headers.delete === 'function') {
+      const authVal = options.headers.get('authorization');
+      if (!authVal || authVal === 'Bearer' || authVal === 'Bearer ' || authVal.includes('undefined') || authVal.includes('null')) {
+        options.headers.delete('authorization');
+      }
+    } else {
+      const authKey = Object.keys(options.headers).find(k => k.toLowerCase() === 'authorization');
+      if (authKey) {
+        const authVal = options.headers[authKey];
+        if (!authVal || authVal === 'Bearer' || authVal === 'Bearer ' || authVal.includes('undefined') || authVal.includes('null')) {
+          delete options.headers[authKey];
+        }
+      }
+    }
+  }
+
   // Prepend API_BASE_URL if it is configured
   const url = path.startsWith('/api') && API_BASE_URL ? `${API_BASE_URL}${path}` : path;
   
@@ -27,32 +45,37 @@ export async function safeFetch(path, options = {}) {
   const contentType = response.headers.get("content-type") || "";
   if (!response.ok || !contentType.includes("application/json")) {
     let errMessage = "Server returned an invalid response";
-    
+    const status = response.status;
+    let code = undefined;
+
     if (contentType.includes("application/json")) {
       try {
         const errData = await response.json();
         errMessage = errData.error || errData.message || errMessage;
-        const customErr = new Error(errMessage);
         if (errData.code) {
-          customErr.code = errData.code;
+          code = errData.code;
         }
-        throw customErr;
       } catch (e) {
-        if (e.code || e.message !== "Server returned an invalid response") {
-          throw e;
-        }
+        // Fallback if parsing fails
       }
     } else {
       const text = await response.text().catch(() => "");
       console.error("API error response:", text);
       if (contentType.includes("text/html") || text.trim().startsWith("<!DOCTYPE")) {
-        throw new Error("Our servers might be offline right now or the backend is not yet deployed. Please try again later.");
+        errMessage = "Our servers might be offline right now or the backend is not yet deployed. Please try again later.";
+      } else {
+        errMessage = text || errMessage;
       }
-      errMessage = text || errMessage;
     }
     
-    throw new Error(errMessage);
+    const customErr = new Error(errMessage);
+    customErr.status = status;
+    if (code) {
+      customErr.code = code;
+    }
+    throw customErr;
   }
   
   return response;
 }
+
