@@ -1,0 +1,1366 @@
+{
+  "users": [
+    {
+      "id": "usr_euz83roak",
+      "name": "rohit",
+      "email": "rohiityaddav@gmail.com",
+      "passwordHash": "$2a$10$rA8orDUeXZSBOTF99scNDeae5UMNnd9BwSU3mBbONx3qqpwg0Lsqa",
+      "country": "IN",
+      "isPremium": true,
+      "subscriptionType": "monthly",
+      "subscriptionStart": "2026-05-19T10:11:25.853Z",
+      "subscriptionEnd": "2026-06-19T10:11:25.853Z",
+      "freeTripsGenerated": 1,
+      "currency": "INR",
+      "emailVerified": true,
+      "emailVerificationToken": "",
+      "emailVerificationExpiresAt": 0
+    },
+    {
+      "id": "usr_okh2rgd47",
+      "name": "Felipas Solutions",
+      "email": "solutionsfelipas@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_ak49pcrtf",
+      "name": "Jane Doe",
+      "email": "jane.doe@example.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0,
+      "currency": "INR"
+    },
+    {
+      "id": "usr_h9bsmw5bj",
+      "name": "ryftgy",
+      "email": "rohityadav@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "US",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_lua3189ki",
+      "name": "ryftgy",
+      "email": "rohiiiityadavvv@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "US",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_lpth6hnhv",
+      "name": "redsxert",
+      "email": "rohiiiiityddaaavv@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "US",
+      "currency": "USD",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_z2bdqjsfi",
+      "name": "gdfs",
+      "email": "fedwsfsafdsdfg@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_cubvh898d",
+      "name": "Rohit Yadav",
+      "email": "rohhityaadav@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_gfcbqzp1r",
+      "name": "cvcdsx",
+      "email": "rohiityaddavvv@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_8w711uqgk",
+      "name": "raj",
+      "email": "rajdeepyadav125@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_22sv6zi3r",
+      "name": "raj",
+      "email": "rajdeepyadavv125@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0
+    },
+    {
+      "id": "usr_7af8y11oj",
+      "name": "Avinash Yadav",
+      "email": "avinashyadavv9354@gmail.com",
+      "passwordHash": "FIREBASE_MANAGED_AUTH",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0,
+      "emailVerified": true,
+      "emailVerificationToken": "",
+      "emailVerificationExpiresAt": 0
+    }
+  ],
+  "trips": [
+    {
+      "id": "trp_8p1qiroz1",
+      "userId": "usr_euz83roak",
+      "destination": "uttrakhand",
+      "budget": 10000,
+      "currency": "INR",
+      "startDate": "2026-05-28",
+      "endDate": "2026-05-11",
+      "interests": [
+        "trek",
+        "culture",
+        "food",
+        "nightlife",
+        "shopping"
+      ],
+      "itinerary": {
+        "summary": {
+          "destination": "uttrakhand",
+          "totalDays": 18,
+          "approxTotalCost": 10000,
+          "currency": "INR",
+          "dailyAverageCost": 556
+        },
+        "budgetBreakdown": {
+          "transportPercent": 25,
+          "stayPercent": 35,
+          "foodPercent": 20,
+          "activitiesPercent": 20
+        },
+        "days": [
+          {
+            "dayNumber": 1,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 1 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Scenic nature trek with local panoramic vistas. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Exploring mountain paths, photography at summit. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 2,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 2 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Guided walkthrough of historical fort or museum. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: CULTURE vibe",
+                "description": "Walking tour of old town colonial architecture temples. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 3,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 3 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Food tasting tour of local street shops and stalls. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: FOOD vibe",
+                "description": "Enjoying local sea-food or traditional thali dinner. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 4,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 4 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Visiting top rated lounge, checking local DJ beats. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: NIGHTLIFE vibe",
+                "description": "Visiting top rated lounge, checking local DJ beats. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 5,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 5 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Strolling through local flea market, bargaining items. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: SHOPPING vibe",
+                "description": "Exploring local shopping street for handicrafts. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 6,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 6 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Scenic nature trek with local panoramic vistas. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Forest path walking, bird watching, crisp fresh air. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 7,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 7 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Guided walkthrough of historical fort or museum. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: CULTURE vibe",
+                "description": "Watching a traditional local dance or art show. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 8,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 8 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Food tasting tour of local street shops and stalls. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: FOOD vibe",
+                "description": "Food tasting tour of local street shops and stalls. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 9,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 9 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Visiting top rated lounge, checking local DJ beats. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: NIGHTLIFE vibe",
+                "description": "Dancing at beachside club, enjoying pub food. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 10,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 10 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Strolling through local flea market, bargaining items. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: SHOPPING vibe",
+                "description": "Browsing spice market and traditional boutique shops. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 11,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 11 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Scenic nature trek with local panoramic vistas. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Hiking to local waterfall, relaxing beside riverbank. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 12,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 12 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Guided walkthrough of historical fort or museum. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: CULTURE vibe",
+                "description": "Guided walkthrough of historical fort or museum. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 13,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 13 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Food tasting tour of local street shops and stalls. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: FOOD vibe",
+                "description": "Fine dining at traditional regional heritage kitchen. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 14,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 14 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Visiting top rated lounge, checking local DJ beats. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: NIGHTLIFE vibe",
+                "description": "Exploring late night bazaar, music and neon lights. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 15,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 15 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Strolling through local flea market, bargaining items. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: SHOPPING vibe",
+                "description": "Checking regional souvenirs and handmade clothing stalls. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 16,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 16 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Scenic nature trek with local panoramic vistas. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Scenic nature trek with local panoramic vistas. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 17,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 17 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Guided walkthrough of historical fort or museum. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: CULTURE vibe",
+                "description": "Visiting local heritage village, learning craftsmanship. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 18,
+            "location": "uttrakhand (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 18 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "83 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "111 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Discover uttrakhand",
+                "description": "Food tasting tour of local street shops and stalls. Take plenty of photographs and enjoy local sightseeing with guide tips.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: FOOD vibe",
+                "description": "Breakfast at classic historical bakery shop. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "139 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Overnight Rest",
+                "description": "Wind down at a local boutique hotel or homestay located in a peaceful street away from high traffic sounds.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "83 INR"
+              }
+            ]
+          }
+        ]
+      },
+      "createdAt": "2026-05-19T09:24:49.656Z"
+    },
+    {
+      "id": "trp_3vd0p2rlu",
+      "userId": "usr_euz83roak",
+      "destination": "jamu kashmir ",
+      "budget": 1000,
+      "currency": "INR",
+      "startDate": "2026-05-19",
+      "endDate": "2026-05-21",
+      "interests": [
+        "trek"
+      ],
+      "itinerary": {
+        "summary": {
+          "destination": "jamu kashmir ",
+          "totalDays": 3,
+          "approxTotalCost": 766,
+          "currency": "INR",
+          "dailyAverageCost": 255
+        },
+        "budgetBreakdown": {
+          "transportPercent": 25,
+          "stayPercent": 35,
+          "foodPercent": 20,
+          "activitiesPercent": 20
+        },
+        "days": [
+          {
+            "dayNumber": 1,
+            "location": "jamu kashmir  (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 1 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "25 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "33 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Extreme local action & adventure tour",
+                "description": "Scuba diving, paragliding, local theme park or high adrenaline trek with guided teams.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "41 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Exploring mountain paths, photography at summit. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "41 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Budget Guesthouse / Backpacker Hostel",
+                "description": "Stay in an affordable, highly-rated local guesthouse or sharing hostel near public transit.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "25 INR"
+              },
+              {
+                "type": "free_time",
+                "title": "Chill sunset stroll & coffee time",
+                "description": "Relax, read a book, enjoy localized tea or coffee, and check local viewpoints leisurely.",
+                "timeWindow": "17:30 - 19:00",
+                "approxCost": "0 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 2,
+            "location": "jamu kashmir  (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 2 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "25 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "33 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Extreme local action & adventure tour",
+                "description": "Scuba diving, paragliding, local theme park or high adrenaline trek with guided teams.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "41 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Forest path walking, bird watching, crisp fresh air. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "41 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Budget Guesthouse / Backpacker Hostel",
+                "description": "Stay in an affordable, highly-rated local guesthouse or sharing hostel near public transit.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "25 INR"
+              },
+              {
+                "type": "free_time",
+                "title": "Chill sunset stroll & coffee time",
+                "description": "Relax, read a book, enjoy localized tea or coffee, and check local viewpoints leisurely.",
+                "timeWindow": "17:30 - 19:00",
+                "approxCost": "0 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 3,
+            "location": "jamu kashmir  (Central Area)",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Day 3 Morning Transit & Check-in",
+                "description": "Board local auto/cab to explore the area. Check in at your pre-booked cozy stay near the city center.",
+                "timeWindow": "09:00 - 11:30",
+                "approxCost": "25 INR"
+              },
+              {
+                "type": "food",
+                "title": "Local Flavors & Lunch",
+                "description": "Head out to highly recommended street shops to try local delicacies like regional curries and refreshing custom beverages.",
+                "timeWindow": "12:30 - 14:00",
+                "approxCost": "33 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Extreme local action & adventure tour",
+                "description": "Scuba diving, paragliding, local theme park or high adrenaline trek with guided teams.",
+                "timeWindow": "15:00 - 18:00",
+                "approxCost": "41 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Evening Highlight: TREK vibe",
+                "description": "Hiking to local waterfall, relaxing beside riverbank. Meet other solo travelers or groups and appreciate the rich local culture.",
+                "timeWindow": "19:00 - 21:30",
+                "approxCost": "41 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Budget Guesthouse / Backpacker Hostel",
+                "description": "Stay in an affordable, highly-rated local guesthouse or sharing hostel near public transit.",
+                "timeWindow": "22:00 onwards",
+                "approxCost": "25 INR"
+              },
+              {
+                "type": "free_time",
+                "title": "Chill sunset stroll & coffee time",
+                "description": "Relax, read a book, enjoy localized tea or coffee, and check local viewpoints leisurely.",
+                "timeWindow": "17:30 - 19:00",
+                "approxCost": "0 INR"
+              }
+            ]
+          }
+        ]
+      },
+      "createdAt": "2026-05-19T09:59:16.391Z"
+    },
+    {
+      "id": "trp_l9efeym5w",
+      "userId": "usr_euz83roak",
+      "destination": "Manali, India",
+      "budget": 15000,
+      "currency": "INR",
+      "startDate": "2026-05-21",
+      "endDate": "2026-05-23",
+      "interests": [
+        "general"
+      ],
+      "itinerary": {
+        "summary": {
+          "destination": "Manali, India",
+          "totalDays": 3,
+          "approxTotalCost": 15000,
+          "currency": "INR",
+          "dailyAverageCost": 5000
+        },
+        "budgetBreakdown": {
+          "transportPercent": 25,
+          "stayPercent": 35,
+          "foodPercent": 20,
+          "activitiesPercent": 20
+        },
+        "days": [
+          {
+            "dayNumber": 1,
+            "location": "Old Manali & Manali Town",
+            "blocks": [
+              {
+                "type": "travel",
+                "title": "Arrival in Manali & Check-in",
+                "description": "Arrive at Manali bus stand, take a local auto-rickshaw or pre-booked taxi to your budget-friendly guesthouse or 3-star hotel in Old Manali or near the Hadimba Temple area. Settle in and freshen up.",
+                "timeWindow": "09:00 - 11:00",
+                "approxCost": "300 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Guesthouse/Budget Hotel Stay",
+                "description": "Check into a comfortable guesthouse or budget hotel offering mountain views. Prioritize a location that allows easy access to trekking points and local markets.",
+                "timeWindow": "11:00 - 12:00",
+                "approxCost": "1750 INR"
+              },
+              {
+                "type": "food",
+                "title": "Lunch at Old Manali Cafe",
+                "description": "Enjoy a delicious lunch at one of the many charming cafes in Old Manali. Opt for local Himachali dishes or popular cafe fare like pasta and pizza.",
+                "timeWindow": "12:00 - 13:30",
+                "approxCost": "400 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Hadimba Devi Temple & Manu Temple Visit",
+                "description": "Begin your exploration with the unique wooden architecture of Hadimba Devi Temple, set amidst cedar forests. Afterwards, take a short walk to the serene Manu Temple, offering peaceful vibes and initial mountain glimpses.",
+                "timeWindow": "13:30 - 16:00",
+                "approxCost": "100 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Vashisht Hot Springs & Village Walk",
+                "description": "Head to Vashisht village, famous for its natural hot sulphur springs. Relax in the public baths (separate for men and women) and explore the traditional Himachali village architecture.",
+                "timeWindow": "16:00 - 18:00",
+                "approxCost": "200 INR"
+              },
+              {
+                "type": "food",
+                "title": "Evening Stroll and Dinner at Mall Road",
+                "description": "Experience the bustling atmosphere of Manali's Mall Road. Enjoy some street food, browse for souvenirs, and then have dinner at a restaurant offering a variety of cuisines, from Indian to Tibetan.",
+                "timeWindow": "18:00 - 21:00",
+                "approxCost": "600 INR"
+              },
+              {
+                "type": "free_time",
+                "title": "Leisure Time & Rest",
+                "description": "Return to your accommodation, relax, and prepare for an adventurous day ahead.",
+                "timeWindow": "21:00 - 22:00",
+                "approxCost": "0 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 2,
+            "location": "Solang Valley / Hampta Pass Trek (Day Trip)",
+            "blocks": [
+              {
+                "type": "food",
+                "title": "Hearty Breakfast",
+                "description": "Enjoy a filling breakfast at your guesthouse or a local cafe to fuel up for the day's trekking.",
+                "timeWindow": "08:00 - 09:00",
+                "approxCost": "300 INR"
+              },
+              {
+                "type": "travel",
+                "title": "Journey to Solang Valley or Jobri (Hampta Pass base)",
+                "description": "Hire a shared taxi or take a local bus towards Solang Valley. Alternatively, for a more intense trekking experience, arrange transport to Jobri, the starting point for a day hike towards Hampta Pass.",
+                "timeWindow": "09:00 - 10:00",
+                "approxCost": "1000 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Trekking & Mountain Views (Solang Valley or Hampta Pass)",
+                "description": "**Option A (Solang Valley):** Take the cable car ride for breathtaking panoramic views of the Himalayas. Enjoy a short hike around the valley. **Option B (Hampta Pass Day Hike):** Start an invigorating trek from Jobri, covering a section of the famous Hampta Pass trail. This offers stunning alpine meadows and close-up mountain vistas.",
+                "timeWindow": "10:00 - 15:00",
+                "approxCost": "1500 INR"
+              },
+              {
+                "type": "food",
+                "title": "Packed Lunch or Local Snacks",
+                "description": "Carry a packed lunch or enjoy simple local snacks and tea from small stalls available near trekking points. This keeps the budget in check and maximizes time for exploration.",
+                "timeWindow": "13:00 - 14:00",
+                "approxCost": "300 INR"
+              },
+              {
+                "type": "travel",
+                "title": "Return to Manali",
+                "description": "Head back to Manali by shared taxi or local transport, enjoying the scenic drive down.",
+                "timeWindow": "15:00 - 17:00",
+                "approxCost": "0 INR"
+              },
+              {
+                "type": "stay",
+                "title": "Guesthouse/Budget Hotel Stay",
+                "description": "Return to your pre-booked accommodation in Manali.",
+                "timeWindow": "17:00 - 18:00",
+                "approxCost": "1750 INR"
+              },
+              {
+                "type": "food",
+                "title": "Relaxing Dinner",
+                "description": "After a day of trekking, unwind with a comforting dinner at a local eatery in Manali. Try some local trout or a hearty thali.",
+                "timeWindow": "19:30 - 21:00",
+                "approxCost": "400 INR"
+              }
+            ]
+          },
+          {
+            "dayNumber": 3,
+            "location": "Naggar & Departure",
+            "blocks": [
+              {
+                "type": "food",
+                "title": "Breakfast and Check-out",
+                "description": "Enjoy a final breakfast in Manali. Pack up your belongings and complete the check-out process from your guesthouse.",
+                "timeWindow": "08:00 - 09:30",
+                "approxCost": "300 INR"
+              },
+              {
+                "type": "travel",
+                "title": "Journey to Naggar",
+                "description": "Hire a private or shared taxi for a scenic drive to Naggar, a historical town known for its castle and art gallery, offering a different perspective of the Kullu Valley.",
+                "timeWindow": "09:30 - 10:30",
+                "approxCost": "700 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Naggar Castle & Roerich Art Gallery",
+                "description": "Explore the historic Naggar Castle, once the residence of the Kullu kings, now a heritage hotel with stunning views. Afterwards, visit the Nicholas Roerich Art Gallery to admire the paintings of the renowned Russian artist who was captivated by the Himalayas.",
+                "timeWindow": "10:30 - 13:00",
+                "approxCost": "400 INR"
+              },
+              {
+                "type": "food",
+                "title": "Lunch in Naggar",
+                "description": "Savor authentic Himachali cuisine at a local restaurant in Naggar, enjoying the serene surroundings.",
+                "timeWindow": "13:00 - 14:30",
+                "approxCost": "400 INR"
+              },
+              {
+                "type": "activity",
+                "title": "Jana Falls & Local Exploration",
+                "description": "Take a short detour to Jana Falls, a picturesque waterfall, and enjoy the tranquil environment. If time permits, explore more of Naggar village.",
+                "timeWindow": "14:30 - 16:00",
+                "approxCost": "100 INR"
+              },
+              {
+                "type": "travel",
+                "title": "Return to Manali Bus Stand",
+                "description": "Head back to Manali bus stand from Naggar, keeping ample time for your onward journey. Grab any last-minute souvenirs if desired.",
+                "timeWindow": "16:00 - 17:30",
+                "approxCost": "800 INR"
+              },
+              {
+                "type": "food",
+                "title": "Dinner on the Go",
+                "description": "Grab a quick dinner or snacks near the bus stand for your onward travel from Manali.",
+                "timeWindow": "18:00 - 19:00",
+                "approxCost": "300 INR"
+              },
+              {
+                "type": "travel",
+                "title": "Departure from Manali",
+                "description": "Board your bus or taxi for your journey back home, carrying memories of the mountains.",
+                "timeWindow": "19:00 - 20:00",
+                "approxCost": "0 INR"
+              }
+            ]
+          }
+        ]
+      },
+      "createdAt": "2026-05-21T07:40:49.938Z"
+    }
+  ],
+  "transactions": [
+    {
+      "id": "tx_udhy5y253",
+      "userId": "usr_euz83roak",
+      "orderId": "order_mock_8gvm4p7e6dq",
+      "paymentId": "pay_sandbox_hsyczw2p",
+      "amount": 999,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-05-19T09:51:47.720Z"
+    },
+    {
+      "id": "tx_tzf4y65o3",
+      "userId": "usr_euz83roak",
+      "orderId": "order_mock_f3dl78ci7fb",
+      "paymentId": "pay_sandbox_gjy4hyu3",
+      "amount": 99,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-05-19T10:11:24.298Z"
+    },
+    {
+      "id": "tx_0q3yd5609",
+      "userId": "usr_euz83roak",
+      "orderId": "order_SrYrikfL52nwuc",
+      "paymentId": "",
+      "amount": 99,
+      "currency": "INR",
+      "status": "created",
+      "createdAt": "2026-05-20T09:00:35.210Z"
+    },
+    {
+      "id": "tx_3lecqipls",
+      "userId": "usr_euz83roak",
+      "orderId": "order_SrYrsK6mf1vxuu",
+      "paymentId": "",
+      "amount": 99,
+      "currency": "INR",
+      "status": "created",
+      "createdAt": "2026-05-20T09:00:44.019Z"
+    }
+  ],
+  "otps": [
+    {
+      "id": "otp_7m0de8wpi",
+      "email": "rohiityaddav@gmail.com",
+      "code": "552196",
+      "purpose": "signup",
+      "expiresAt": "2026-06-15T05:10:00.674Z",
+      "used": false,
+      "createdAt": "2026-06-15T05:00:00.677Z"
+    }
+  ]
+}
