@@ -19,25 +19,65 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       const token = localStorage.getItem('token');
       if (firebaseUser && token) {
+        if (token === 'client_auth_only') {
+          setUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+            country: 'IN',
+            isPremium: false,
+            emailVerified: firebaseUser.emailVerified
+          });
+          setIsAuthenticated(true);
+          setLoading(false);
+          return;
+        }
         try {
           const res = await fetch('/api/auth/me', {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           });
-          if (res.ok) {
+          const contentType = res.headers.get("content-type");
+          if (res.ok && contentType && contentType.includes("application/json")) {
             const userData = await res.json();
             setUser(userData);
             setIsAuthenticated(true);
           } else {
-            // Token expired or local user profile missing
-            localStorage.removeItem('token');
-            await signOut(auth);
-            setUser(null);
-            setIsAuthenticated(false);
+            const resText = await res.text().catch(() => '');
+            console.warn("Backend auth session check failed. Text:", resText);
+            const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (!isDev) {
+              setUser({
+                id: firebaseUser.uid,
+                email: firebaseUser.email,
+                name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+                country: 'IN',
+                isPremium: false,
+                emailVerified: firebaseUser.emailVerified
+              });
+              setIsAuthenticated(true);
+            } else {
+              localStorage.removeItem('token');
+              await signOut(auth);
+              setUser(null);
+              setIsAuthenticated(false);
+            }
           }
         } catch (err) {
           console.error("Auth session verification failed:", err);
+          const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          if (!isDev) {
+            setUser({
+              id: firebaseUser.uid,
+              email: firebaseUser.email,
+              name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+              country: 'IN',
+              isPremium: false,
+              emailVerified: firebaseUser.emailVerified
+            });
+            setIsAuthenticated(true);
+          }
         }
       } else {
         setUser(null);

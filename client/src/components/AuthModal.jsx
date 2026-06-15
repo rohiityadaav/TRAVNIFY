@@ -49,27 +49,66 @@ export default function AuthModal({
 
   // Sync session and fetch/create user in backend
   const handleFirebaseSync = async (firebaseUser, nameValue, countryValue) => {
-    const syncRes = await fetch('/api/auth/firebase-sync', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        email: firebaseUser.email,
-        name: nameValue || firebaseUser.displayName || firebaseUser.email.split('@')[0],
-        country: countryValue || country || 'IN',
-        emailVerified: firebaseUser.emailVerified
-      })
-    });
+    try {
+      const syncRes = await fetch('/api/auth/firebase-sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: firebaseUser.email,
+          name: nameValue || firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          country: countryValue || country || 'IN',
+          emailVerified: firebaseUser.emailVerified
+        })
+      });
 
-    const data = await syncRes.json();
-    if (!syncRes.ok) {
-      throw new Error(data.error || 'TRAVNIFY database synchronization failed.');
+      const contentType = syncRes.headers.get("content-type");
+      if (syncRes.ok && contentType && contentType.includes("application/json")) {
+        const data = await syncRes.json();
+        localStorage.setItem('token', data.token);
+        onAuthSuccess(data.user);
+        onClose();
+      } else {
+        const errorText = await syncRes.text().catch(() => '');
+        console.error("Backend synchronization failed. Status:", syncRes.status, "Response:", errorText);
+        
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (!isDev) {
+          console.warn("Falling back to client-only session (backend API not reachable).");
+          const fallbackUser = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            name: nameValue || firebaseUser.displayName || firebaseUser.email.split('@')[0],
+            country: countryValue || country || 'IN',
+            isPremium: false,
+            emailVerified: firebaseUser.emailVerified
+          };
+          onAuthSuccess(fallbackUser, 'client_auth_only');
+          onClose();
+        } else {
+          throw new Error('Login failed due to a server error. Please try again later.');
+        }
+      }
+    } catch (err) {
+      console.error("Firebase sync error", err);
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isDev) {
+        console.warn("Catch-block fallback to client-only session in production.");
+        const fallbackUser = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: nameValue || firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          country: countryValue || country || 'IN',
+          isPremium: false,
+          emailVerified: firebaseUser.emailVerified
+        };
+        onAuthSuccess(fallbackUser, 'client_auth_only');
+        onClose();
+      } else {
+        throw new Error(err.message || 'Login failed due to a server error. Please try again later.');
+      }
     }
-
-    localStorage.setItem('token', data.token);
-    onAuthSuccess(data.user);
-    onClose();
   };
 
   const handleSubmit = async (e) => {
