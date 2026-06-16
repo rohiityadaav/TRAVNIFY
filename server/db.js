@@ -64,6 +64,36 @@ const users = {
       return db.users[idx];
     }
     return null;
+  },
+  consumeCredit: (id) => {
+    const dbData = readDb();
+    const idx = dbData.users.findIndex(u => u.id === id);
+    if (idx === -1) return { allowed: false, error: 'User not found.' };
+    
+    const user = dbData.users[idx];
+    if (user.isPremium) {
+      return { allowed: true, dailyCreditsUsed: user.dailyCreditsUsed || 0 };
+    }
+    
+    const todayStr = new Date().toISOString().split('T')[0];
+    let dailyCreditsUsed = user.dailyCreditsUsed || 0;
+    let creditsResetDate = user.creditsResetDate || todayStr;
+    
+    if (creditsResetDate !== todayStr) {
+      dailyCreditsUsed = 0;
+      creditsResetDate = todayStr;
+    }
+    
+    if (dailyCreditsUsed >= 5) {
+      dbData.users[idx] = { ...user, dailyCreditsUsed, creditsResetDate };
+      writeDb(dbData);
+      return { allowed: false, dailyCreditsUsed };
+    }
+    
+    dailyCreditsUsed += 1;
+    dbData.users[idx] = { ...user, dailyCreditsUsed, creditsResetDate };
+    writeDb(dbData);
+    return { allowed: true, dailyCreditsUsed };
   }
 };
 

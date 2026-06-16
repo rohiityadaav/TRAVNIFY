@@ -143,7 +143,11 @@ export default function App() {
 
       // Sync limits left on profile if logged in
       if (user && !user.isPremium) {
-        setUser({ ...user, freeTripsGenerated: user.freeTripsGenerated + 1 });
+        setUser({ 
+          ...user, 
+          freeTripsGenerated: user.freeTripsGenerated + 1,
+          dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
+        });
       }
     } catch (err) {
       setIsLoading(false);
@@ -497,7 +501,7 @@ export default function App() {
                               </button>
                             </div>
                           )}
-                          <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} />
+                          <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} user={user} />
                         </>
                       )}
                     </ProtectedRoute>
@@ -508,6 +512,7 @@ export default function App() {
                       <Explore 
                         onSelectTemplate={handleSelectTemplate} 
                         user={user} 
+                        setUser={setUser}
                         openPricingModal={openPricingModal}
                         openAuthModal={openAuthModal}
                       />

@@ -6,9 +6,9 @@ const Footer = () => {
     <footer className="footer">
       <span>© {new Date().getFullYear()} Travnify</span>
       <div className="footer-links">
-        <Link to="/terms">Terms & Conditions</Link>
-        <Link to="/privacy">Privacy Policy</Link>
-        <a href="mailto:travnify@gmail.com">Contact: travnify@gmail.com</a>
+        <Link to="/terms" className="footer-link">Terms & Conditions</Link>
+        <Link to="/privacy" className="footer-link">Privacy Policy</Link>
+        <a href="mailto:travnify@gmail.com" className="footer-link">Contact: travnify@gmail.com</a>
       </div>
     </footer>
   );

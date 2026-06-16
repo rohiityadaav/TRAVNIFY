@@ -501,9 +501,26 @@ export function ActivityExplorer({
     >
       <div style={{ textAlign: 'left', marginBottom: '2rem' }}>
         <h2 className="section-title" style={{ textAlign: 'left' }}>Activity Explorer</h2>
-        <p className="section-subtitle" style={{ textAlign: 'left' }}>
+        <p className="section-subtitle" style={{ textAlign: 'left', marginBottom: '0.8rem' }}>
           Discover the best places in the world for the activities you love.
         </p>
+        {user && !user.isPremium && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0.35rem 0.9rem',
+            background: '#F1F5F9',
+            color: '#475569',
+            borderRadius: '99px',
+            fontSize: '0.8rem',
+            fontWeight: '600',
+            marginTop: '0.2rem',
+            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+          }}>
+            <span>⚡ Daily AI Credits: {user.dailyCreditsUsed || 0} / 5 used</span>
+          </div>
+        )}
       </div>
 
       {/* Nicely styled search bar */}
@@ -820,7 +837,7 @@ export function HiddenGems({
 /* ─────────────────────────────────────────────────────────────
    MAIN EXPLORE PAGE (Unified State & Visual Rebuild)
    ───────────────────────────────────────────────────────────── */
-export default function Explore({ onSelectTemplate, user, openPricingModal, openAuthModal }) {
+export default function Explore({ onSelectTemplate, user, setUser, openPricingModal, openAuthModal }) {
   const [activeTab, setActiveTab] = useState('templates');
   const [selectedTrip, setSelectedTrip] = useState(null);
 
@@ -911,13 +928,27 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
       setActivityResults(data.places || []);
       if (data.premiumUpsell) setActivityShowUpsell(true);
       
+      // Sync daily credits in state
+      if (user && !user.isPremium && setUser) {
+        setUser({
+          ...user,
+          dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
+        });
+      }
+
       // Track Activity Explorer Search Success
       trackEvent('activity_explorer_search', { query: q });
     } catch (err) {
-      const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
-        ? "We couldn’t search for this activity right now. Please try again."
-        : (err.message || "Something went wrong.");
-      setActivityError(errorMsg);
+      if (err.code === 'FREE_LIMIT_REACHED') {
+        alert("You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer searches!");
+        openPricingModal();
+        setActivityError("Daily free limit reached. Please upgrade to Premium.");
+      } else {
+        const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
+          ? "We couldn’t search for this activity right now. Please try again."
+          : (err.message || "Something went wrong.");
+        setActivityError(errorMsg);
+      }
     } finally { setIsActivityLoading(false); }
   };
 
@@ -972,10 +1003,15 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
       // Track Hidden Gems Search Success
       trackEvent('hidden_gem_search', { query: q, isPremium: user?.isPremium || false });
     } catch (err) {
-      const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
-        ? "We couldn’t discover hidden gems right now. Please try again."
-        : (err.message || "Something went wrong.");
-      setHiddenError(errorMsg);
+      if (err.code === 'PREMIUM_REQUIRED') {
+        openPricingModal();
+        setHiddenError("Premium subscription required for hidden gems.");
+      } else {
+        const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
+          ? "We couldn’t discover hidden gems right now. Please try again."
+          : (err.message || "Something went wrong.");
+        setHiddenError(errorMsg);
+      }
     } finally { setIsHiddenLoading(false); }
   };
 

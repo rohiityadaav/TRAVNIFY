@@ -1557,13 +1557,13 @@ select.form-input {
 }
 
 .footer-link {
-  color: var(--text-medium);
+  color: #9ca3af;
   text-decoration: none;
   transition: var(--transition-smooth);
 }
 
 .footer-link:hover {
-  color: var(--primary);
+  color: #4b5563;
 }
 
 .footer-copy {

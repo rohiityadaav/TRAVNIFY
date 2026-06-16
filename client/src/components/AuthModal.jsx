@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Lock, User, MapPin, X, ArrowRight, RefreshCw } from 'lucide-react';
+import { Mail, Lock, User, MapPin, X, ArrowRight, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { trackEvent } from '../lib/analytics';
 import { auth } from '../lib/firebaseClient';
@@ -39,6 +39,7 @@ export default function AuthModal({
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -350,18 +351,38 @@ export default function AuthModal({
               <label className="form-label">Password</label>
               <div style={{ position: 'relative' }}>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   className="form-input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  style={{ paddingLeft: '2.5rem' }}
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                   required
                   disabled={isLoading}
                   minLength={6}
                   maxLength={64}
                 />
                 <Lock size={16} className="text-light" style={{ position: 'absolute', left: '1rem', top: '12px' }} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '1rem',
+                    top: '12px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-light)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    zIndex: 10
+                  }}
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
               {activeTab === 'login' && (
                 <div style={{ textAlign: 'right', marginTop: '0.4rem' }}>

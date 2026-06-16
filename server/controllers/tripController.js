@@ -161,10 +161,11 @@ async function generateTrip(req, res) {
     let activeUser = null;
     if (req.userId) {
       activeUser = db.users.findById(req.userId);
-      if (activeUser && !activeUser.isPremium && activeUser.freeTripsGenerated >= 2) {
+      const creditStatus = db.users.consumeCredit(req.userId);
+      if (!creditStatus.allowed) {
         return res.status(403).json({
-          code: 'LIMIT_EXCEEDED',
-          error: 'You have reached the limit of 2 free AI plan generations. Upgrade to Premium for unlimited planning, refining, and PDF exports!'
+          code: 'FREE_LIMIT_REACHED',
+          error: 'You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer features!'
         });
       }
     }
@@ -301,7 +302,10 @@ async function refineTrip(req, res) {
     // Only Premium users can use refinement
     const activeUser = db.users.findById(req.userId);
     if (!activeUser || !activeUser.isPremium) {
-      return res.status(403).json({ error: 'Premium subscription required to refine plans!' });
+      return res.status(403).json({ 
+        code: 'PREMIUM_REQUIRED',
+        error: 'Premium subscription required to refine plans!' 
+      });
     }
 
     const actionText = action === 'cheaper'

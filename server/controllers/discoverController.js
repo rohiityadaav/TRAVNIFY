@@ -35,7 +35,7 @@ exports.getHiddenGems = async (req, res) => {
   if (!user || !user.isPremium) {
     console.log(`[Premium Gate] User is not premium. Denying access to hidden gems.`);
     return res.status(403).json({ 
-      teaser: true, 
+      code: 'PREMIUM_REQUIRED',
       error: 'Upgrade to TRAVNIFY Premium to unlock Hidden gems.' 
     });
   }
@@ -113,6 +113,17 @@ exports.getBestForActivity = async (req, res) => {
 
   if (!query) {
     return res.status(400).json({ error: 'Missing query in request body or parameters' });
+  }
+
+  // Check user daily credits limit if logged in
+  if (req.userId) {
+    const creditStatus = db.users.consumeCredit(req.userId);
+    if (!creditStatus.allowed) {
+      return res.status(403).json({
+        code: 'FREE_LIMIT_REACHED',
+        error: 'You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer features!'
+      });
+    }
   }
 
   // Initialize Gemini dynamically if not already done

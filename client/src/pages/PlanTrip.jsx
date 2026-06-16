@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Calendar, DollarSign, Tag, PlaneTakeoff, Heart } from 'lucide-react';
 
-export default function PlanTrip({ onGenerate, isLoading }) {
+export default function PlanTrip({ onGenerate, isLoading, user }) {
   const [prompt, setPrompt] = useState('');
   const [destination, setDestination] = useState('');
   const [budget, setBudget] = useState('');
@@ -77,9 +77,29 @@ export default function PlanTrip({ onGenerate, isLoading }) {
   };
 
   return (
-    <div className="plan-wizard">
+    <div className="plan-wizard" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h2 className="wizard-title">Where do you want to go?</h2>
-      <p className="wizard-subtitle">Describe your dream trip in any language — our AI will handle the rest</p>
+      <p className="wizard-subtitle" style={{ marginBottom: user && !user.isPremium ? '0.5rem' : '1.5rem' }}>
+        Describe your dream trip in any language — our AI will handle the rest
+      </p>
+
+      {user && !user.isPremium && (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+          padding: '0.35rem 0.9rem',
+          background: '#F1F5F9',
+          color: '#475569',
+          borderRadius: '99px',
+          fontSize: '0.8rem',
+          fontWeight: '600',
+          marginBottom: '1.5rem',
+          boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+        }}>
+          <span>⚡ Daily AI Credits: {user.dailyCreditsUsed || 0} / 5 used</span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="input-box-wrapper">
         {/* Main Natural Language Text Area */}

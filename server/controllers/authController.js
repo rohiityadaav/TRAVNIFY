@@ -72,6 +72,8 @@ async function signup(req, res) {
       subscriptionStart: null,
       subscriptionEnd: null,
       freeTripsGenerated: 0,
+      dailyCreditsUsed: 0,
+      creditsResetDate: new Date().toISOString().split('T')[0],
       emailVerified: false,
       emailVerificationToken: verificationToken,
       emailVerificationExpiresAt: verificationExpiry
@@ -110,10 +112,18 @@ async function getMe(req, res) {
     }
 
     let activeUser = user;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const updates = {};
     if (!activeUser.country || !activeUser.currency) {
-      const country = activeUser.country || 'IN';
-      const currency = activeUser.currency || getCurrencyForCountry(country);
-      activeUser = db.users.update(activeUser.id, { country, currency });
+      updates.country = activeUser.country || 'IN';
+      updates.currency = activeUser.currency || getCurrencyForCountry(updates.country);
+    }
+    if (activeUser.creditsResetDate !== todayStr) {
+      updates.dailyCreditsUsed = 0;
+      updates.creditsResetDate = todayStr;
+    }
+    if (Object.keys(updates).length > 0) {
+      activeUser = db.users.update(activeUser.id, updates);
     }
 
     const { passwordHash: _, ...userWithoutHash } = activeUser;
@@ -195,6 +205,8 @@ async function firebaseSync(req, res) {
         subscriptionStart: null,
         subscriptionEnd: null,
         freeTripsGenerated: 0,
+        dailyCreditsUsed: 0,
+        creditsResetDate: new Date().toISOString().split('T')[0],
         emailVerified: isVerified,
         emailVerificationToken: isVerified ? '' : verificationToken,
         emailVerificationExpiresAt: isVerified ? 0 : verificationExpiry
