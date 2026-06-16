@@ -454,8 +454,8 @@ export default function App() {
                         /* High quality planning loader */
                         <div style={{ textAlign: 'center', padding: '8rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
                           <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 2rem auto' }}>
-                            <div style={{ position: 'absolute', width: '100%', height: '100%', border: '4px dashed #E2E8F0', borderRadius: '50%' }}></div>
-                            <div style={{ position: 'absolute', width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#F26430', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px dashed #E2E8F0', borderRadius: '50%', boxSizing: 'border-box' }}></div>
+                            <div className="spinner" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#F26430', borderRadius: '50%', boxSizing: 'border-box' }}></div>
                           </div>
                           <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Constructing Your Dream Schedule</h3>
                           <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.4' }}>
