@@ -156,9 +156,15 @@ export default function App() {
       } else if (err.code === 'INVALID_INPUT') {
         setTripError(err.message);
       } else {
-        const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
-          ? "We couldn’t generate your trip right now. Please try again."
-          : (err.message || "We couldn’t generate your trip right now. Please try again.");
+        const isNetworkError = err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('offline');
+        const isTimeout = err.message?.toLowerCase().includes('timeout') || err.message?.toLowerCase().includes('timed out');
+        const errorMsg = isNetworkError
+          ? "We couldn't generate your trip right now. Please check your connection and try again."
+          : isTimeout
+          ? "The AI took too long to respond. Please try again — it usually works within seconds."
+          : (err.message && err.message !== 'Server returned an invalid response')
+            ? err.message
+            : "We couldn't generate your trip right now. Please try again.";
         setTripError(errorMsg);
       }
     } finally {

@@ -205,8 +205,8 @@ async function generateTrip(req, res) {
       return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
     }
 
-    // Call Gemini SDK
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    // Call Gemini SDK — gemini-1.5-flash is the correct fast model
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const systemPrompt = `You are TRAVNIFY, a premium AI travel assistant.
 Your job is to parse the user's travel request and output a highly detailed, budget-aware day-by-day trip plan.
@@ -258,28 +258,39 @@ JSON Schema structure:
   ]
 }`;
 
-    // API Call with 15 seconds timeout
+    // API Call with 25 seconds timeout
     const apiCallPromise = model.generateContent(systemPrompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI request timed out after 15 seconds')), 15000)
+      setTimeout(() => reject(new Error('AI request timed out after 25 seconds')), 25000)
     );
-
-    const result = await Promise.race([apiCallPromise, timeoutPromise]);
-    const textResponse = result.response.text().trim();
-    
-    // Clean up any accidental markdown blocks that Gemini sometimes appends
-    let cleanedText = textResponse;
-    if (cleanedText.startsWith('```')) {
-      cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/```$/, '').trim();
-    }
 
     let itinerary = null;
     try {
-      itinerary = JSON.parse(cleanedText);
-    } catch (parseError) {
-      console.error('Failed to parse Gemini output as JSON. Fallback to mock data.', parseError);
-      console.log('Raw text was:', textResponse);
-      itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, interests);
+      const result = await Promise.race([apiCallPromise, timeoutPromise]);
+      const textResponse = result.response.text().trim();
+      
+      // Clean up any accidental markdown blocks that Gemini sometimes appends
+      let cleanedText = textResponse;
+      if (cleanedText.startsWith('```')) {
+        cleanedText = cleanedText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+      }
+      // Also strip trailing ``` that might not be at start
+      if (cleanedText.includes('```')) {
+        cleanedText = cleanedText.replace(/```[a-z]*/gi, '').replace(/```/g, '').trim();
+      }
+
+      try {
+        itinerary = JSON.parse(cleanedText);
+        console.log('[AI Trip Generation] Successfully parsed Gemini JSON response.');
+      } catch (parseError) {
+        console.error('[AI Trip Generation] Failed to parse Gemini output as JSON, using mock fallback.', parseError.message);
+        console.log('[AI Trip Generation] Raw AI text was:', textResponse.substring(0, 300));
+        itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests);
+      }
+    } catch (aiError) {
+      // Gemini call itself failed (wrong model, quota, network, timeout) — fall back to mock
+      console.error('[AI Trip Generation] Gemini API call failed, using mock fallback. Error:', aiError.message);
+      itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests);
     }
 
     // Increment user usage counter
@@ -343,7 +354,7 @@ async function refineTrip(req, res) {
       return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const refinementPrompt = `You are TRAVNIFY, an expert AI Travel Planner.
 Your task is to refine the following day-by-day travel itinerary.
