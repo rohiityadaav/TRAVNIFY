@@ -158,6 +158,22 @@
       "emailVerified": true,
       "emailVerificationToken": "",
       "emailVerificationExpiresAt": 0
+    },
+    {
+      "id": "usr_g8u3it7mx",
+      "name": "Local User",
+      "email": "localuser@example.com",
+      "passwordHash": "$2b$10$Q3F9RRkzAWUA4eo3cOgKCeAPc.uTdmxMGsKZCOL0ruvTp/4ZTQ8rq",
+      "country": "IN",
+      "currency": "INR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0,
+      "emailVerified": false,
+      "emailVerificationToken": "1a8e2d54f0bbb097e5233bf9ed9efffb2415a30574750b3fb009366dc610dcad",
+      "emailVerificationExpiresAt": 1781671972092
     }
   ],
   "trips": [

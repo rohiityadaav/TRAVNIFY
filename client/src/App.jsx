@@ -421,30 +421,7 @@ export default function App() {
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="*" element={
-              isLoading ? (
-                /* High quality planning loader */
-                <div style={{ textAlign: 'center', padding: '8rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
-                  <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 2rem auto' }}>
-                    <div style={{ position: 'absolute', width: '100%', height: '100%', border: '4px dashed #E2E8F0', borderRadius: '50%' }}></div>
-                    <div style={{ position: 'absolute', width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#F26430', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                  </div>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Constructing Your Dream Schedule</h3>
-                  <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.4' }}>
-                    Our AI is parsing your parameters, mapping the daily segments, allocating budgets, and generating a premium travel map...
-                  </p>
-                  {loadingTime > 10 && (
-                    <div style={{ marginTop: '2rem', padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
-                      <span>⚠️ Generating the trip is taking longer than expected (elapsed: {loadingTime}s). The server might be cold-starting or the AI service is experiencing high latency.</span>
-                      <button 
-                        onClick={() => { setIsLoading(false); }} 
-                        style={{ background: '#F59E0B', border: 'none', color: '#FFFFFF', padding: '0.5rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-                      >
-                        Cancel & Try Again
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : activeItinerary ? (
+              activeItinerary ? (
                 /* Render Generated Day Accordions */
                 <ItineraryViewer
                   itinerary={activeItinerary}
@@ -464,7 +441,32 @@ export default function App() {
                   
                   {activeTab === 'plan' && (
                     <ProtectedRoute fallbackTab="home" setActiveTab={setActiveTab} message="Create a free TRAVNIFY account to start planning trips.">
-                      <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} />
+                      {isLoading ? (
+                        /* High quality planning loader */
+                        <div style={{ textAlign: 'center', padding: '8rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
+                          <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 2rem auto' }}>
+                            <div style={{ position: 'absolute', width: '100%', height: '100%', border: '4px dashed #E2E8F0', borderRadius: '50%' }}></div>
+                            <div style={{ position: 'absolute', width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#F26430', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                          </div>
+                          <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Constructing Your Dream Schedule</h3>
+                          <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.4' }}>
+                            Our AI is parsing your parameters, mapping the daily segments, allocating budgets, and generating a premium travel map...
+                          </p>
+                          {loadingTime > 10 && (
+                            <div style={{ marginTop: '2rem', padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
+                              <span>⏳ We’re still working on your trip, almost there. (This might take a bit longer, please wait... elapsed: {loadingTime}s)</span>
+                              <button 
+                                onClick={() => { setIsLoading(false); }} 
+                                style={{ background: '#F59E0B', border: 'none', color: '#FFFFFF', padding: '0.5rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                              >
+                                Cancel & Try Again
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} />
+                      )}
                     </ProtectedRoute>
                   )}
                   

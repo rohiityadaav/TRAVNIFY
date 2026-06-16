@@ -66,13 +66,13 @@ Return between 4 and 6 places. For each destination, you must strictly return a 
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
   try {
-    console.log('[Gemini API Call] Fetching hidden gems with model gemini-1.5-flash...');
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    console.log('[Gemini API Call] Fetching hidden gems with model gemini-3.5-flash...');
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
-    // API Call with 20 seconds timeout
+    // API Call with 15 seconds timeout
     const apiCallPromise = model.generateContent(prompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI discovery request timed out after 20 seconds')), 20000)
+      setTimeout(() => reject(new Error('AI discovery request timed out after 15 seconds')), 15000)
     );
 
     const result = await Promise.race([apiCallPromise, timeoutPromise]);
@@ -141,13 +141,13 @@ Return a list of ${limit === 2 ? '2' : '4 to 6'} items. For each destination, yo
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
   try {
-    console.log('[Gemini API Call] Fetching activities with model gemini-1.5-flash...');
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    console.log('[Gemini API Call] Fetching activities with model gemini-3.5-flash...');
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
-    // API Call with 20 seconds timeout
+    // API Call with 15 seconds timeout
     const apiCallPromise = model.generateContent(prompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI activity search request timed out after 20 seconds')), 20000)
+      setTimeout(() => reject(new Error('AI activity search request timed out after 15 seconds')), 15000)
     );
 
     const result = await Promise.race([apiCallPromise, timeoutPromise]);

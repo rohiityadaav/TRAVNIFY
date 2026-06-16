@@ -196,7 +196,7 @@ async function generateTrip(req, res) {
     }
 
     // Call Gemini SDK
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const systemPrompt = `You are TRAVNIFY, a premium AI travel assistant.
 Your job is to parse the user's travel request and output a highly detailed, budget-aware day-by-day trip plan.
@@ -247,10 +247,10 @@ JSON Schema structure:
   ]
 }`;
 
-    // API Call with 20 seconds timeout
+    // API Call with 15 seconds timeout
     const apiCallPromise = model.generateContent(systemPrompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI request timed out after 20 seconds')), 20000)
+      setTimeout(() => reject(new Error('AI request timed out after 15 seconds')), 15000)
     );
 
     const result = await Promise.race([apiCallPromise, timeoutPromise]);
@@ -320,7 +320,7 @@ async function refineTrip(req, res) {
       return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
     const refinementPrompt = `You are TRAVNIFY, an expert AI Travel Planner.
 Your task is to refine the following day-by-day travel itinerary.
@@ -333,10 +333,10 @@ You MUST output your response ONLY as a single valid JSON object following the e
 - Do NOT output any markdown tags (like \`\`\`json). Return ONLY the raw JSON string starting with { and ending with }.
 - Keep all costs approximate and generic.`;
 
-    // API Call with 20 seconds timeout
+    // API Call with 15 seconds timeout
     const apiCallPromise = model.generateContent(refinementPrompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI refinement request timed out after 20 seconds')), 20000)
+      setTimeout(() => reject(new Error('AI refinement request timed out after 15 seconds')), 15000)
     );
 
     const result = await Promise.race([apiCallPromise, timeoutPromise]);
