@@ -352,6 +352,7 @@ async function generateTrip(req, res) {
     // Call Gemini SDK — gemini-3.5-flash is the correct fast model
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
+    // Optimized Prompt: specify exactly 3 blocks per day, keep text instructions brief
     const systemPrompt = `You are TRAVNIFY, a premium AI travel assistant.
 Your job is to parse the user's travel request and output a highly detailed, budget-aware day-by-day trip plan.
 
@@ -366,14 +367,14 @@ USER PARAMETERS:
 YOUR OUTPUT INSTRUCTIONS:
 Generate a valid JSON object matching the exact schema below.
 - Do NOT output any markdown tags (like \`\`\`json). Return ONLY the raw JSON string starting with { and ending with }.
-- Do NOT invent specific hotel or restaurant brand names. Use generic types, like "3-star boutique hotel near center" or "vibrant beach shack".
-- Location understanding (worldwide): The destination can be a City (e.g. "Paris", "Tokyo", "Goa"), Region/State (e.g. "Bihar", "Bali"), or Country (e.g. "Italy", "Thailand"). You must choose sensible cities/areas/districts inside that destination for each day (e.g., for Italy: Rome/Florence/Venice, for Bihar: Patna/Bodh Gaya, for Japan: Tokyo/Kyoto/Osaka).
+- Do NOT invent specific hotel or restaurant brand names. Use generic types, like "3-star boutique hotel near center".
+- Location understanding (worldwide): Choose sensible cities/areas/districts inside the destination for each day (e.g. Rome/Florence/Venice for Italy).
 - Date and Day Count: Generate exactly ${daysCount} days in the "days" array, with dates starting on ${startDate || 'today'} and incrementing by 1 day per step (format: YYYY-MM-DD).
-- Day Structure: For each day, include 3 to 4 blocks covering morning, afternoon, evening/night.
+- Day Structure: For each day, include EXACTLY 3 blocks (Morning, Afternoon, Evening) for fast response times.
 - Budget Awareness: Plan within the total budget of ${parsedBudget} ${activeCurrency}. Keep the sum of approxCost values roughly matching this total budget.
-- Adjust style based on budget: If the budget is low, prioritize free sights, walking tours, public parks, and street food. If the budget is high, prioritize paid activities, special experiences, and fine dining.
-- Interest-based planning (worldwide): Prioritize activities and tourist areas that match the requested interests (culture, food, nightlife, shopping, beach, adventure). Use real, well-known locations (no fake or fantasy locations).
-- Currency: Detect the local currency of the destination (e.g., EUR for Paris, IDR/USD for Bali, JPY for Tokyo, INR for Bihar). All approxCost values and the estimatedTotalCost MUST be in this local currency. Convert the user's budget from ${activeCurrency} to this local currency for your internal calculations.
+- Adjust style based on budget: If budget is low, prioritize free sights, parks, and street food. If budget is high, prioritize paid activities and fine dining.
+- Interest-based planning: Prioritize activities matching user interests. Use real, well-known locations.
+- Currency: Detect the local currency of the destination (e.g., EUR for Paris, IDR/USD for Bali, JPY for Tokyo, INR for Bihar). All approxCost values and the estimatedTotalCost MUST be in this local currency. Convert user's budget from ${activeCurrency} to local currency for calculations.
 
 JSON Schema structure:
 {
@@ -385,9 +386,9 @@ JSON Schema structure:
       "blocks": [
         {
           "timeSlot": "09:00-11:30",
-          "placeName": "Specific attraction, market, beach, temple, museum, or spot name",
-          "areaOrNeighborhood": "District, neighborhood, or city name within destination",
-          "activity": "What to do there (maximum 15 words)",
+          "placeName": "Specific attraction name",
+          "areaOrNeighborhood": "District or neighborhood name",
+          "activity": "Activity description (maximum 10 words for fast generation)",
           "approxCost": {
             "value": 40,
             "currency": "EUR"
@@ -402,6 +403,7 @@ JSON Schema structure:
   }
 }`;
 
+    const aiStartTime = Date.now();
     // API Call with 45 seconds timeout
     const apiCallPromise = model.generateContent(systemPrompt);
     const timeoutPromise = new Promise((_, reject) =>
@@ -409,30 +411,28 @@ JSON Schema structure:
     );
 
     let itinerary = null;
+    let aiDuration = 0;
     try {
       const result = await Promise.race([apiCallPromise, timeoutPromise]);
+      aiDuration = Date.now() - aiStartTime;
       const textResponse = result.response.text().trim();
       
-      // Clean up any accidental markdown blocks that Gemini sometimes appends
-      let cleanedText = textResponse;
-      if (cleanedText.startsWith('```')) {
-        cleanedText = cleanedText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-      }
-      // Also strip trailing ``` that might not be at start
-      if (cleanedText.includes('```')) {
-        cleanedText = cleanedText.replace(/```[a-z]*/gi, '').replace(/```/g, '').trim();
-      }
-
       try {
-        const rawItinerary = JSON.parse(cleanedText);
-        itinerary = normalizeItinerary(rawItinerary, startDate, parsedBudget, activeCurrency, daysCount);
-        console.log('[AI Trip Generation] Successfully parsed and normalized Gemini JSON response.');
+        // Clean markdown code blocks if any
+        let cleaned = textResponse;
+        if (cleaned.startsWith('```')) {
+          cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+        }
+        
+        const parsed = JSON.parse(cleaned);
+        itinerary = normalizeItinerary(parsed, startDate, parsedBudget, activeCurrency, daysCount);
       } catch (parseError) {
         console.error('[AI Trip Generation] Failed to parse Gemini output as JSON, using mock fallback.', parseError.message);
         console.log('[AI Trip Generation] Raw AI text was:', textResponse.substring(0, 300));
         itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate);
       }
     } catch (aiError) {
+      aiDuration = Date.now() - aiStartTime;
       // Gemini call itself failed (wrong model, quota, network, timeout) — fall back to mock
       console.error('[AI Trip Generation] Gemini API call failed, using mock fallback. Error:', aiError.message);
       itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate);
@@ -444,7 +444,7 @@ JSON Schema structure:
     }
 
     const duration = Date.now() - startTime;
-    console.log(`[AI Trip Generation] Successfully generated trip in ${duration}ms`);
+    console.log(`[AI Trip Generation Success] Gemini duration: ${aiDuration}ms, Total endpoint latency: ${duration}ms`);
     return res.json({ itinerary });
   } catch (error) {
     const duration = Date.now() - startTime;

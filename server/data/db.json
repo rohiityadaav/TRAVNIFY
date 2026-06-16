@@ -137,10 +137,10 @@
       "passwordHash": "FIREBASE_MANAGED_AUTH",
       "country": "IN",
       "currency": "INR",
-      "isPremium": false,
-      "subscriptionType": null,
-      "subscriptionStart": null,
-      "subscriptionEnd": null,
+      "isPremium": true,
+      "subscriptionType": "monthly",
+      "subscriptionStart": "2026-06-16T22:42:00.000Z",
+      "subscriptionEnd": "2027-06-16T22:42:00.000Z",
       "freeTripsGenerated": 0
     },
     {

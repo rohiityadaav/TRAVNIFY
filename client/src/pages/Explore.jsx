@@ -518,7 +518,12 @@ export function ActivityExplorer({
             marginTop: '0.2rem',
             boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
           }}>
-            <span>⚡ Daily AI Credits: {user.dailyCreditsUsed || 0} / 5 used</span>
+            <span>
+              ⚡ Daily AI Credits: {user.dailyCreditsUsed || 0} / 5 used
+              {user.dailyCreditsUsed >= 5 && user.freeCreditsResetInMinutes > 0 && (
+                ` (Resets in ${Math.floor(user.freeCreditsResetInMinutes / 60)}h ${user.freeCreditsResetInMinutes % 60}m)`
+              )}
+            </span>
           </div>
         )}
       </div>

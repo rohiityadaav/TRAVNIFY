@@ -73,7 +73,7 @@ async function signup(req, res) {
       subscriptionEnd: null,
       freeTripsGenerated: 0,
       dailyCreditsUsed: 0,
-      creditsResetDate: new Date().toISOString().split('T')[0],
+      creditsWindowStartedAt: null,
       emailVerified: false,
       emailVerificationToken: verificationToken,
       emailVerificationExpiresAt: verificationExpiry
@@ -88,12 +88,9 @@ async function signup(req, res) {
     // Generate JWT token
     const token = jwt.sign({ userId: savedUser.id }, config.JWT_SECRET, { expiresIn: '30d' });
 
-    // Remove hash from response
-    const { passwordHash: _, ...userWithoutHash } = savedUser;
-
     return res.status(201).json({
       token,
-      user: userWithoutHash
+      user: formatUserProfile(savedUser)
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -102,6 +99,32 @@ async function signup(req, res) {
 }
 
 
+
+// Helper to format user profile consistently
+function formatUserProfile(user) {
+  if (!user) return null;
+  const { passwordHash: _, ...userWithoutHash } = user;
+  
+  // Explicitly requested fields
+  userWithoutHash.isPremium = user.isPremium || false;
+  userWithoutHash.premiumPlanType = user.subscriptionType === 'yearly' ? 'yearly' : (user.subscriptionType === 'monthly' ? 'monthly' : null);
+  userWithoutHash.premiumExpiresAt = user.subscriptionEnd || null;
+  
+  // Calculate remaining minutes in 24h credits reset window
+  let freeCreditsResetInMinutes = 0;
+  if (!user.isPremium && user.creditsWindowStartedAt) {
+    const nowMs = Date.now();
+    const windowStartMs = new Date(user.creditsWindowStartedAt).getTime();
+    const expiryMs = windowStartMs + 24 * 60 * 60 * 1000;
+    const remainingMs = expiryMs - nowMs;
+    if (remainingMs > 0) {
+      freeCreditsResetInMinutes = Math.ceil(remainingMs / (1000 * 60));
+    }
+  }
+  userWithoutHash.freeCreditsResetInMinutes = freeCreditsResetInMinutes;
+  
+  return userWithoutHash;
+}
 
 // Get Profile Info
 async function getMe(req, res) {
@@ -112,22 +135,30 @@ async function getMe(req, res) {
     }
 
     let activeUser = user;
-    const todayStr = new Date().toISOString().split('T')[0];
     const updates = {};
     if (!activeUser.country || !activeUser.currency) {
       updates.country = activeUser.country || 'IN';
       updates.currency = activeUser.currency || getCurrencyForCountry(updates.country);
     }
-    if (activeUser.creditsResetDate !== todayStr) {
-      updates.dailyCreditsUsed = 0;
-      updates.creditsResetDate = todayStr;
+    
+    // Check for rolling 24h window reset on getMe
+    if (!activeUser.isPremium && activeUser.creditsWindowStartedAt) {
+      const nowMs = Date.now();
+      const windowStartMs = new Date(activeUser.creditsWindowStartedAt).getTime();
+      const expiryMs = windowStartMs + 24 * 60 * 60 * 1000;
+      const remainingMs = expiryMs - nowMs;
+      
+      if (remainingMs <= 0) {
+        updates.dailyCreditsUsed = 0;
+        updates.creditsWindowStartedAt = null;
+      }
     }
+    
     if (Object.keys(updates).length > 0) {
       activeUser = db.users.update(activeUser.id, updates);
     }
 
-    const { passwordHash: _, ...userWithoutHash } = activeUser;
-    return res.json(userWithoutHash);
+    return res.json(formatUserProfile(activeUser));
   } catch (error) {
     console.error('Get profile error:', error);
     return res.status(500).json({ error: 'An error occurred fetching user profile.' });
@@ -206,7 +237,7 @@ async function firebaseSync(req, res) {
         subscriptionEnd: null,
         freeTripsGenerated: 0,
         dailyCreditsUsed: 0,
-        creditsResetDate: new Date().toISOString().split('T')[0],
+        creditsWindowStartedAt: null,
         emailVerified: isVerified,
         emailVerificationToken: isVerified ? '' : verificationToken,
         emailVerificationExpiresAt: isVerified ? 0 : verificationExpiry
@@ -242,12 +273,9 @@ async function firebaseSync(req, res) {
     // Generate JWT token
     const token = jwt.sign({ userId: user.id }, config.JWT_SECRET, { expiresIn: '30d' });
 
-    // Remove hash from response
-    const { passwordHash: _, ...userWithoutHash } = user;
-
     return res.json({
       token,
-      user: userWithoutHash
+      user: formatUserProfile(user)
     });
   } catch (error) {
     console.error('Firebase sync error:', error);

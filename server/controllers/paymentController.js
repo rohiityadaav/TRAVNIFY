@@ -165,7 +165,13 @@ async function verifyPayment(req, res) {
         subscriptionEnd: endDate.toISOString()
       });
 
-      const { passwordHash: _, ...userWithoutHash } = updatedUser;
+      const userWithoutHash = {
+        ...updatedUser,
+        premiumPlanType: updatedUser.subscriptionType === 'yearly' ? 'yearly' : (updatedUser.subscriptionType === 'monthly' ? 'monthly' : null),
+        premiumExpiresAt: updatedUser.subscriptionEnd || null,
+        freeCreditsResetInMinutes: 0
+      };
+      delete userWithoutHash.passwordHash;
 
       return res.json({
         success: true,
@@ -221,7 +227,13 @@ async function verifyPayment(req, res) {
       subscriptionEnd: endDate.toISOString()
     });
 
-    const { passwordHash: _, ...userWithoutHash } = updatedUser;
+    const userWithoutHash = {
+      ...updatedUser,
+      premiumPlanType: updatedUser.subscriptionType === 'yearly' ? 'yearly' : (updatedUser.subscriptionType === 'monthly' ? 'monthly' : null),
+      premiumExpiresAt: updatedUser.subscriptionEnd || null,
+      freeCreditsResetInMinutes: 0
+    };
+    delete userWithoutHash.passwordHash;
 
     return res.json({
       success: true,

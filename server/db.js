@@ -75,25 +75,41 @@ const users = {
       return { allowed: true, dailyCreditsUsed: user.dailyCreditsUsed || 0 };
     }
     
-    const todayStr = new Date().toISOString().split('T')[0];
+    const now = new Date().toISOString();
+    const nowMs = Date.now();
+    
+    let creditsWindowStartedAt = user.creditsWindowStartedAt || null;
     let dailyCreditsUsed = user.dailyCreditsUsed || 0;
-    let creditsResetDate = user.creditsResetDate || todayStr;
     
-    if (creditsResetDate !== todayStr) {
-      dailyCreditsUsed = 0;
-      creditsResetDate = todayStr;
-    }
-    
-    if (dailyCreditsUsed >= 5) {
-      dbData.users[idx] = { ...user, dailyCreditsUsed, creditsResetDate };
+    if (!creditsWindowStartedAt) {
+      creditsWindowStartedAt = now;
+      dailyCreditsUsed = 1;
+      dbData.users[idx] = { ...user, dailyCreditsUsed, creditsWindowStartedAt };
       writeDb(dbData);
-      return { allowed: false, dailyCreditsUsed };
+      return { allowed: true, dailyCreditsUsed };
     }
     
-    dailyCreditsUsed += 1;
-    dbData.users[idx] = { ...user, dailyCreditsUsed, creditsResetDate };
-    writeDb(dbData);
-    return { allowed: true, dailyCreditsUsed };
+    const windowStartMs = new Date(creditsWindowStartedAt).getTime();
+    const diffMs = nowMs - windowStartMs;
+    const diffHours = diffMs / (1000 * 60 * 60);
+    
+    if (diffHours < 24) {
+      if (dailyCreditsUsed < 5) {
+        dailyCreditsUsed += 1;
+        dbData.users[idx] = { ...user, dailyCreditsUsed };
+        writeDb(dbData);
+        return { allowed: true, dailyCreditsUsed };
+      } else {
+        return { allowed: false, dailyCreditsUsed };
+      }
+    } else {
+      // 24 hours have passed, reset window
+      creditsWindowStartedAt = now;
+      dailyCreditsUsed = 1;
+      dbData.users[idx] = { ...user, dailyCreditsUsed, creditsWindowStartedAt };
+      writeDb(dbData);
+      return { allowed: true, dailyCreditsUsed };
+    }
   }
 };
 

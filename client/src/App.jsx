@@ -120,6 +120,11 @@ export default function App() {
     setTripError(null);
     setActiveTripDetails(details);
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 20000); // 20s hard timeout
+    
     try {
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
@@ -128,9 +133,11 @@ export default function App() {
       const response = await safeFetch('/api/generateTrip', {
         method: 'POST',
         headers,
-        body: JSON.stringify(details)
+        body: JSON.stringify(details),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       const data = await response.json();
       setIsLoading(false);
       setActiveItinerary(data.itinerary);
@@ -150,8 +157,11 @@ export default function App() {
         });
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       setIsLoading(false);
-      if (err.code === 'LIMIT_EXCEEDED') {
+      if (err.name === 'AbortError') {
+        setTripError("This is taking longer than usual. Please try again or simplify your inputs (shorter trips, fewer interests).");
+      } else if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
         openPricingModal();
       } else if (err.code === 'INVALID_INPUT') {
         setTripError(err.message);
