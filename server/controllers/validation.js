@@ -80,11 +80,10 @@ exports.validateGenerateTrip = (req, res, next) => {
     if (!Array.isArray(interests)) {
       return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Interests must be an array.' });
     }
-    if (interests.length > 3) {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Please select up to 3 interests at a time for best results.' });
-    }
+    // Silently trim to first 3 if more are provided — recommendation, not a hard limit
+    const trimmedInterests = interests.slice(0, 3);
     const cleanInterests = [];
-    for (let interest of interests) {
+    for (let interest of trimmedInterests) {
       if (typeof interest !== 'string' || interest.length > 50) {
         return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Individual interest items must be under 50 characters.' });
       }

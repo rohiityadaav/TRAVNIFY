@@ -157,13 +157,13 @@ async function generateTrip(req, res) {
   try {
     const { prompt, destination, budget, currency, startDate, endDate, interests } = req.body;
 
-    // Input guard: limit interests to max 3
+    // Silently trim interests to first 3 if more are provided (validation.js also does this,
+    // but guard here too in case of direct API calls)
+    const safeInterests = (interests && Array.isArray(interests))
+      ? interests.slice(0, 3)
+      : (interests ? [interests] : []);
     if (interests && Array.isArray(interests) && interests.length > 3) {
-      console.warn('[AI Trip Generation Guard] Blocked request with too many interests:', interests.length);
-      return res.status(400).json({
-        code: 'INVALID_INPUT',
-        error: 'Please select up to 3 interests at a time for best results.'
-      });
+      console.log(`[AI Trip Generation] Trimmed ${interests.length} interests to 3: ${safeInterests.join(', ')}`);
     }
 
     // Check user limit if logged in
@@ -216,7 +216,7 @@ USER PARAMETERS:
 - Destination: "${destination || 'Goa, India'}"
 - Total Budget: ${parsedBudget} ${activeCurrency}
 - Duration: ${daysCount} Days
-- Interests: ${interests && interests.length > 0 ? interests.join(', ') : 'sightseeing, food, relaxing'}
+- Interests: ${safeInterests.length > 0 ? safeInterests.join(', ') : 'sightseeing, food, relaxing'}
 
 YOUR OUTPUT INSTRUCTIONS:
 Generate a valid JSON object matching the exact schema below.

@@ -61,12 +61,11 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
     }
   };
 
-  const isInterestsLimitExceeded = selectedInterests.length > 3;
+  const showInterestsTip = selectedInterests.length > 3;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!prompt.trim() && !destination.trim()) return;
-    if (isInterestsLimitExceeded) return;
 
     onGenerate({
       prompt: prompt || `Trip to ${destination} within budget ${budget} ${currency}`,
@@ -199,9 +198,9 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
               );
             })}
           </div>
-          {isInterestsLimitExceeded && (
-            <p style={{ color: '#EF4444', fontSize: '0.85rem', fontWeight: '600', marginTop: '0.6rem', textAlign: 'left' }}>
-              ⚠️ Please choose up to 3 interests for a more focused plan.
+          {showInterestsTip && (
+            <p style={{ color: '#F59E0B', fontSize: '0.82rem', fontWeight: '500', marginTop: '0.6rem', textAlign: 'left' }}>
+              ⚠️ For best results, we recommend choosing up to 3 interests. Extra selections will be trimmed automatically.
             </p>
           )}
         </div>
@@ -209,9 +208,9 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
         {/* CTA Generate Button */}
         <button
           type="submit"
-          className={`btn btn-primary btn-lg ${isLoading || (!prompt.trim() && !destination.trim()) || isInterestsLimitExceeded ? 'btn-disabled' : ''}`}
+          className={`btn btn-primary btn-lg ${isLoading || (!prompt.trim() && !destination.trim()) ? 'btn-disabled' : ''}`}
           style={{ width: '100%', marginTop: '0.5rem' }}
-          disabled={isLoading || (!prompt.trim() && !destination.trim()) || isInterestsLimitExceeded}
+          disabled={isLoading || (!prompt.trim() && !destination.trim())}
         >
           <Sparkles size={18} fill={isLoading ? 'none' : '#FFFFFF'} className={isLoading ? 'animate-spin' : ''} />
           <span>{isLoading ? 'TRAVNIFYing Your Itinerary...' : 'Generate My Trip Plan'}</span>
