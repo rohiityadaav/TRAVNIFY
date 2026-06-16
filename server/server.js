@@ -59,6 +59,8 @@ app.post('/api/refineTrip', authController.authenticateToken, validation.validat
 app.get('/api/trips', authController.authenticateToken, tripController.getSavedTrips);
 app.post('/api/trips', authController.authenticateToken, tripController.saveTrip);
 app.delete('/api/trips/:id', authController.authenticateToken, tripController.deleteTrip);
+app.post('/api/trips/pdf', authController.authenticateToken, tripController.downloadTripPDF);
+app.post('/api/trips/:id/pdf', authController.authenticateToken, tripController.downloadTripPDF);
 
 // Discovery & Real Nearby Locations
 app.get('/api/nearbyPlaces', placesController.getNearbyPlaces);

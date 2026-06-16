@@ -226,7 +226,7 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
           </button>
           
           <button 
-            className={`btn btn-primary btn-sm ${user?.isPremium ? '' : 'btn-disabled'}`}
+            className="btn btn-primary btn-sm"
             onClick={() => user?.isPremium ? onDownloadPDF() : openPricingModal()}
             style={{ fontSize: '0.82rem' }}
             title={user?.isPremium ? 'Download PDF' : 'Upgrade to unlock PDF download'}

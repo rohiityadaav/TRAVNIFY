@@ -280,107 +280,130 @@ export default function App() {
   };
 
   // 8. HIGH-FIDELITY CLIENT SIDE PDF GENERATION
-  const handleDownloadPDF = () => {
-    if (!user || !user.isPremium || !activeItinerary) return;
+  // 8. HIGH-FIDELITY CLIENT SIDE PDF GENERATION
+  const handleDownloadPDF = async () => {
+    if (!user || !activeItinerary) return;
 
-    const { summary, days } = activeItinerary;
-    const doc = new jsPDF();
-    const currencySymbol = summary.currency === 'USD' ? '$' : 'Rs.';
-    
-    // Design Styles
-    doc.setFillColor(242, 100, 48); // Primary Coral color
-    doc.rect(0, 0, 210, 40, 'F');
+    try {
+      const token = localStorage.getItem('token');
+      const tripId = activeItinerary.id || 'new';
 
-    // Title Block
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text('TRAVNIFY PREMIUM TRAVEL MAP', 15, 18);
-    
-    doc.setFontSize(10);
-    doc.setFont('Helvetica', 'normal');
-    doc.text('AI-Generated Day-by-Day Complete Travel Itinerary', 15, 26);
-    doc.text(`User Account: ${user.email}`, 15, 32);
+      // Verify PDF download privilege with the backend API
+      await safeFetch(`/api/trips/${tripId}/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-    // Summary Section
-    doc.setTextColor(30, 41, 59);
-    doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(14);
-    doc.text(`Destination: ${summary.destination}`, 15, 52);
-    
-    doc.setFont('Helvetica', 'normal');
-    doc.setFontSize(11);
-    doc.text(`Duration: ${summary.totalDays} Days`, 15, 60);
-    doc.text(`Total Estimated Budget: ${currencySymbol} ${summary.approxTotalCost.toLocaleString()}`, 15, 66);
-    doc.text(`Average Daily Budget: ${currencySymbol} ${summary.dailyAverageCost.toLocaleString()}`, 15, 72);
-
-    let yOffset = 88;
-
-    // Day loop
-    days.forEach((day, dIdx) => {
-      // Check if we need a page break
-      if (yOffset > 240) {
-        doc.addPage();
-        yOffset = 20;
-      }
-
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.setTextColor(242, 100, 48); // Coral Day tags
-      doc.text(`DAY ${day.dayNumber}: ${day.location || 'Explore City'}`, 15, yOffset);
-      doc.line(15, yOffset + 2, 195, yOffset + 2);
+      // Proceed with PDF generation since authorized
+      const { summary, days } = activeItinerary;
+      const doc = new jsPDF();
+      const currencySymbol = summary.currency === 'USD' ? '$' : 'Rs.';
       
-      yOffset += 10;
+      // Design Styles
+      doc.setFillColor(242, 100, 48); // Primary Coral color
+      doc.rect(0, 0, 210, 40, 'F');
 
-      // Event blocks loop
-      day.blocks.forEach((block, bIdx) => {
-        if (yOffset > 250) {
+      // Title Block
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.text('TRAVNIFY PREMIUM TRAVEL MAP', 15, 18);
+      
+      doc.setFontSize(10);
+      doc.setFont('Helvetica', 'normal');
+      doc.text('AI-Generated Day-by-Day Complete Travel Itinerary', 15, 26);
+      doc.text(`User Account: ${user.email}`, 15, 32);
+
+      // Summary Section
+      doc.setTextColor(30, 41, 59);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(`Destination: ${summary.destination}`, 15, 52);
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.text(`Duration: ${summary.totalDays} Days`, 15, 60);
+      doc.text(`Total Estimated Budget: ${currencySymbol} ${summary.approxTotalCost.toLocaleString()}`, 15, 66);
+      doc.text(`Average Daily Budget: ${currencySymbol} ${summary.dailyAverageCost.toLocaleString()}`, 15, 72);
+
+      let yOffset = 88;
+
+      // Day loop
+      days.forEach((day, dIdx) => {
+        // Check if we need a page break
+        if (yOffset > 240) {
           doc.addPage();
           yOffset = 20;
         }
 
         doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(10);
-        doc.setTextColor(30, 41, 59);
-        doc.text(`[${block.timeWindow || 'Time Slot'}] ${block.title}`, 18, yOffset);
-
-        doc.setFont('Helvetica', 'normal');
-        doc.setFontSize(9.5);
-        doc.setTextColor(71, 85, 105);
+        doc.setFontSize(13);
+        doc.setTextColor(242, 100, 48); // Coral Day tags
+        doc.text(`DAY ${day.dayNumber}: ${day.location || 'Explore City'}`, 15, yOffset);
+        doc.line(15, yOffset + 2, 195, yOffset + 2);
         
-        const splitDescription = doc.splitTextToSize(block.description, 175);
-        doc.text(splitDescription, 18, yOffset + 5);
+        yOffset += 10;
 
-        yOffset += (splitDescription.length * 5) + 6;
+        // Event blocks loop
+        day.blocks.forEach((block, bIdx) => {
+          if (yOffset > 250) {
+            doc.addPage();
+            yOffset = 20;
+          }
 
-        if (block.approxCost && parseInt(block.approxCost) > 0) {
           doc.setFont('Helvetica', 'bold');
-          doc.setFontSize(9);
-          doc.setTextColor(242, 100, 48);
-          doc.text(`Estimated Cost: ~ ${block.approxCost}`, 18, yOffset - 1);
-          yOffset += 6;
-        }
-        
-        yOffset += 4;
+          doc.setFontSize(10);
+          doc.setTextColor(30, 41, 59);
+          doc.text(`[${block.timeWindow || 'Time Slot'}] ${block.title}`, 18, yOffset);
+
+          doc.setFont('Helvetica', 'normal');
+          doc.setFontSize(9.5);
+          doc.setTextColor(71, 85, 105);
+          
+          const splitDescription = doc.splitTextToSize(block.description, 175);
+          doc.text(splitDescription, 18, yOffset + 5);
+
+          yOffset += (splitDescription.length * 5) + 6;
+
+          if (block.approxCost && parseInt(block.approxCost) > 0) {
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(242, 100, 48);
+            doc.text(`Estimated Cost: ~ ${block.approxCost}`, 18, yOffset - 1);
+            yOffset += 6;
+          }
+          
+          yOffset += 4;
+        });
+
+        yOffset += 8;
       });
 
-      yOffset += 8;
-    });
+      // Add final disclaimer on last page
+      if (yOffset > 250) {
+        doc.addPage();
+        yOffset = 20;
+      }
+      yOffset += 5;
+      doc.setFont('Helvetica', 'oblique');
+      doc.setFontSize(8.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text('Disclaimer: All times and costs are estimates. Please verify schedules and pricing before traveling.', 15, yOffset);
+      doc.text('TRAVNIFY takes no responsibility for availability, schedules, or pricing variances.', 15, yOffset + 5);
 
-    // Add final disclaimer on last page
-    if (yOffset > 250) {
-      doc.addPage();
-      yOffset = 20;
+      // Save
+      doc.save(`travnify_itinerary_${summary.destination.toLowerCase().replace(/ /g, '_')}.pdf`);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      if (err.code === 'PREMIUM_REQUIRED' || err.status === 403) {
+        setPricingModalOpen(true);
+      } else {
+        alert(err.message || 'An error occurred during PDF generation.');
+      }
     }
-    yOffset += 5;
-    doc.setFont('Helvetica', 'oblique');
-    doc.setFontSize(8.5);
-    doc.setTextColor(148, 163, 184);
-    doc.text('Disclaimer: All times and costs are estimates. Please verify schedules and pricing before traveling.', 15, yOffset);
-    doc.text('TRAVNIFY takes no responsibility for availability, schedules, or pricing variances.', 15, yOffset + 5);
-
-    // Save
-    doc.save(`travnify_itinerary_${summary.destination.toLowerCase().replace(/ /g, '_')}.pdf`);
   };
 
   const openAuthModal = (tab) => {

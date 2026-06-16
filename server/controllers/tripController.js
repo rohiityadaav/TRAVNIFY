@@ -432,10 +432,27 @@ async function deleteTrip(req, res) {
   }
 }
 
+async function downloadTripPDF(req, res) {
+  try {
+    const activeUser = db.users.findById(req.userId);
+    if (!activeUser || !activeUser.isPremium) {
+      return res.status(403).json({
+        code: 'PREMIUM_REQUIRED',
+        message: 'PDF download is available only for Premium users.'
+      });
+    }
+    return res.json({ success: true, message: 'PDF download authorized.' });
+  } catch (error) {
+    console.error('Verify PDF download error:', error);
+    return res.status(500).json({ error: 'An error occurred verifying PDF download permission.' });
+  }
+}
+
 module.exports = {
   generateTrip,
   refineTrip,
   getSavedTrips,
   saveTrip,
-  deleteTrip
+  deleteTrip,
+  downloadTripPDF
 };
