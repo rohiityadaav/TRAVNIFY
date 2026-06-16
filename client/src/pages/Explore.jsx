@@ -901,7 +901,7 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
       interval = setInterval(() => {
         setActivityLoadingTime(prev => {
           const next = prev + 1;
-          if (next >= 15) {
+          if (next >= 45) {
             setIsActivityLoading(false);
             setActivityError("We couldn’t search for this activity right now. Please try again.");
             clearInterval(interval);
@@ -974,7 +974,7 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
       interval = setInterval(() => {
         setHiddenLoadingTime(prev => {
           const next = prev + 1;
-          if (next >= 15) {
+          if (next >= 45) {
             setIsHiddenLoading(false);
             setHiddenError("We couldn’t discover hidden gems right now. Please try again.");
             clearInterval(interval);

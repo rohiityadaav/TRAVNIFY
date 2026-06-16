@@ -14,7 +14,20 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
   if (!itinerary) return null;
 
   const { summary, budgetBreakdown, days } = itinerary;
-  const currencySymbol = summary.currency === 'USD' ? '$' : '₹';
+  
+  const getCurrencySymbol = (curr) => {
+    if (!curr) return '';
+    switch (curr.toUpperCase()) {
+      case 'USD': return '$';
+      case 'EUR': return '€';
+      case 'GBP': return '£';
+      case 'INR': return '₹';
+      case 'JPY': return '¥';
+      default: return curr.toUpperCase() + ' ';
+    }
+  };
+  
+  const currencySymbol = getCurrencySymbol(summary.currency);
 
   const getTypeStyle = (type) => {
     switch (type) {
@@ -138,7 +151,9 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
               <div className="day-header" onClick={() => toggleDay(idx)}>
                 <div className="day-header-title">
                   <div className="day-circle">{day.dayNumber}</div>
-                  <strong style={{ fontWeight: '600', fontSize: '1.15rem' }}>Day {day.dayNumber}: {day.location || 'Explore City'}</strong>
+                  <strong style={{ fontWeight: '600', fontSize: '1.15rem' }}>
+                    Day {day.dayNumber}: {day.location || 'Explore City'} {day.date ? `(${day.date})` : ''}
+                  </strong>
                 </div>
                 <div>
                   {isOpen ? <ChevronUp size={20} className="text-medium" /> : <ChevronDown size={20} className="text-medium" />}
@@ -162,9 +177,9 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
                           </span>
                         </div>
                         <p className="slot-desc">{block.description}</p>
-                        {block.approxCost && parseInt(block.approxCost) > 0 && (
+                        {block.approxCost && (typeof block.approxCost === 'object' ? block.approxCost.value > 0 : parseInt(block.approxCost) > 0) && (
                           <div className="slot-cost">
-                            <span>Cost: ~ {block.approxCost}</span>
+                            <span>Cost: ~ {typeof block.approxCost === 'object' ? `${getCurrencySymbol(block.approxCost.currency)}${block.approxCost.value}` : block.approxCost}</span>
                           </div>
                         )}
                       </div>

@@ -68,12 +68,12 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
   const startTime = Date.now();
   try {
     console.log(`[POST /api/discover/hidden-gems] Starting Gemini API call at ${new Date().toISOString()} with model gemini-1.5-flash...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
-    // API Call with 25 seconds timeout
+    // API Call with 45 seconds timeout
     const apiCallPromise = model.generateContent(prompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI discovery request timed out after 25 seconds')), 25000)
+      setTimeout(() => reject(new Error('AI discovery request timed out after 45 seconds')), 45000)
     );
 
     const result = await Promise.race([apiCallPromise, timeoutPromise]);
@@ -157,12 +157,12 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
   const startTime = Date.now();
   try {
     console.log(`[POST /api/discover/best-for-activity] Starting Gemini API call at ${new Date().toISOString()} with model gemini-1.5-flash...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
-    // API Call with 25 seconds timeout
+    // API Call with 45 seconds timeout
     const apiCallPromise = model.generateContent(prompt);
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI activity search request timed out after 25 seconds')), 25000)
+      setTimeout(() => reject(new Error('AI activity search request timed out after 45 seconds')), 45000)
     );
 
     const result = await Promise.race([apiCallPromise, timeoutPromise]);

@@ -308,7 +308,19 @@ export default function App() {
       // Proceed with PDF generation since authorized
       const { summary, days } = activeItinerary;
       const doc = new jsPDF();
-      const currencySymbol = summary.currency === 'USD' ? '$' : 'Rs.';
+      
+      const getCurrencySymbol = (curr) => {
+        if (!curr) return '';
+        switch (curr.toUpperCase()) {
+          case 'USD': return '$';
+          case 'EUR': return '€';
+          case 'GBP': return '£';
+          case 'INR': return '₹';
+          case 'JPY': return '¥';
+          default: return curr.toUpperCase() + ' ';
+        }
+      };
+      const currencySymbol = getCurrencySymbol(summary.currency);
       
       // Design Styles
       doc.setFillColor(242, 100, 48); // Primary Coral color
@@ -350,7 +362,8 @@ export default function App() {
         doc.setFont('Helvetica', 'bold');
         doc.setFontSize(13);
         doc.setTextColor(242, 100, 48); // Coral Day tags
-        doc.text(`DAY ${day.dayNumber}: ${day.location || 'Explore City'}`, 15, yOffset);
+        const dateStr = day.date ? ` (${day.date})` : '';
+        doc.text(`DAY ${day.dayNumber}: ${day.location || 'Explore City'}${dateStr}`, 15, yOffset);
         doc.line(15, yOffset + 2, 195, yOffset + 2);
         
         yOffset += 10;
@@ -376,11 +389,13 @@ export default function App() {
 
           yOffset += (splitDescription.length * 5) + 6;
 
-          if (block.approxCost && parseInt(block.approxCost) > 0) {
+          const hasCost = block.approxCost && (typeof block.approxCost === 'object' ? block.approxCost.value > 0 : parseInt(block.approxCost) > 0);
+          if (hasCost) {
             doc.setFont('Helvetica', 'bold');
             doc.setFontSize(9);
             doc.setTextColor(242, 100, 48);
-            doc.text(`Estimated Cost: ~ ${block.approxCost}`, 18, yOffset - 1);
+            const costStr = typeof block.approxCost === 'object' ? `${getCurrencySymbol(block.approxCost.currency)}${block.approxCost.value}` : block.approxCost;
+            doc.text(`Estimated Cost: ~ ${costStr}`, 18, yOffset - 1);
             yOffset += 6;
           }
           

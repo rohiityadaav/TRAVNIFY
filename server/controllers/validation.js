@@ -70,9 +70,10 @@ exports.validateGenerateTrip = (req, res, next) => {
   }
 
   if (currency) {
-    if (currency !== 'INR' && currency !== 'USD') {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Currency must be either INR or USD.' });
+    if (typeof currency !== 'string' || currency.trim().length !== 3) {
+      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Currency must be a valid 3-letter code.' });
     }
+    req.body.currency = currency.trim().toUpperCase();
   }
 
   // 6. Validate and sanitize interests array
@@ -109,7 +110,7 @@ exports.validateRefineTrip = (req, res, next) => {
     return res.status(400).json({ error: 'Invalid refinement action.' });
   }
 
-  if (typeof originalItinerary !== 'object' || !originalItinerary.summary || !Array.isArray(originalItinerary.days)) {
+  if (typeof originalItinerary !== 'object' || (!originalItinerary.summary && !originalItinerary.destination) || !Array.isArray(originalItinerary.days)) {
     return res.status(400).json({ error: 'Invalid itinerary format.' });
   }
 
