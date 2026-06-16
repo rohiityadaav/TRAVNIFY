@@ -25,19 +25,6 @@ export function AuthProvider({ children }) {
       }
       
       if (firebaseUser && token) {
-        if (token === 'client_auth_only') {
-          setUser({
-            id: firebaseUser.uid,
-            email: firebaseUser.email,
-            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-            country: 'IN',
-            isPremium: false,
-            emailVerified: firebaseUser.emailVerified
-          });
-          setIsAuthenticated(true);
-          setLoading(false);
-          return;
-        }
         try {
           const res = await safeFetch('/api/auth/me', {
             headers: {
@@ -52,33 +39,21 @@ export function AuthProvider({ children }) {
           } else {
             const resText = await res.text().catch(() => '');
             console.warn("Backend auth session check failed. Text:", resText);
-            const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             
             if (res.status === 401 || res.status === 403) {
               localStorage.removeItem('token');
               await signOut(auth);
               setUser(null);
               setIsAuthenticated(false);
-            } else if (!isDev) {
-              setUser({
-                id: firebaseUser.uid,
-                email: firebaseUser.email,
-                name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-                country: 'IN',
-                isPremium: false,
-                emailVerified: firebaseUser.emailVerified
-              });
-              setIsAuthenticated(true);
             } else {
-              localStorage.removeItem('token');
-              await signOut(auth);
+              // Server error (e.g. 503 / 502 bad gateway or database lock)
+              // Set user to null but keep token so they can retry on reload
               setUser(null);
               setIsAuthenticated(false);
             }
           }
         } catch (err) {
           console.error("Auth session verification failed:", err);
-          const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
           const isAuthError = err.status === 401 || err.status === 403;
           
           if (isAuthError) {
@@ -87,19 +62,9 @@ export function AuthProvider({ children }) {
             await signOut(auth);
             setUser(null);
             setIsAuthenticated(false);
-          } else if (!isDev) {
-            setUser({
-              id: firebaseUser.uid,
-              email: firebaseUser.email,
-              name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-              country: 'IN',
-              isPremium: false,
-              emailVerified: firebaseUser.emailVerified
-            });
-            setIsAuthenticated(true);
           } else {
-            localStorage.removeItem('token');
-            await signOut(auth);
+            // Temporary network/connection error or server startup delay
+            // Set user to null but keep token so they can retry on reload
             setUser(null);
             setIsAuthenticated(false);
           }

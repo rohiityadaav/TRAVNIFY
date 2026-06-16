@@ -8,7 +8,8 @@
     "server": "node server/server.js",
     "client": "npm --prefix client run dev",
     "client:install": "npm --prefix client install --legacy-peer-deps",
-    "install:all": "npm install && npm run client:install"
+    "install:all": "npm install && npm run client:install",
+    "build": "npm run client:install && npm --prefix client run build"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
