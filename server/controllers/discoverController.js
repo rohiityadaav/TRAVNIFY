@@ -40,10 +40,19 @@ exports.getHiddenGems = async (req, res) => {
     });
   }
 
+  // Initialize Gemini dynamically if not already done
+  if (!genAI && config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
+    try {
+      genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
+    } catch (err) {
+      console.error('Error initializing Gemini AI Engine dynamically:', err);
+    }
+  }
+
   // Check if Gemini API key is missing
   if (!config.GEMINI_API_KEY || config.GEMINI_API_KEY.trim() === '' || !genAI) {
     console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server.');
-    return res.status(503).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
   }
 
   const prompt = `You are an expert travel guide. Return a JSON array of hidden-gem destinations that match the user’s query: "${query}".
@@ -57,9 +66,16 @@ Return between 4 and 6 places. For each destination, you must strictly return a 
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
   try {
-    console.log('[Gemini API Call] Fetching hidden gems with model gemini-2.5-flash...');
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
+    console.log('[Gemini API Call] Fetching hidden gems with model gemini-1.5-flash...');
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // API Call with 20 seconds timeout
+    const apiCallPromise = model.generateContent(prompt);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('AI discovery request timed out after 20 seconds')), 20000)
+    );
+
+    const result = await Promise.race([apiCallPromise, timeoutPromise]);
     const response = await result.response;
     const text = response.text();
 
@@ -81,7 +97,7 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
     return res.json({ places });
   } catch (err) {
     console.error('Gemini call failed with error details:', err);
-    return res.status(500).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    return res.status(500).json({ error: err.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 };
 
@@ -96,10 +112,19 @@ exports.getBestForActivity = async (req, res) => {
     return res.status(400).json({ error: 'Missing query in request body or parameters' });
   }
 
+  // Initialize Gemini dynamically if not already done
+  if (!genAI && config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
+    try {
+      genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
+    } catch (err) {
+      console.error('Error initializing Gemini AI Engine dynamically:', err);
+    }
+  }
+
   // Check if Gemini API key is missing
   if (!config.GEMINI_API_KEY || config.GEMINI_API_KEY.trim() === '' || !genAI) {
     console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server.');
-    return res.status(503).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
   }
 
   // Non-premium users are limited to 2 results, premium has unlimited (typically 5)
@@ -116,9 +141,16 @@ Return a list of ${limit === 2 ? '2' : '4 to 6'} items. For each destination, yo
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
   try {
-    console.log('[Gemini API Call] Fetching activities with model gemini-2.5-flash...');
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent(prompt);
+    console.log('[Gemini API Call] Fetching activities with model gemini-1.5-flash...');
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // API Call with 20 seconds timeout
+    const apiCallPromise = model.generateContent(prompt);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('AI activity search request timed out after 20 seconds')), 20000)
+    );
+
+    const result = await Promise.race([apiCallPromise, timeoutPromise]);
     const response = await result.response;
     const text = response.text();
 
@@ -144,6 +176,6 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
     return res.json({ places });
   } catch (err) {
     console.error('Gemini call failed with error details:', err);
-    return res.status(500).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    return res.status(500).json({ error: err.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 };

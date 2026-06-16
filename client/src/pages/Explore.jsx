@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Search, Compass, Zap, Gem, Umbrella, Mountain,
@@ -486,7 +486,8 @@ export function ActivityExplorer({
   handlePlanForPlace,
   user,
   openAuthModal,
-  openPricingModal
+  openPricingModal,
+  activityLoadingTime
 }) {
   return (
     <motion.div
@@ -561,8 +562,15 @@ export function ActivityExplorer({
       {/* Results */}
       <AnimatePresence mode="wait">
         {isActivityLoading ? (
-          <div className="grid-cards">
-            <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="grid-cards">
+              <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+            </div>
+            {activityLoadingTime > 8 && (
+              <div style={{ padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', textAlign: 'center' }}>
+                ⚠️ The search is taking longer than usual (elapsed: {activityLoadingTime}s). The AI service may be cold-starting. Please wait...
+              </div>
+            )}
           </div>
         ) : activityError ? (
           <div className="flex items-start gap-2.5 bg-red-50 text-red-700 border border-red-100 rounded-2xl p-4 text-sm font-semibold">
@@ -637,7 +645,8 @@ export function HiddenGems({
   handlePlanForGem,
   user,
   openAuthModal,
-  openPricingModal
+  openPricingModal,
+  hiddenLoadingTime
 }) {
   return (
     <motion.div
@@ -753,8 +762,15 @@ export function HiddenGems({
         ) : (
           <AnimatePresence mode="wait">
             {isHiddenLoading ? (
-              <div className="grid-cards">
-                <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="grid-cards">
+                  <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
+                </div>
+                {hiddenLoadingTime > 8 && (
+                  <div style={{ padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', textAlign: 'center' }}>
+                    ⚠️ Discovering gems is taking longer than usual (elapsed: {hiddenLoadingTime}s). The AI service may be cold-starting. Please wait...
+                  </div>
+                )}
               </div>
             ) : hiddenError ? (
               <div className="flex items-start gap-2.5 bg-red-50 text-red-700 border border-red-100 rounded-2xl p-4 text-sm font-semibold">
@@ -845,6 +861,20 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
   const [activityError,       setActivityError]       = useState('');
   const [activityShowUpsell,  setActivityShowUpsell]  = useState(false);
   const [searchedActivity,    setSearchedActivity]    = useState('');
+  const [activityLoadingTime, setActivityLoadingTime] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (isActivityLoading) {
+      setActivityLoadingTime(0);
+      interval = setInterval(() => {
+        setActivityLoadingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setActivityLoadingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isActivityLoading]);
 
   const handleActivitySearch = async term => {
     const q = term || activityQuery;
@@ -891,6 +921,20 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
   const [hiddenResults,     setHiddenResults]     = useState([]);
   const [hiddenError,       setHiddenError]       = useState('');
   const [searchedHidden,    setSearchedHidden]    = useState('');
+  const [hiddenLoadingTime, setHiddenLoadingTime] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (isHiddenLoading) {
+      setHiddenLoadingTime(0);
+      interval = setInterval(() => {
+        setHiddenLoadingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setHiddenLoadingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isHiddenLoading]);
 
   const handleHiddenSearch = async term => {
     const q = term || hiddenQuery;
@@ -1009,6 +1053,7 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
               user={user}
               openAuthModal={openAuthModal}
               openPricingModal={openPricingModal}
+              activityLoadingTime={activityLoadingTime}
             />
           )}
 
@@ -1028,6 +1073,7 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
               user={user}
               openAuthModal={openAuthModal}
               openPricingModal={openPricingModal}
+              hiddenLoadingTime={hiddenLoadingTime}
             />
           )}
 

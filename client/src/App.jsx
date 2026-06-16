@@ -48,6 +48,20 @@ export default function App() {
   const [savedTrips, setSavedTrips] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
+  const [loadingTime, setLoadingTime] = useState(0);
+
+  useEffect(() => {
+    let interval;
+    if (isLoading) {
+      setLoadingTime(0);
+      interval = setInterval(() => {
+        setLoadingTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   // Initialize GA4 Analytics once on mount
   useEffect(() => {
@@ -116,6 +130,7 @@ export default function App() {
       });
 
       const data = await response.json();
+      setIsLoading(false);
       setActiveItinerary(data.itinerary);
       
       // Track plan generation success
@@ -129,6 +144,7 @@ export default function App() {
         setUser({ ...user, freeTripsGenerated: user.freeTripsGenerated + 1 });
       }
     } catch (err) {
+      setIsLoading(false);
       if (err.code === 'LIMIT_EXCEEDED') {
         openPricingModal();
       } else {
@@ -416,6 +432,17 @@ export default function App() {
                   <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.4' }}>
                     Our AI is parsing your parameters, mapping the daily segments, allocating budgets, and generating a premium travel map...
                   </p>
+                  {loadingTime > 10 && (
+                    <div style={{ marginTop: '2rem', padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
+                      <span>⚠️ Generating the trip is taking longer than expected (elapsed: {loadingTime}s). The server might be cold-starting or the AI service is experiencing high latency.</span>
+                      <button 
+                        onClick={() => { setIsLoading(false); }} 
+                        style={{ background: '#F59E0B', border: 'none', color: '#FFFFFF', padding: '0.5rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                      >
+                        Cancel & Try Again
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : activeItinerary ? (
                 /* Render Generated Day Accordions */

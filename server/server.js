@@ -51,16 +51,6 @@ app.get('/api/auth/me', authController.authenticateToken, authController.getMe);
 app.get('/api/auth/verify-email', authController.verifyEmail);
 app.post('/api/auth/resend-verification', authController.resendVerification);
 
-// Debug env route
-app.get('/api/debug-env', (req, res) => {
-  res.json({
-    keys: Object.keys(process.env),
-    nodeEnv: process.env.NODE_ENV,
-    hasGeminiKey: !!process.env.GEMINI_API_KEY,
-    geminiKeyLength: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0,
-  });
-});
-
 // Trip Planning & Refinements
 app.post('/api/generateTrip', authController.authenticateToken, validation.validateGenerateTrip, aiRateLimiter, tripController.generateTrip);
 app.post('/api/refineTrip', authController.authenticateToken, validation.validateRefineTrip, aiRateLimiter, tripController.refineTrip);

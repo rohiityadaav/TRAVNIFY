@@ -152,6 +152,8 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
 // AI TRIP GENERATION CONTROLLER
 // ----------------------------------------------------
 async function generateTrip(req, res) {
+  const startTime = Date.now();
+  console.log(`[AI Trip Generation] Start processing request at ${new Date().toISOString()}`);
   try {
     const { prompt, destination, budget, currency, startDate, endDate, interests } = req.body;
 
@@ -182,14 +184,19 @@ async function generateTrip(req, res) {
     let parsedBudget = Number(budget) || 15000;
     let activeCurrency = currency || 'INR';
 
-    // If Gemini API Key is missing, return clean service unavailable error
+    // Initialize Gemini dynamically if not already done
+    if (!genAI && config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
+      genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
+    }
+
+    // If Gemini API Key is missing, return configuration error (500)
     if (!genAI) {
       console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server.');
-      return res.status(503).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+      return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
     }
 
     // Call Gemini SDK
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const systemPrompt = `You are TRAVNIFY, a premium AI travel assistant.
 Your job is to parse the user's travel request and output a highly detailed, budget-aware day-by-day trip plan.
@@ -240,7 +247,13 @@ JSON Schema structure:
   ]
 }`;
 
-    const result = await model.generateContent(systemPrompt);
+    // API Call with 20 seconds timeout
+    const apiCallPromise = model.generateContent(systemPrompt);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('AI request timed out after 20 seconds')), 20000)
+    );
+
+    const result = await Promise.race([apiCallPromise, timeoutPromise]);
     const textResponse = result.response.text().trim();
     
     // Clean up any accidental markdown blocks that Gemini sometimes appends
@@ -263,10 +276,13 @@ JSON Schema structure:
       db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
     }
 
+    const duration = Date.now() - startTime;
+    console.log(`[AI Trip Generation] Successfully generated trip in ${duration}ms`);
     return res.json({ itinerary });
   } catch (error) {
-    console.error('Generate trip error:', error);
-    return res.status(500).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    const duration = Date.now() - startTime;
+    console.error(`[AI Trip Generation] Failed after ${duration}ms with error:`, error);
+    return res.status(500).json({ error: error.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 }
 
@@ -293,13 +309,18 @@ async function refineTrip(req, res) {
       ? 'more fun (add adventure activities, nightlife, music clubs, sightseeing landmarks, reduce sleeping slots)'
       : 'more relaxed (add more free time gaps, longer rest times, scenic beach strolls, remove rushed tight schedules)';
 
-    // If Gemini key missing, return clean service unavailable error
-    if (!genAI) {
-      console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server during refinement.');
-      return res.status(503).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    // Initialize Gemini dynamically if not already done
+    if (!genAI && config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
+      genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    // If Gemini key missing, return configuration error (500)
+    if (!genAI) {
+      console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server during refinement.');
+      return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
+    }
+
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const refinementPrompt = `You are TRAVNIFY, an expert AI Travel Planner.
 Your task is to refine the following day-by-day travel itinerary.
@@ -312,7 +333,13 @@ You MUST output your response ONLY as a single valid JSON object following the e
 - Do NOT output any markdown tags (like \`\`\`json). Return ONLY the raw JSON string starting with { and ending with }.
 - Keep all costs approximate and generic.`;
 
-    const result = await model.generateContent(refinementPrompt);
+    // API Call with 20 seconds timeout
+    const apiCallPromise = model.generateContent(refinementPrompt);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('AI refinement request timed out after 20 seconds')), 20000)
+    );
+
+    const result = await Promise.race([apiCallPromise, timeoutPromise]);
     const textResponse = result.response.text().trim();
 
     let cleanedText = textResponse;
@@ -331,7 +358,7 @@ You MUST output your response ONLY as a single valid JSON object following the e
     return res.json({ itinerary: refinedItinerary });
   } catch (error) {
     console.error('Refine trip error:', error);
-    return res.status(500).json({ error: 'AI service temporarily unavailable. Please contact support.' });
+    return res.status(500).json({ error: error.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 }
 
