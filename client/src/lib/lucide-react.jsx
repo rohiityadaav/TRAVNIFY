@@ -345,3 +345,16 @@ export const AlertCircle = createIcon('alert-circle', [
 export const Sparkle = createIcon('sparkle', [
   <path key="1" d="m12 3-1.9 5.8a2 2 0 0 1-1.2 1.2L3 12l5.8 1.9a2 2 0 0 1 1.2 1.2l1.9 5.8 1.9-5.8a2 2 0 0 1 1.2-1.2l5.8-1.9-5.8-1.9a2 2 0 0 1-1.2-1.2L12 3Z" />
 ]);
+
+export const Eye = createIcon('eye', [
+  <path key="1" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />,
+  <circle key="2" cx="12" cy="12" r="3" />
+]);
+
+export const EyeOff = createIcon('eye-off', [
+  <path key="1" d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />,
+  <path key="2" d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />,
+  <path key="3" d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />,
+  <line key="4" x1="2" y1="2" x2="22" y2="22" />
+]);
+
