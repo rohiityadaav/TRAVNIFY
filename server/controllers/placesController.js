@@ -28,7 +28,24 @@ const MOCK_PLACES = {
   ]
 };
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(`API request to ${url.split('?')[0]} timed out after ${timeoutMs}ms`)), timeoutMs);
+  });
+  try {
+    const fetchPromise = fetch(url, options);
+    const response = await Promise.race([fetchPromise, timeoutPromise]);
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
 async function getNearbyPlaces(req, res) {
+  const handlerStart = Date.now();
   try {
     const { category, latitude, longitude, query, locationName } = req.query;
 
@@ -41,22 +58,25 @@ async function getNearbyPlaces(req, res) {
 
       // Geocoding city/destination if raw lat/lng not provided
       if ((!lat || !lng) && locationName) {
+        const geocodeStart = Date.now();
         try {
           const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(locationName)}&key=${config.GOOGLE_PLACES_API_KEY}`;
           console.log(`[Google Geocoding API Call] Address: ${locationName}`);
-          const geocodeResponse = await fetch(geocodeUrl);
+          const geocodeResponse = await fetchWithTimeout(geocodeUrl, {}, 5000);
           const geocodeData = await geocodeResponse.json();
+          const geocodeDuration = Date.now() - geocodeStart;
           
           if (geocodeData.status === 'OK' && geocodeData.results && geocodeData.results[0]) {
             const geom = geocodeData.results[0].geometry.location;
             lat = geom.lat;
             lng = geom.lng;
-            console.log(`[Google Geocoding API Success] Resolved "${locationName}" to lat=${lat}, lng=${lng}`);
+            console.log(`[Google Geocoding API Success] Resolved "${locationName}" to lat=${lat}, lng=${lng} in ${geocodeDuration}ms`);
           } else {
-            console.warn(`[Google Geocoding API Status] Address: ${locationName}, Status: ${geocodeData.status}`);
+            console.warn(`[Google Geocoding API Status] Address: ${locationName}, Status: ${geocodeData.status} (took ${geocodeDuration}ms)`);
           }
         } catch (geocodeErr) {
-          console.error(`[Google Geocoding API Error] Failed to geocode locationName "${locationName}":`, geocodeErr.message);
+          const geocodeDuration = Date.now() - geocodeStart;
+          console.error(`[Google Geocoding API Error] Failed to geocode locationName "${locationName}" after ${geocodeDuration}ms:`, geocodeErr.message);
         }
       }
 
@@ -115,13 +135,22 @@ async function getNearbyPlaces(req, res) {
       const maskedUrl = url.replace(config.GOOGLE_PLACES_API_KEY, 'GOOGLE_PLACES_API_KEY_HIDDEN');
       console.log(`[Google Places API Call] Fetching: ${maskedUrl}`);
 
-      const response = await fetch(url);
-      const data = await response.json();
+      const placesStart = Date.now();
+      let response, data;
+      try {
+        response = await fetchWithTimeout(url, {}, 5000);
+        data = await response.json();
+      } catch (fetchErr) {
+        const placesDuration = Date.now() - placesStart;
+        console.error(`[Google Places API Error] Failed to fetch after ${placesDuration}ms:`, fetchErr.message);
+        return res.status(502).json({ error: `Google Places API request failed: ${fetchErr.message}` });
+      }
+      
+      const placesDuration = Date.now() - placesStart;
       const apiStatus = data.status;
       const apiErrorMsg = data.error_message || '';
 
-      console.log(`[Google Places API Full Response]:`, JSON.stringify(data, null, 2));
-      console.log(`[Google Places API Response] Status: ${apiStatus}`);
+      console.log(`[Google Places API Response] Status: ${apiStatus} (took ${placesDuration}ms)`);
       if (apiErrorMsg) {
         console.error(`[Google Places API Response Error Details]: ${apiErrorMsg}`);
       }
@@ -159,6 +188,8 @@ async function getNearbyPlaces(req, res) {
         };
       });
 
+      const handlerDuration = Date.now() - handlerStart;
+      console.log(`[getNearbyPlaces Success] Handled via Google Places in ${handlerDuration}ms`);
       return res.json(formatted);
     }
 
@@ -173,9 +204,12 @@ async function getNearbyPlaces(req, res) {
       }));
     }
 
+    const handlerDuration = Date.now() - handlerStart;
+    console.log(`[getNearbyPlaces Success] Handled via Mock Data in ${handlerDuration}ms`);
     return res.json(data);
   } catch (error) {
-    console.error('Get places error:', error);
+    const handlerDuration = Date.now() - handlerStart;
+    console.error(`Get places error after ${handlerDuration}ms:`, error);
     return res.status(500).json({ error: 'An error occurred fetching nearby locations.' });
   }
 }

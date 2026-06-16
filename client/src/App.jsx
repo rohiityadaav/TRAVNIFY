@@ -49,6 +49,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [loadingTime, setLoadingTime] = useState(0);
+  const [tripError, setTripError] = useState(null);
 
   useEffect(() => {
     let interval;
@@ -116,6 +117,7 @@ export default function App() {
   // 2. AI Travel Plan Generation Trigger
   const handleGenerateTrip = async (details) => {
     setIsLoading(true);
+    setTripError(null);
     setActiveTripDetails(details);
     
     try {
@@ -148,7 +150,10 @@ export default function App() {
       if (err.code === 'LIMIT_EXCEEDED') {
         openPricingModal();
       } else {
-        alert(err.message || 'Trip generation failed. Please try again later.');
+        const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
+          ? "We couldn’t generate your trip right now. Please try again."
+          : (err.message || "We couldn’t generate your trip right now. Please try again.");
+        setTripError(errorMsg);
       }
     } finally {
       setIsLoading(false);
@@ -465,7 +470,35 @@ export default function App() {
                           )}
                         </div>
                       ) : (
-                        <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} />
+                        <>
+                          {tripError && (
+                            <div style={{
+                              padding: '1rem',
+                              background: '#FEF2F2',
+                              border: '1px solid #FCA5A5',
+                              borderRadius: '12px',
+                              color: '#991B1B',
+                              fontSize: '0.95rem',
+                              marginBottom: '1.5rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '0.5rem',
+                              maxWidth: '600px',
+                              margin: '0 auto 1.5rem auto',
+                              textAlign: 'left'
+                            }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                <span>{tripError}</span>
+                              </span>
+                              <button onClick={() => setTripError(null)} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', padding: '0.2rem', display: 'flex', alignItems: 'center' }}>
+                                <X size={16} />
+                              </button>
+                            </div>
+                          )}
+                          <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} />
+                        </>
                       )}
                     </ProtectedRoute>
                   )}

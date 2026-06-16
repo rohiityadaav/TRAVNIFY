@@ -214,6 +214,7 @@ Generate a valid JSON object matching the exact schema below.
 - Do NOT invent specific hotel or restaurant brand names. Use generic types, like "3-star boutique hotel near center" or "vibrant beach shack".
 - Price segments should be in "${activeCurrency}".
 - Budget percentages in budgetBreakdown must add up to 100%.
+- CRITICAL FOR SPEED: Be extremely concise. Keep descriptions under 15 words. Limit each day to exactly 3 blocks (Morning, Afternoon, Evening).
 
 JSON Schema structure:
 {
@@ -238,7 +239,7 @@ JSON Schema structure:
         {
           "type": "travel" | "stay" | "food" | "activity" | "free_time",
           "title": "Title of event",
-          "description": "Short details about what to do, what to buy, or what food type to eat. Be description-oriented.",
+          "description": "Brief description, maximum 15 words.",
           "timeWindow": "09:00 - 11:00",
           "approxCost": "Value ${activeCurrency}"
         }
@@ -331,7 +332,8 @@ ${JSON.stringify(originalItinerary)}
 
 You MUST output your response ONLY as a single valid JSON object following the exact same schema structure as the input.
 - Do NOT output any markdown tags (like \`\`\`json). Return ONLY the raw JSON string starting with { and ending with }.
-- Keep all costs approximate and generic.`;
+- Keep all costs approximate and generic.
+- CRITICAL FOR SPEED: Keep all activity/block descriptions very concise, under 15 words.`;
 
     // API Call with 15 seconds timeout
     const apiCallPromise = model.generateContent(refinementPrompt);

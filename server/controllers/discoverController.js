@@ -56,17 +56,18 @@ exports.getHiddenGems = async (req, res) => {
   }
 
   const prompt = `You are an expert travel guide. Return a JSON array of hidden-gem destinations that match the user’s query: "${query}".
-Return between 4 and 6 places. For each destination, you must strictly return a JSON object with these EXACT keys:
+Return between 3 and 4 places (CRITICAL for fast generation speed). For each destination, you must strictly return a JSON object with these EXACT keys:
 - name (string)
 - countryOrRegion (string)
-- shortDescription (string, max 2 sentences)
+- shortDescription (string, max 10 words. Be extremely concise.)
 - bestTimeToVisit (string)
 - typicalBudgetLevel (string: "cheap" | "moderate" | "expensive")
 
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
+  const startTime = Date.now();
   try {
-    console.log('[Gemini API Call] Fetching hidden gems with model gemini-3.5-flash...');
+    console.log(`[POST /api/discover/hidden-gems] Starting Gemini API call at ${new Date().toISOString()} with model gemini-3.5-flash...`);
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
     // API Call with 15 seconds timeout
@@ -93,10 +94,12 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
       throw new Error('Gemini response did not contain a non-empty array of places');
     }
 
-    console.log(`[Gemini API Success] Successfully loaded ${places.length} hidden gems.`);
+    const duration = Date.now() - startTime;
+    console.log(`[Gemini API Success] Successfully loaded ${places.length} hidden gems in ${duration}ms.`);
     return res.json({ places });
   } catch (err) {
-    console.error('Gemini call failed with error details:', err);
+    const duration = Date.now() - startTime;
+    console.error(`Gemini call failed after ${duration}ms with error details:`, err);
     return res.status(500).json({ error: err.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 };
@@ -131,17 +134,18 @@ exports.getBestForActivity = async (req, res) => {
   const limit = user && user.isPremium ? 6 : 2;
 
   const prompt = `You are an expert travel guide. Provide a JSON array of the top travel destinations in the world for the activity described: "${query}".
-Return a list of ${limit === 2 ? '2' : '4 to 6'} items. For each destination, you must strictly return a JSON object with these EXACT keys:
+Return a list of ${limit === 2 ? '2' : '3 to 4'} items (CRITICAL for fast generation speed). For each destination, you must strictly return a JSON object with these EXACT keys:
 - name (string)
 - countryOrRegion (string)
-- whyItIsGreat (string, max 60 characters explaining its appeal for this activity)
+- whyItIsGreat (string, max 50 characters. Be extremely concise.)
 - bestSeason (string)
 - approxCostBand (string: "cheap" | "moderate" | "expensive")
 
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
+  const startTime = Date.now();
   try {
-    console.log('[Gemini API Call] Fetching activities with model gemini-3.5-flash...');
+    console.log(`[POST /api/discover/best-for-activity] Starting Gemini API call at ${new Date().toISOString()} with model gemini-3.5-flash...`);
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
     // API Call with 15 seconds timeout
@@ -168,14 +172,16 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
       throw new Error('Gemini response did not contain a non-empty array of places');
     }
 
-    console.log(`[Gemini API Success] Successfully loaded ${places.length} activity recommendations.`);
+    const duration = Date.now() - startTime;
+    console.log(`[Gemini API Success] Successfully loaded ${places.length} activity recommendations in ${duration}ms.`);
 
     if (limit === 2) {
       return res.json({ places: places.slice(0, 2), premiumUpsell: true });
     }
     return res.json({ places });
   } catch (err) {
-    console.error('Gemini call failed with error details:', err);
+    const duration = Date.now() - startTime;
+    console.error(`Gemini call failed after ${duration}ms with error details:`, err);
     return res.status(500).json({ error: err.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 };

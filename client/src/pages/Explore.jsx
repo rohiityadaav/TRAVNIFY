@@ -479,6 +479,7 @@ export function ActivityExplorer({
   setActivityQuery,
   handleActivitySearch,
   isActivityLoading,
+  setIsActivityLoading,
   activityResults,
   activityError,
   searchedActivity,
@@ -567,8 +568,14 @@ export function ActivityExplorer({
               <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
             </div>
             {activityLoadingTime > 8 && (
-              <div style={{ padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', textAlign: 'center' }}>
-                ⚠️ The search is taking longer than usual (elapsed: {activityLoadingTime}s). The AI service may be cold-starting. Please wait...
+              <div style={{ padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
+                <span>⚠️ The search is taking longer than usual (elapsed: {activityLoadingTime}s). The AI service may be cold-starting. Please wait...</span>
+                <button 
+                  onClick={() => setIsActivityLoading(false)} 
+                  style={{ background: '#F59E0B', border: 'none', color: '#FFFFFF', padding: '0.4rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                >
+                  Cancel & Try Again
+                </button>
               </div>
             )}
           </div>
@@ -639,6 +646,7 @@ export function HiddenGems({
   setHiddenQuery,
   handleHiddenSearch,
   isHiddenLoading,
+  setIsHiddenLoading,
   hiddenResults,
   hiddenError,
   searchedHidden,
@@ -767,8 +775,14 @@ export function HiddenGems({
                   <SkeletonCard /><SkeletonCard /><SkeletonCard /><SkeletonCard />
                 </div>
                 {hiddenLoadingTime > 8 && (
-                  <div style={{ padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', textAlign: 'center' }}>
-                    ⚠️ Discovering gems is taking longer than usual (elapsed: {hiddenLoadingTime}s). The AI service may be cold-starting. Please wait...
+                  <div style={{ padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
+                    <span>⚠️ Discovering gems is taking longer than usual (elapsed: {hiddenLoadingTime}s). The AI service may be cold-starting. Please wait...</span>
+                    <button 
+                      onClick={() => setIsHiddenLoading(false)} 
+                      style={{ background: '#F59E0B', border: 'none', color: '#FFFFFF', padding: '0.4rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                    >
+                      Cancel & Try Again
+                    </button>
                   </div>
                 )}
               </div>
@@ -868,7 +882,15 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
     if (isActivityLoading) {
       setActivityLoadingTime(0);
       interval = setInterval(() => {
-        setActivityLoadingTime(prev => prev + 1);
+        setActivityLoadingTime(prev => {
+          const next = prev + 1;
+          if (next >= 15) {
+            setIsActivityLoading(false);
+            setActivityError("We couldn’t search for this activity right now. Please try again.");
+            clearInterval(interval);
+          }
+          return next;
+        });
       }, 1000);
     } else {
       setActivityLoadingTime(0);
@@ -886,25 +908,16 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const res  = await safeFetch('/api/discover/best-for-activity', { method:'POST', headers, body: JSON.stringify({ query: q }) });
       const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 400) {
-          throw new Error('Please enter a valid activity or destination.');
-        }
-        if (res.status === 429) {
-          throw new Error('You’ve hit the limit, please wait a bit before asking more.');
-        }
-        if (res.status >= 500) {
-          throw new Error('Something went wrong with the AI. Please try again later.');
-        }
-        throw new Error(data.error || 'Failed to search.');
-      }
       setActivityResults(data.places || []);
       if (data.premiumUpsell) setActivityShowUpsell(true);
       
       // Track Activity Explorer Search Success
       trackEvent('activity_explorer_search', { query: q });
     } catch (err) {
-      setActivityError(err.message || 'Something went wrong.');
+      const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
+        ? "We couldn’t search for this activity right now. Please try again."
+        : (err.message || "Something went wrong.");
+      setActivityError(errorMsg);
     } finally { setIsActivityLoading(false); }
   };
 
@@ -928,7 +941,15 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
     if (isHiddenLoading) {
       setHiddenLoadingTime(0);
       interval = setInterval(() => {
-        setHiddenLoadingTime(prev => prev + 1);
+        setHiddenLoadingTime(prev => {
+          const next = prev + 1;
+          if (next >= 15) {
+            setIsHiddenLoading(false);
+            setHiddenError("We couldn’t discover hidden gems right now. Please try again.");
+            clearInterval(interval);
+          }
+          return next;
+        });
       }, 1000);
     } else {
       setHiddenLoadingTime(0);
@@ -946,24 +967,15 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
       if (token) headers['Authorization'] = `Bearer ${token}`;
       const res  = await safeFetch('/api/discover/hidden-gems', { method:'POST', headers, body: JSON.stringify({ query: q }) });
       const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 400) {
-          throw new Error('Please enter a valid location.');
-        }
-        if (res.status === 429) {
-          throw new Error('You’ve hit the limit, please wait a bit before asking more.');
-        }
-        if (res.status >= 500) {
-          throw new Error('Something went wrong with the AI. Please try again later.');
-        }
-        throw new Error(data.error || 'Failed to discover.');
-      }
       setHiddenResults(data.places || []);
       
       // Track Hidden Gems Search Success
       trackEvent('hidden_gem_search', { query: q, isPremium: user?.isPremium || false });
     } catch (err) {
-      setHiddenError(err.message || 'Something went wrong.');
+      const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
+        ? "We couldn’t discover hidden gems right now. Please try again."
+        : (err.message || "Something went wrong.");
+      setHiddenError(errorMsg);
     } finally { setIsHiddenLoading(false); }
   };
 
@@ -1045,6 +1057,7 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
               setActivityQuery={setActivityQuery}
               handleActivitySearch={handleActivitySearch}
               isActivityLoading={isActivityLoading}
+              setIsActivityLoading={setIsActivityLoading}
               activityResults={activityResults}
               activityError={activityError}
               searchedActivity={searchedActivity}
@@ -1066,6 +1079,7 @@ export default function Explore({ onSelectTemplate, user, openPricingModal, open
               setHiddenQuery={setHiddenQuery}
               handleHiddenSearch={handleHiddenSearch}
               isHiddenLoading={isHiddenLoading}
+              setIsHiddenLoading={setIsHiddenLoading}
               hiddenResults={hiddenResults}
               hiddenError={hiddenError}
               searchedHidden={searchedHidden}
