@@ -61,9 +61,12 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
     }
   };
 
+  const isInterestsLimitExceeded = selectedInterests.length > 3;
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!prompt.trim() && !destination.trim()) return;
+    if (isInterestsLimitExceeded) return;
 
     onGenerate({
       prompt: prompt || `Trip to ${destination} within budget ${budget} ${currency}`,
@@ -196,14 +199,19 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
               );
             })}
           </div>
+          {isInterestsLimitExceeded && (
+            <p style={{ color: '#EF4444', fontSize: '0.85rem', fontWeight: '600', marginTop: '0.6rem', textAlign: 'left' }}>
+              ⚠️ Please choose up to 3 interests for a more focused plan.
+            </p>
+          )}
         </div>
 
         {/* CTA Generate Button */}
         <button
           type="submit"
-          className={`btn btn-primary btn-lg ${isLoading || (!prompt.trim() && !destination.trim()) ? 'btn-disabled' : ''}`}
+          className={`btn btn-primary btn-lg ${isLoading || (!prompt.trim() && !destination.trim()) || isInterestsLimitExceeded ? 'btn-disabled' : ''}`}
           style={{ width: '100%', marginTop: '0.5rem' }}
-          disabled={isLoading || (!prompt.trim() && !destination.trim())}
+          disabled={isLoading || (!prompt.trim() && !destination.trim()) || isInterestsLimitExceeded}
         >
           <Sparkles size={18} fill={isLoading ? 'none' : '#FFFFFF'} className={isLoading ? 'animate-spin' : ''} />
           <span>{isLoading ? 'TRAVNIFYing Your Itinerary...' : 'Generate My Trip Plan'}</span>

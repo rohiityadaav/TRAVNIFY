@@ -153,6 +153,8 @@ export default function App() {
       setIsLoading(false);
       if (err.code === 'LIMIT_EXCEEDED') {
         openPricingModal();
+      } else if (err.code === 'INVALID_INPUT') {
+        setTripError(err.message);
       } else {
         const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
           ? "We couldn’t generate your trip right now. Please try again."

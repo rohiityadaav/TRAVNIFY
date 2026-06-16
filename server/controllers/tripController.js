@@ -157,6 +157,15 @@ async function generateTrip(req, res) {
   try {
     const { prompt, destination, budget, currency, startDate, endDate, interests } = req.body;
 
+    // Input guard: limit interests to max 3
+    if (interests && Array.isArray(interests) && interests.length > 3) {
+      console.warn('[AI Trip Generation Guard] Blocked request with too many interests:', interests.length);
+      return res.status(400).json({
+        code: 'INVALID_INPUT',
+        error: 'Please select up to 3 interests at a time for best results.'
+      });
+    }
+
     // Check user limit if logged in
     let activeUser = null;
     if (req.userId) {
@@ -283,7 +292,16 @@ JSON Schema structure:
     return res.json({ itinerary });
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error(`[AI Trip Generation] Failed after ${duration}ms with error:`, error);
+    console.error('[AI Trip Generation Error] Failed request payload:', {
+      prompt: req.body.prompt,
+      destination: req.body.destination,
+      budget: req.body.budget,
+      currency: req.body.currency,
+      startDate: req.body.startDate,
+      endDate: req.body.endDate,
+      interests: req.body.interests
+    });
+    console.error(`[AI Trip Generation Error] Failed after ${duration}ms with error:`, error);
     return res.status(500).json({ error: error.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 }
