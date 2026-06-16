@@ -114,6 +114,26 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const handleUnauthorized = async () => {
+      if (!localStorage.getItem('token')) return;
+
+      console.warn("Session expired or token invalid. Logging out.");
+      localStorage.removeItem('token');
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.error("SignOut error during unauthorized event:", err);
+      }
+      setUser(null);
+      setIsAuthenticated(false);
+      alert("Session expired, please log in again.");
+    };
+
+    window.addEventListener('travnify-unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('travnify-unauthorized', handleUnauthorized);
+  }, []);
+
   const loginSuccess = (userData, token) => {
     if (token && token !== 'undefined' && token !== 'null') {
       localStorage.setItem('token', token);

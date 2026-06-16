@@ -68,6 +68,15 @@ export async function safeFetch(path, options = {}) {
       }
     }
     
+    if (status === 401 || status === 403) {
+      const lowerMsg = errMessage.toLowerCase();
+      if (lowerMsg.includes("token") || lowerMsg.includes("unauthorized") || lowerMsg.includes("expired")) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('travnify-unauthorized'));
+        }
+      }
+    }
+
     const customErr = new Error(errMessage);
     customErr.status = status;
     if (code) {
