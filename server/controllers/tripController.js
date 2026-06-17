@@ -149,6 +149,7 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       value: estCostVal,
       currency: estCostCurr
     },
+    localCurrencyNote: itinerary.localCurrencyNote || null,
     summary,
     budgetBreakdown
   };
@@ -299,7 +300,7 @@ async function generateTrip(req, res) {
   const startTime = Date.now();
   console.log(`[AI Trip Generation] Start processing request at ${new Date().toISOString()}`);
   try {
-    const { prompt, destination, budget, currency, startDate, endDate, interests } = req.body;
+    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency } = req.body;
 
     // Silently trim interests to first 3 if more are provided (validation.js also does this,
     // but guard here too in case of direct API calls)
@@ -337,6 +338,8 @@ async function generateTrip(req, res) {
 
     let parsedBudget = Number(budget) || 15000;
     let activeCurrency = currency || 'INR';
+    // Preferred display currency for the user (may differ from budget input currency)
+    const displayCurrency = preferredCurrency || activeCurrency || 'INR';
 
     // Initialize Gemini dynamically if not already done
     if (!genAI && config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
@@ -363,6 +366,7 @@ USER PARAMETERS:
 - Start Date: ${startDate || 'today'}
 - Duration: ${daysCount} Days
 - Interests: ${safeInterests.length > 0 ? safeInterests.join(', ') : 'sightseeing, food, relaxing'}
+- User Preferred Currency: ${displayCurrency}
 
 YOUR OUTPUT INSTRUCTIONS:
 Generate a valid JSON object matching the exact schema below.
@@ -372,13 +376,15 @@ Generate a valid JSON object matching the exact schema below.
 - Date and Day Count: Generate exactly ${daysCount} days in the "days" array, with dates starting on ${startDate || 'today'} and incrementing by 1 day per step (format: YYYY-MM-DD).
 - Day Structure: For each day, include EXACTLY 3 blocks (Morning, Afternoon, Evening) for fast response times.
 - Budget Awareness: Plan within the total budget of ${parsedBudget} ${activeCurrency}. Keep the sum of approxCost values roughly matching this total budget.
+- IMPORTANT — Currency Output: All approxCost values and the estimatedTotalCost MUST be output in the user's preferred currency: ${displayCurrency}. Convert all costs to ${displayCurrency}. Do NOT use the destination's local currency.
+- If the destination's local currency is different from ${displayCurrency}, you MAY add a short note like: "Local currency: THB, but estimates are shown in ${displayCurrency} (your chosen currency)." as a field "localCurrencyNote" at the root level of the JSON.
 - Adjust style based on budget: If budget is low, prioritize free sights, parks, and street food. If budget is high, prioritize paid activities and fine dining.
 - Interest-based planning: Prioritize activities matching user interests. Use real, well-known locations.
-- Currency: Detect the local currency of the destination (e.g., EUR for Paris, IDR/USD for Bali, JPY for Tokyo, INR for Bihar). All approxCost values and the estimatedTotalCost MUST be in this local currency. Convert user's budget from ${activeCurrency} to local currency for calculations.
 
 JSON Schema structure:
 {
   "destination": "Name of the destination",
+  "localCurrencyNote": "(optional) e.g. Local currency: THB, but estimates are shown in USD (your chosen currency).",
   "days": [
     {
       "date": "YYYY-MM-DD",
@@ -391,7 +397,7 @@ JSON Schema structure:
           "activity": "Activity description (maximum 10 words for fast generation)",
           "approxCost": {
             "value": 40,
-            "currency": "EUR"
+            "currency": "${displayCurrency}"
           }
         }
       ]
@@ -399,7 +405,7 @@ JSON Schema structure:
   ],
   "estimatedTotalCost": {
     "value": 750,
-    "currency": "EUR"
+    "currency": "${displayCurrency}"
   }
 }`;
 

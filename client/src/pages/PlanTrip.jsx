@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Calendar, DollarSign, Tag, PlaneTakeoff, Heart } from 'lucide-react';
+import { CURRENCIES } from '../lib/currency';
 
 export default function PlanTrip({ onGenerate, isLoading, user }) {
   const [prompt, setPrompt] = useState('');
   const [destination, setDestination] = useState('');
   const [budget, setBudget] = useState('');
-  const [currency, setCurrency] = useState('INR');
+  // Pre-select user's preferred currency; fall back to INR
+  const [currency, setCurrency] = useState(user?.preferredCurrency || 'INR');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedInterests, setSelectedInterests] = useState([]);
+
+  // Sync currency to user's preferredCurrency when user data loads
+  useEffect(() => {
+    if (user?.preferredCurrency) {
+      setCurrency(user.preferredCurrency);
+    }
+  }, [user?.preferredCurrency]);
 
   const interestList = [
     { id: 'beach', label: 'Beach 🏖️' },
@@ -153,8 +162,11 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
                 onChange={(e) => setCurrency(e.target.value)}
                 disabled={isLoading}
               >
-                <option value="INR">₹ INR</option>
-                <option value="USD">$ USD</option>
+                {CURRENCIES.map(c => (
+                  <option key={c.code} value={c.code}>
+                    {c.symbol} {c.code}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

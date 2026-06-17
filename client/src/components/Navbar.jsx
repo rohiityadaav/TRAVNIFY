@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Map, Star, MapPin, Compass as ExploreIcon, BookOpen, LogOut, Shield, ChevronDown, User, Sparkles, Menu, X } from 'lucide-react';
+import { Map, Star, MapPin, Compass as ExploreIcon, BookOpen, LogOut, Shield, ChevronDown, User, Sparkles, Menu, X, Globe } from 'lucide-react';
+import { CURRENCIES, getCurrencySymbol } from '../lib/currency';
+import { safeFetch } from '../lib/api';
 
-export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAuthModal, openPricingModal }) {
+export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAuthModal, openPricingModal, onUserUpdate }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [currencyUpdating, setCurrencyUpdating] = useState(false);
 
   const getInitials = (name) => {
     if (!name) return 'U';
@@ -19,6 +22,30 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAu
     setActiveTab(tab);
     setDropdownOpen(false);
     setMenuOpen(false);
+  };
+
+  const handleCurrencyChange = async (newCurrency) => {
+    if (!user || currencyUpdating) return;
+    setCurrencyUpdating(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await safeFetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ preferredCurrency: newCurrency })
+      });
+      const updatedUser = await res.json();
+      if (res.ok && onUserUpdate) {
+        onUserUpdate(updatedUser);
+      }
+    } catch (err) {
+      console.error('Currency update failed:', err);
+    } finally {
+      setCurrencyUpdating(false);
+    }
   };
 
   return (
@@ -124,6 +151,38 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAu
                   <BookOpen size={14} />
                   <span>My Planned Trips</span>
                 </button>
+
+                {/* ── Preferred Currency Selector ── */}
+                <div style={{ padding: '0.5rem 1rem', borderTop: '1px solid rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem', fontSize: '0.75rem', color: '#94A3B8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <Globe size={12} />
+                    <span>Preferred Currency</span>
+                    {currencyUpdating && <span style={{ color: '#F26430' }}>•••</span>}
+                  </div>
+                  <select
+                    id="navbar-preferred-currency"
+                    value={user.preferredCurrency || 'INR'}
+                    onChange={(e) => handleCurrencyChange(e.target.value)}
+                    disabled={currencyUpdating}
+                    style={{
+                      width: '100%',
+                      padding: '0.4rem 0.6rem',
+                      border: '1px solid rgba(30,41,59,0.12)',
+                      borderRadius: '8px',
+                      fontSize: '0.82rem',
+                      color: 'var(--text-dark)',
+                      background: '#F8FAFC',
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}
+                  >
+                    {CURRENCIES.map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.symbol} {c.code} — {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 
                 {!user.isPremium && (
                   <button className="dropdown-item" onClick={() => { setMenuOpen(false); setDropdownOpen(false); handleNavClick('premium'); }} style={{ color: '#F26430', fontWeight: '600' }}>

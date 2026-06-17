@@ -22,17 +22,62 @@ function generateId(prefix = 'id') {
   return `${prefix}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
-// Helper to map country to currency
+// Helper to map country code to currency code (200+ countries)
 function getCurrencyForCountry(country) {
-  if (country === 'IN') return 'INR';
-  if (country === 'US') return 'USD';
-  return 'USD'; // default
+  const map = {
+    // Asia-Pacific
+    IN: 'INR', PK: 'PKR', BD: 'BDT', LK: 'LKR', NP: 'NPR',
+    BT: 'BTN', MV: 'MVR', MM: 'MMK', TH: 'THB', VN: 'VND',
+    KH: 'KHR', LA: 'LAK', MY: 'MYR', SG: 'SGD', ID: 'IDR',
+    PH: 'PHP', BN: 'BND', TL: 'USD', CN: 'CNY', HK: 'HKD',
+    MO: 'MOP', TW: 'TWD', JP: 'JPY', KR: 'KRW', KP: 'KPW',
+    MN: 'MNT', AF: 'AFN', PG: 'PGK', FJ: 'FJD', SB: 'SBD',
+    VU: 'VUV', WS: 'WST', TO: 'TOP', AU: 'AUD', NZ: 'NZD',
+    // Middle East
+    AE: 'AED', SA: 'SAR', QA: 'QAR', KW: 'KWD', BH: 'BHD',
+    OM: 'OMR', JO: 'JOD', IL: 'ILS', IR: 'IRR', IQ: 'IQD',
+    SY: 'SYP', LB: 'LBP', YE: 'YER', TR: 'TRY',
+    // Europe
+    GB: 'GBP', DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR',
+    NL: 'EUR', BE: 'EUR', AT: 'EUR', PT: 'EUR', IE: 'EUR',
+    FI: 'EUR', GR: 'EUR', SK: 'EUR', SI: 'EUR', LV: 'EUR',
+    LT: 'EUR', EE: 'EUR', LU: 'EUR', MT: 'EUR', CY: 'EUR',
+    CH: 'CHF', SE: 'SEK', NO: 'NOK', DK: 'DKK', IS: 'ISK',
+    PL: 'PLN', CZ: 'CZK', HU: 'HUF', RO: 'RON', BG: 'BGN',
+    HR: 'HRK', RS: 'RSD', BA: 'BAM', MK: 'MKD', AL: 'ALL',
+    ME: 'EUR', XK: 'EUR', MD: 'MDL', UA: 'UAH', BY: 'BYN',
+    RU: 'RUB', GE: 'GEL', AM: 'AMD', AZ: 'AZN',
+    // Americas
+    US: 'USD', CA: 'CAD', MX: 'MXN', BR: 'BRL', AR: 'ARS',
+    CO: 'COP', CL: 'CLP', PE: 'PEN', VE: 'VEF', EC: 'USD',
+    BO: 'BOB', PY: 'PYG', UY: 'UYU', GY: 'GYD', SR: 'SRD',
+    GT: 'GTQ', BZ: 'BZD', HN: 'HNL', SV: 'USD', NI: 'NIO',
+    CR: 'CRC', PA: 'PAB', CU: 'CUP', DO: 'DOP', HT: 'HTG',
+    JM: 'JMD', TT: 'TTD', BB: 'BBD', LC: 'XCD', VC: 'XCD',
+    GD: 'XCD', AG: 'XCD', DM: 'XCD', KN: 'XCD', BS: 'BSD',
+    TC: 'USD', KY: 'KYD', AW: 'AWG', CW: 'ANG', PR: 'USD',
+    // Africa
+    ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', TZ: 'TZS',
+    UG: 'UGX', ET: 'ETB', EG: 'EGP', MA: 'MAD', DZ: 'DZD',
+    TN: 'TND', LY: 'LYD', SD: 'SDG', SO: 'SOS', DJ: 'DJF',
+    ER: 'ERN', MZ: 'MZN', ZM: 'ZMW', ZW: 'ZWL', BW: 'BWP',
+    NA: 'NAD', SZ: 'SZL', LS: 'LSL', MW: 'MWK', RW: 'RWF',
+    BI: 'BIF', CD: 'CDF', CG: 'XAF', CM: 'XAF', CF: 'XAF',
+    GA: 'XAF', GQ: 'XAF', TD: 'XAF', SN: 'XOF', ML: 'XOF',
+    BF: 'XOF', GN: 'GNF', CI: 'XOF', TG: 'XOF', BJ: 'XOF',
+    NE: 'XOF', GM: 'GMD', GW: 'XOF', SL: 'SLL', LR: 'LRD',
+    CV: 'CVE', ST: 'STD', MU: 'MUR', SC: 'SCR', MG: 'MGA',
+    KM: 'KMF', AO: 'AOA',
+    // Central Asia
+    KZ: 'KZT', UZ: 'UZS', TM: 'TMT', TJ: 'TJS', KG: 'KGS',
+  };
+  return map[country] || 'USD';
 }
 
 // Signup Controller
 async function signup(req, res) {
   try {
-    const { name, email, password, country } = req.body;
+    const { name, email, password, country, preferredCurrency } = req.body;
 
     if (!email || !password || !name) {
       return res.status(400).json({ error: "All fields are required." });
@@ -56,6 +101,8 @@ async function signup(req, res) {
 
     const userCountry = country || 'IN';
     const userCurrency = getCurrencyForCountry(userCountry);
+    // Use explicitly chosen preferredCurrency, or fall back to country-based default
+    const userPreferredCurrency = preferredCurrency || userCurrency || 'INR';
     const verificationToken = crypto.randomBytes(32).toString('hex');
     const verificationExpiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours expires
 
@@ -67,6 +114,7 @@ async function signup(req, res) {
       passwordHash,
       country: userCountry,
       currency: userCurrency,
+      preferredCurrency: userPreferredCurrency,
       isPremium: false,
       subscriptionType: null,
       subscriptionStart: null,
@@ -110,6 +158,9 @@ function formatUserProfile(user) {
   userWithoutHash.premiumPlanType = user.subscriptionType === 'yearly' ? 'yearly' : (user.subscriptionType === 'monthly' ? 'monthly' : null);
   userWithoutHash.premiumExpiresAt = user.subscriptionEnd || null;
   
+  // Ensure preferredCurrency is always present (default to INR)
+  userWithoutHash.preferredCurrency = user.preferredCurrency || user.currency || 'INR';
+
   // Calculate remaining minutes in 24h credits reset window
   let freeCreditsResetInMinutes = 0;
   if (!user.isPremium && user.creditsWindowStartedAt) {
@@ -204,7 +255,7 @@ function optionalAuthenticateToken(req, res, next) {
 // Firebase Synchronization Controller
 async function firebaseSync(req, res) {
   try {
-    const { email, name, country, emailVerified } = req.body;
+    const { email, name, country, emailVerified, preferredCurrency } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required for synchronization.' });
@@ -212,6 +263,8 @@ async function firebaseSync(req, res) {
 
     const userCountry = country || 'IN';
     const userCurrency = getCurrencyForCountry(userCountry);
+    // Use explicitly chosen preferredCurrency, or fall back to country-based default
+    const userPreferredCurrency = preferredCurrency || userCurrency || 'INR';
 
     // Check if user already exists in local database
     let user = db.users.findByEmail(email);
@@ -231,6 +284,7 @@ async function firebaseSync(req, res) {
         passwordHash: 'FIREBASE_MANAGED_AUTH', // Managed externally by Firebase Auth
         country: userCountry,
         currency: userCurrency,
+        preferredCurrency: userPreferredCurrency,
         isPremium: false,
         subscriptionType: null,
         subscriptionStart: null,
@@ -256,6 +310,14 @@ async function firebaseSync(req, res) {
         updates.currency = getCurrencyForCountry(country);
       } else if (!user.currency) {
         updates.currency = getCurrencyForCountry(user.country || 'IN');
+      }
+
+      // Update preferredCurrency if explicitly provided in this sync call
+      if (preferredCurrency && user.preferredCurrency !== preferredCurrency) {
+        updates.preferredCurrency = preferredCurrency;
+      } else if (!user.preferredCurrency) {
+        // Back-fill preferredCurrency for existing users who don't have it
+        updates.preferredCurrency = user.currency || userPreferredCurrency;
       }
 
       // Sync verified state from frontend if they verified via Firebase SSO (Google, etc)
@@ -453,9 +515,39 @@ async function resendVerification(req, res) {
   }
 }
 
+// Update Profile Controller (PATCH /api/auth/profile)
+async function updateProfile(req, res) {
+  try {
+    const user = db.users.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const allowedFields = ['preferredCurrency', 'name'];
+    const updates = {};
+
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update.' });
+    }
+
+    const updatedUser = db.users.update(user.id, updates);
+    return res.json(formatUserProfile(updatedUser));
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({ error: 'An error occurred updating your profile.' });
+  }
+}
+
 module.exports = {
   signup,
   getMe,
+  updateProfile,
   authenticateToken,
   optionalAuthenticateToken,
   firebaseSync,

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, CheckCircle, ShieldCheck, RefreshCw, Star, Gem } from 'lucide-react';
 import { trackEvent } from '../lib/analytics';
 import { safeFetch } from '../lib/api';
+import { PLAN_PRICES, RAZORPAY_SUPPORTED_CURRENCIES, formatPrice, getCurrencySymbol, convertFromINR } from '../lib/currency';
 
 export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }) {
   const [billingPeriod, setBillingPeriod] = useState('monthly'); // 'monthly' | 'yearly'
@@ -9,32 +10,32 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
 
   if (!isOpen) return null;
 
-  const currency = user?.currency || 'USD';
-  
-  // Pricing values matching the requirement
-  const prices = {
-    INR: {
-      premiumMonthly: 199,
-      premiumYearly: 999,
-    },
-    USD: {
-      premiumMonthly: 5,
-      premiumYearly: 49,
-    },
-  };
-  
+  // Determine user's preferred currency
+  const prefCurrency = user?.preferredCurrency || 'INR';
   const activePlanId = billingPeriod === 'yearly' ? 'premiumYearly' : 'premiumMonthly';
-  const planPrices = prices[currency] || prices.USD;
-  const displayPrice = planPrices[activePlanId];
-  
-  const symbol = currency === 'INR' ? '₹' : '$';
-  const price = `${symbol}${displayPrice}`;
   const periodLabel = billingPeriod === 'monthly' ? 'month' : 'year';
+
+  // Get the plan price in user's preferred currency
+  const planPriceMap = PLAN_PRICES[activePlanId] || {};
+  const displayPrice = planPriceMap[prefCurrency] ?? planPriceMap['USD'];
+  const displayPriceStr = formatPrice(displayPrice, prefCurrency);
+  const prefSymbol = getCurrencySymbol(prefCurrency);
+
+  // INR base prices (for reference note when user is non-INR)
+  const BASE_INR = { premiumMonthly: 199, premiumYearly: 999 };
+  const basePriceINR = BASE_INR[activePlanId];
+  const showINRNote = prefCurrency !== 'INR';
+
+  // Razorpay will be charged in prefCurrency if supported, else INR
+  const chargeInPrefCurrency = RAZORPAY_SUPPORTED_CURRENCIES.has(prefCurrency);
+  const chargeNote = chargeInPrefCurrency
+    ? `Charged in ${prefCurrency} via Razorpay`
+    : `Charged in INR (₹${basePriceINR}) — converted at checkout`;
 
   const handleUpgrade = async () => {
     setIsLoading(true);
     try {
-      // 1. Create order on the backend
+      // 1. Create order on the backend (pass preferredCurrency)
       const token = localStorage.getItem('token');
       const orderResponse = await safeFetch('/api/payments/create-order', {
         method: 'POST',
@@ -44,7 +45,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
         },
         body: JSON.stringify({ 
           planId: activePlanId,
-          currency: currency
+          currency: prefCurrency
         })
       });
 
@@ -223,8 +224,25 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
 
             {/* Large Price Display */}
             <div className="pricing-amount-row" style={{ marginTop: '0.5rem' }}>
-              <span className="price-big-number">{price}</span>
+              <span className="price-big-number">{displayPriceStr}</span>
               <span className="price-period">/ {periodLabel}</span>
+            </div>
+
+            {/* Secondary charge note */}
+            <div style={{
+              fontSize: '0.78rem',
+              color: '#94A3B8',
+              marginTop: '0.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem',
+              flexWrap: 'wrap'
+            }}>
+              {showINRNote && (
+                <span style={{ color: '#64748B' }}>≈ ₹{basePriceINR} / {periodLabel}</span>
+              )}
+              {showINRNote && <span>•</span>}
+              <span>{chargeNote}</span>
             </div>
 
             {/* Feature list */}
@@ -278,7 +296,7 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
               style={{ width: '100%', height: '48px', fontSize: '1.02rem' }}
             >
               {isLoading ? <RefreshCw size={18} className="animate-spin" /> : null}
-              <span>{isLoading ? 'Activating Sandbox Account...' : `Get Premium – ${price}`}</span>
+              <span>{isLoading ? 'Activating...' : `Get Premium – ${displayPriceStr} / ${periodLabel}`}</span>
             </button>
           </div>
         </div>

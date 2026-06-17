@@ -358,3 +358,10 @@ export const EyeOff = createIcon('eye-off', [
   <line key="4" x1="2" y1="2" x2="22" y2="22" />
 ]);
 
+export const Globe = createIcon('globe', [
+  <circle key="1" cx="12" cy="12" r="10" />,
+  <path key="2" d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />,
+  <path key="3" d="M2 12h20" />
+]);
+
+

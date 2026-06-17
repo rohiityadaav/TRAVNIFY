@@ -55,13 +55,15 @@ exports.getHiddenGems = async (req, res) => {
     return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
   }
 
+  const preferredCurrency = req.body.preferredCurrency || (user && user.preferredCurrency) || 'USD';
+
   const prompt = `You are an expert travel guide. Return a JSON array of hidden-gem destinations that match the user’s query: "${query}".
 Return between 3 and 4 places (CRITICAL for fast generation speed). For each destination, you must strictly return a JSON object with these EXACT keys:
 - name (string)
 - countryOrRegion (string)
 - shortDescription (string, max 10 words. Be extremely concise.)
 - bestTimeToVisit (string)
-- typicalBudgetLevel (string: "cheap" | "moderate" | "expensive")
+- typicalBudgetLevel (string: "cheap" | "moderate" | "expensive" — based on costs in ${preferredCurrency})
 
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 
@@ -143,6 +145,7 @@ exports.getBestForActivity = async (req, res) => {
 
   // Non-premium users are limited to 2 results, premium has unlimited (typically 5)
   const limit = user && user.isPremium ? 6 : 2;
+  const preferredCurrency = req.body.preferredCurrency || (user && user.preferredCurrency) || 'INR';
 
   const prompt = `You are an expert travel guide. Provide a JSON array of the top travel destinations in the world for the activity described: "${query}".
 Return a list of ${limit === 2 ? '2' : '3 to 4'} items (CRITICAL for fast generation speed). For each destination, you must strictly return a JSON object with these EXACT keys:
@@ -150,7 +153,7 @@ Return a list of ${limit === 2 ? '2' : '3 to 4'} items (CRITICAL for fast genera
 - countryOrRegion (string)
 - whyItIsGreat (string, max 50 characters. Be extremely concise.)
 - bestSeason (string)
-- approxCostBand (string: "cheap" | "moderate" | "expensive")
+- approxCostBand (string: "cheap" | "moderate" | "expensive" — based on costs in ${preferredCurrency})
 
 Ensure your output is pure, valid JSON with absolutely no markdown wrapper blocks, no code fences (do NOT use \`\`\`json), no leading or trailing text, and no conversational explanation. Only output a valid JSON array of objects.`;
 

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { trackEvent } from '../lib/analytics';
 import { auth } from '../lib/firebaseClient';
 import { safeFetch } from '../lib/api';
+import { COUNTRIES, getCurrencyForCountry } from '../lib/currency';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -35,6 +36,7 @@ export default function AuthModal({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [country, setCountry] = useState('IN');
+  const [preferredCurrency, setPreferredCurrency] = useState('INR');
   const [authError, setAuthError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +52,7 @@ export default function AuthModal({
   if (!isOpen) return null;
 
   // Sync session and fetch/create user in backend
-  const handleFirebaseSync = async (firebaseUser, nameValue, countryValue) => {
+  const handleFirebaseSync = async (firebaseUser, nameValue, countryValue, currencyValue) => {
     try {
       const syncRes = await safeFetch('/api/auth/firebase-sync', {
         method: 'POST',
@@ -61,6 +63,7 @@ export default function AuthModal({
           email: firebaseUser.email,
           name: nameValue || firebaseUser.displayName || firebaseUser.email.split('@')[0],
           country: countryValue || country || 'IN',
+          preferredCurrency: currencyValue || preferredCurrency || 'INR',
           emailVerified: firebaseUser.emailVerified
         })
       });
@@ -123,7 +126,7 @@ export default function AuthModal({
         }
         
         // 3. Pre-create local user profile on backend and log in immediately
-        await handleFirebaseSync(firebaseUser, name, country);
+        await handleFirebaseSync(firebaseUser, name, country, preferredCurrency);
         
         // Track signup event in GA4
         trackEvent('signup_completed', { method: 'email' });
@@ -133,7 +136,7 @@ export default function AuthModal({
         const firebaseUser = userCredential.user;
         
         // 2. Synchronize with local backend DB and load session JWT (no verified checks)
-        await handleFirebaseSync(firebaseUser, name, country);
+        await handleFirebaseSync(firebaseUser, name, country, preferredCurrency);
         
         // Track login event in GA4
         trackEvent('login_success', { method: 'email' });
@@ -371,17 +374,31 @@ export default function AuthModal({
               <label className="form-label">Home Country</label>
               <div style={{ position: 'relative' }}>
                 <select
+                  id="signup-country"
                   className="form-input"
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
+                  onChange={(e) => {
+                    const c = e.target.value;
+                    setCountry(c);
+                    // Auto-set preferredCurrency from country
+                    const autoCurrency = getCurrencyForCountry(c);
+                    setPreferredCurrency(autoCurrency);
+                  }}
                   style={{ paddingLeft: '2.5rem' }}
                   disabled={isLoading}
                 >
-                  <option value="IN">India</option>
-                  <option value="US">United States</option>
+                  {COUNTRIES.map(c => (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  ))}
                 </select>
                 <MapPin size={16} className="text-light" style={{ position: 'absolute', left: '1rem', top: '12px' }} />
               </div>
+              {preferredCurrency && (
+                <div style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span>🌍</span>
+                  <span>Currency auto-set to <strong>{preferredCurrency}</strong> based on your country</span>
+                </div>
+              )}
             </div>
           )}
 

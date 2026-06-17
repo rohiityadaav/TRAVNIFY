@@ -928,7 +928,7 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res  = await safeFetch('/api/discover/best-for-activity', { method:'POST', headers, body: JSON.stringify({ query: q }) });
+      const res  = await safeFetch('/api/discover/best-for-activity', { method:'POST', headers, body: JSON.stringify({ query: q, preferredCurrency: user?.preferredCurrency || 'INR' }) });
       const data = await res.json();
       setActivityResults(data.places || []);
       if (data.premiumUpsell) setActivityShowUpsell(true);
@@ -1001,7 +1001,7 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res  = await safeFetch('/api/discover/hidden-gems', { method:'POST', headers, body: JSON.stringify({ query: q }) });
+      const res  = await safeFetch('/api/discover/hidden-gems', { method:'POST', headers, body: JSON.stringify({ query: q, preferredCurrency: user?.preferredCurrency || 'INR' }) });
       const data = await res.json();
       setHiddenResults(data.places || []);
       

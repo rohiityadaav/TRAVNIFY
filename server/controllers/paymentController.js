@@ -24,11 +24,49 @@ function generateId(prefix = 'tx') {
   return `${prefix}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
+// Razorpay-supported currencies for international charging
+const RAZORPAY_SUPPORTED_CURRENCIES = new Set([
+  'INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'AED',
+  'SAR', 'QAR', 'BHD', 'KWD', 'OMR', 'MYR', 'HKD', 'JPY',
+  'CHF', 'NZD', 'THB', 'SEK', 'NOK', 'DKK', 'ZAR', 'MXN',
+  'BRL', 'NGN', 'EGP', 'KES', 'TRY', 'ILS', 'IDR', 'PHP',
+  'TWD', 'KRW', 'PKR', 'BDT', 'LKR', 'NPR', 'MAD', 'RUB',
+  'UAH', 'PLN', 'CZK', 'HUF', 'RON', 'BGN', 'IQD', 'JOD',
+]);
+
+// Plan prices per currency (major unit — e.g. dollars, not cents)
+const PLAN_PRICES = {
+  premiumMonthly: {
+    INR: 199,    USD: 2.39,   EUR: 2.19,   GBP: 1.89,   AUD: 3.69,
+    CAD: 3.29,   SGD: 3.25,   AED: 8.79,   SAR: 8.99,   QAR: 8.70,
+    BHD: 0.90,   KWD: 0.74,   OMR: 0.92,   MYR: 11.19,  HKD: 18.69,
+    JPY: 370,    CHF: 2.12,   NZD: 3.97,   THB: 85.7,   SEK: 25.2,
+    NOK: 25.8,   DKK: 16.4,   ZAR: 44.0,   MXN: 41.9,   BRL: 12.6,
+    NGN: 3900,   EGP: 118,    KES: 312,    TRY: 82.0,   ILS: 8.78,
+    IDR: 38600,  PHP: 138,    TWD: 77.8,   KRW: 3300,   PKR: 676,
+    BDT: 264,    LKR: 770,    NPR: 320,    MAD: 23.9,   RUB: 219,
+    UAH: 99.0,   PLN: 9.59,   CZK: 56.0,   HUF: 875,    RON: 10.98,
+    BGN: 4.27,   IQD: 3124,   JOD: 1.70,
+  },
+  premiumYearly: {
+    INR: 999,    USD: 11.99,  EUR: 10.99,  GBP: 9.49,   AUD: 18.49,
+    CAD: 16.49,  SGD: 16.25,  AED: 44.0,   SAR: 45.0,   QAR: 43.5,
+    BHD: 4.50,   KWD: 3.70,   OMR: 4.60,   MYR: 55.99,  HKD: 93.5,
+    JPY: 1850,   CHF: 10.60,  NZD: 19.85,  THB: 428,    SEK: 126,
+    NOK: 129,    DKK: 82.0,   ZAR: 220,    MXN: 210,    BRL: 63.0,
+    NGN: 19500,  EGP: 590,    KES: 1560,   TRY: 410,    ILS: 43.9,
+    IDR: 193000, PHP: 690,    TWD: 389,    KRW: 16500,  PKR: 3380,
+    BDT: 1320,   LKR: 3850,   NPR: 1600,   MAD: 119.5,  RUB: 1095,
+    UAH: 495,    PLN: 47.95,  CZK: 280,    HUF: 4375,   RON: 54.9,
+    BGN: 21.35,  IQD: 15620,  JOD: 8.50,
+  },
+};
+
+// Currencies where amount must be integer (no decimals allowed)
+const ZERO_DECIMAL_CURRENCIES = new Set(['JPY', 'KRW', 'VND', 'IDR', 'HUF', 'TWD', 'NGN', 'KES', 'CLP', 'IQD', 'RWF', 'BIF', 'GNF', 'XOF', 'XAF', 'CDF', 'TZS', 'UGX']);
+
 // ----------------------------------------------------
 // CREATE SUBSCRIPTION ORDER
-// ----------------------------------------------------
-// ----------------------------------------------------
-// CREATE SUBSCRIPTION ORDER (INR / USD)
 // ----------------------------------------------------
 async function createOrder(req, res) {
   try {
@@ -37,30 +75,33 @@ async function createOrder(req, res) {
     if (planId === 'premium_monthly') planId = 'premiumMonthly';
     if (planId === 'premium_yearly') planId = 'premiumYearly';
 
-    let currency = req.body.currency || 'USD';
-    // Ensure only INR or USD are allowed, default to USD if missing or invalid
-    if (currency !== 'INR' && currency !== 'USD') {
-      currency = 'USD';
-    }
-
-    const plans = {
-      premiumMonthly: { INR: 199, USD: 5 },
-      premiumYearly: { INR: 999, USD: 49 },
-    };
-
-    const activePlan = plans[planId];
-    if (!activePlan) {
-      return res.status(400).json({ error: `Invalid planId: ${planId}` });
-    }
-
-    const baseAmount = activePlan[currency];
     const user = db.users.findById(req.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    // Convert amount to smallest currency unit (paise for INR, cents for USD)
-    const amountInMinorUnits = baseAmount * 100;
+    // Determine which currency to charge in:
+    // Use user's preferredCurrency if Razorpay supports it, else fall back to INR
+    const requestedCurrency = (req.body.currency || user.preferredCurrency || 'INR').toUpperCase();
+    const currency = RAZORPAY_SUPPORTED_CURRENCIES.has(requestedCurrency) ? requestedCurrency : 'INR';
+
+    const planPrices = PLAN_PRICES[planId];
+    if (!planPrices) {
+      return res.status(400).json({ error: `Invalid planId: ${planId}` });
+    }
+
+    // Get price in selected currency; fall back to INR if not mapped
+    const baseAmount = planPrices[currency] ?? planPrices['INR'];
+
+    // Convert to smallest currency unit
+    // Zero-decimal currencies: amount itself (e.g. 370 for JPY ¥370)
+    // All others: amount * 100 (e.g. 239 for USD $2.39)
+    let amountInMinorUnits;
+    if (ZERO_DECIMAL_CURRENCIES.has(currency)) {
+      amountInMinorUnits = Math.round(baseAmount);
+    } else {
+      amountInMinorUnits = Math.round(baseAmount * 100);
+    }
 
     let orderId = `order_mock_${Math.random().toString(36).substring(2, 15)}`;
     let isSandbox = true;

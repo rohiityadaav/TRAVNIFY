@@ -22,6 +22,7 @@ import { safeFetch } from './lib/api';
 
 import { useAuth } from './context/AuthContext';
 import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
+import { getCurrencySymbol } from './lib/currency';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plan' | 'explore' | 'near-me' | 'my-trips'
@@ -133,7 +134,10 @@ export default function App() {
       const response = await safeFetch('/api/generateTrip', {
         method: 'POST',
         headers,
-        body: JSON.stringify(details),
+        body: JSON.stringify({
+          ...details,
+          preferredCurrency: user?.preferredCurrency || details.currency || 'INR'
+        }),
         signal: controller.signal
       });
 
@@ -319,17 +323,6 @@ export default function App() {
       const { summary, days } = activeItinerary;
       const doc = new jsPDF();
       
-      const getCurrencySymbol = (curr) => {
-        if (!curr) return '';
-        switch (curr.toUpperCase()) {
-          case 'USD': return '$';
-          case 'EUR': return '€';
-          case 'GBP': return '£';
-          case 'INR': return '₹';
-          case 'JPY': return '¥';
-          default: return curr.toUpperCase() + ' ';
-        }
-      };
       const currencySymbol = getCurrencySymbol(summary.currency);
       
       // Design Styles
@@ -478,6 +471,7 @@ export default function App() {
           onLogout={handleLogout}
           openAuthModal={openAuthModal}
           openPricingModal={openPricingModal}
+          onUserUpdate={setUser}
         />
 
         {/* 2. Main Page Render */}

@@ -48,6 +48,7 @@ app.use(express.json());
 app.post('/api/auth/signup', authController.signup);
 app.post('/api/auth/firebase-sync', authController.firebaseSync);
 app.get('/api/auth/me', authController.authenticateToken, authController.getMe);
+app.patch('/api/auth/profile', authController.authenticateToken, authController.updateProfile);
 app.get('/api/auth/verify-email', authController.verifyEmail);
 app.post('/api/auth/resend-verification', authController.resendVerification);
 
