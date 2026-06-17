@@ -43,54 +43,64 @@ exports.validateGenerateTrip = (req, res, next) => {
     req.body.destination = sanitizeString(destination);
   }
 
-  // 4. Validate days duration bounds (1 to 30 days)
+  // 4. Validate days duration bounds (1 to 366 days)
   if (startDate && endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    let start = new Date(startDate);
+    let end = new Date(endDate);
     
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Please provide valid dates.' });
-    }
-    
-    const diffTime = end - start;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    
-    if (diffDays < 1 || diffDays > 30) {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Duration must be between 1 and 30 days.' });
+      req.body.startDate = new Date().toISOString().split('T')[0];
+      req.body.endDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    } else {
+      let diffTime = end - start;
+      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (diffDays < 1) {
+        // End date is before start date, adjust to be 3 days from start
+        end = new Date(start.getTime() + 2 * 24 * 60 * 60 * 1000);
+        req.body.endDate = end.toISOString().split('T')[0];
+      } else if (diffDays > 366) {
+        // Clamp to 366 days max
+        end = new Date(start.getTime() + 365 * 24 * 60 * 60 * 1000);
+        req.body.endDate = end.toISOString().split('T')[0];
+      }
     }
   }
 
   // 5. Validate budget and currency values
   if (budget) {
-    const parsedBudget = Number(budget);
-    if (isNaN(parsedBudget) || parsedBudget <= 0 || parsedBudget > 10000000) {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Budget must be a positive number up to 10,000,000.' });
+    let parsedBudget = Number(budget);
+    if (isNaN(parsedBudget)) {
+      const digits = String(budget).replace(/[^0-9]/g, '');
+      parsedBudget = Number(digits) || 15000;
     }
+    if (parsedBudget <= 0) parsedBudget = 15000;
+    if (parsedBudget > 10000000) parsedBudget = 10000000;
     req.body.budget = parsedBudget;
   }
 
   if (currency) {
     if (typeof currency !== 'string' || currency.trim().length !== 3) {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Currency must be a valid 3-letter code.' });
+      req.body.currency = 'INR';
+    } else {
+      req.body.currency = currency.trim().toUpperCase();
     }
-    req.body.currency = currency.trim().toUpperCase();
   }
 
   // 6. Validate and sanitize interests array
   if (interests) {
     if (!Array.isArray(interests)) {
-      return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Interests must be an array.' });
-    }
-    // Silently trim to first 3 if more are provided — recommendation, not a hard limit
-    const trimmedInterests = interests.slice(0, 3);
-    const cleanInterests = [];
-    for (let interest of trimmedInterests) {
-      if (typeof interest !== 'string' || interest.length > 50) {
-        return res.status(400).json({ code: 'INVALID_INPUT', error: 'Invalid input. Individual interest items must be under 50 characters.' });
+      req.body.interests = ['general'];
+    } else {
+      const trimmedInterests = interests.slice(0, 50);
+      const cleanInterests = [];
+      for (let interest of trimmedInterests) {
+        if (typeof interest === 'string' && interest.length <= 50) {
+          cleanInterests.push(sanitizeString(interest));
+        }
       }
-      cleanInterests.push(sanitizeString(interest));
+      req.body.interests = cleanInterests.length > 0 ? cleanInterests : ['general'];
     }
-    req.body.interests = cleanInterests;
   }
 
   next();

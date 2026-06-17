@@ -22,98 +22,103 @@ if (config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
 function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, daysCount) {
   if (!itinerary) return null;
 
-  const destName = itinerary.destination || 'Destination';
-  const days = itinerary.days || [];
+  const tripSummary = itinerary.tripSummary || {};
+  const destination = tripSummary.destination || itinerary.destination || 'Destination';
+  const totalDays = Number(tripSummary.totalDays) || itinerary.days?.length || daysCount || 3;
+  const travelStyle = tripSummary.travelStyle || 'mixed';
+  const bestTimeAdvice = tripSummary.bestTimeAdvice || 'Anytime is a great time to visit!';
   
-  const estCostVal = itinerary.estimatedTotalCost?.value || parsedBudget || 15000;
-  const estCostCurr = itinerary.estimatedTotalCost?.currency || activeCurrency || 'INR';
+  const estCostAmount = Number(tripSummary.estimatedTotalCost?.amount || tripSummary.estimatedTotalCost?.value || itinerary.estimatedTotalCost?.value || parsedBudget || 15000);
+  const estCostCurrency = tripSummary.estimatedTotalCost?.currency || itinerary.estimatedTotalCost?.currency || activeCurrency || 'INR';
 
   const baseDate = startDate ? new Date(startDate) : new Date();
-
-  const normalizedDays = days.map((day, idx) => {
-    let dateStr = day.date;
-    if (!dateStr) {
-      const d = new Date(baseDate);
-      d.setDate(d.getDate() + idx);
-      dateStr = d.toISOString().split('T')[0];
-    }
-
-    const blocks = (day.blocks || []).map(block => {
-      const timeSlot = block.timeSlot || block.timeWindow || '09:00 - 11:00';
-      const placeName = block.placeName || block.title || 'Sightseeing Spot';
-      const area = block.areaOrNeighborhood || block.location || 'Local Area';
-      const activity = block.activity || block.description || 'Visit attractions and walk around.';
-      
-      let costValue = 0;
-      let costCurrency = estCostCurr;
-      
-      if (block.approxCost && typeof block.approxCost === 'object') {
-        costValue = Number(block.approxCost.value) || 0;
-        costCurrency = block.approxCost.currency || estCostCurr;
-      } else if (block.approxCost) {
-        const cleanCost = String(block.approxCost).replace(/[^0-9.]/g, '');
-        costValue = Number(cleanCost) || 0;
-        const matched = String(block.approxCost).match(/[A-Z]{3}/i);
-        if (matched) costCurrency = matched[0].toUpperCase();
-      }
-      
-      let type = 'activity';
-      const text = `${placeName} ${activity}`.toLowerCase();
-      if (text.includes('hotel') || text.includes('stay') || text.includes('hostel') || text.includes('check-in') || text.includes('check in') || text.includes('overnight') || text.includes('lodging')) {
-        type = 'stay';
-      } else if (text.includes('transit') || text.includes('travel') || text.includes('board') || text.includes('bus') || text.includes('train') || text.includes('flight') || text.includes('airport') || text.includes('cab') || text.includes('taxi') || text.includes('metro') || text.includes('drive')) {
-        type = 'travel';
-      } else if (text.includes('food') || text.includes('lunch') || text.includes('dinner') || text.includes('breakfast') || text.includes('cafe') || text.includes('restaurant') || text.includes('delicacies') || text.includes('tasting') || text.includes('bistro') || text.includes('barbecue') || text.includes('eat')) {
-        type = 'food';
-      } else if (text.includes('relax') || text.includes('free time') || text.includes('leisure') || text.includes('chill') || text.includes('unwind')) {
-        type = 'free_time';
-      }
-
-      return {
-        timeSlot,
-        placeName,
-        areaOrNeighborhood: area,
-        activity,
-        approxCost: {
-          value: costValue,
-          currency: costCurrency
-        },
-        type,
-        title: placeName,
-        description: activity,
-        timeWindow: timeSlot,
-        approxCostStr: `${costValue} ${costCurrency}`
-      };
-    });
-
-    const dayNumber = day.dayNumber || (idx + 1);
-    const location = day.location || day.title || (blocks[0] ? blocks[0].areaOrNeighborhood : destName);
-
-    return {
-      date: dateStr,
-      title: day.title || `Day ${dayNumber}: Explore ${location}`,
-      blocks,
-      dayNumber,
-      location
-    };
-  });
-
+  const rawDays = itinerary.dayByDayPlan || itinerary.days || [];
+  
   let totalTransport = 0;
   let totalStay = 0;
   let totalFood = 0;
   let totalActivity = 0;
   let grandTotal = 0;
 
-  normalizedDays.forEach(day => {
-    day.blocks.forEach(block => {
-      const val = block.approxCost.value;
-      grandTotal += val;
-      if (block.type === 'travel') totalTransport += val;
-      else if (block.type === 'stay') totalStay += val;
-      else if (block.type === 'food') totalFood += val;
-      else totalActivity += val;
+  const dayByDayPlan = [];
+  for (let idx = 0; idx < totalDays; idx++) {
+    const rawDay = rawDays[idx] || {};
+    const dayNumber = Number(rawDay.dayNumber || rawDay.dayIndex || (idx + 1));
+    const title = rawDay.title || `Day ${dayNumber}: Explore ${destination}`;
+    const theme = rawDay.theme || 'Sightseeing';
+    
+    let rawMorning = rawDay.morning || {};
+    let rawAfternoon = rawDay.afternoon || {};
+    let rawEvening = rawDay.evening || {};
+
+    if (rawDay.blocks && Array.isArray(rawDay.blocks)) {
+      rawMorning = rawDay.blocks[0] || {};
+      rawAfternoon = rawDay.blocks[1] || {};
+      rawEvening = rawDay.blocks[2] || {};
+    }
+
+    const processBlock = (block, defaultDesc) => {
+      const description = block.description || block.activity || defaultDesc;
+      let amount = 0;
+      let currency = estCostCurrency;
+
+      if (block.estimatedCost && typeof block.estimatedCost === 'object') {
+        amount = Number(block.estimatedCost.amount || block.estimatedCost.value) || 0;
+        currency = block.estimatedCost.currency || estCostCurrency;
+      } else if (block.approxCost && typeof block.approxCost === 'object') {
+        amount = Number(block.approxCost.value || block.approxCost.amount) || 0;
+        currency = block.approxCost.currency || estCostCurrency;
+      } else if (block.estimatedCost || block.approxCost) {
+        const clean = String(block.estimatedCost || block.approxCost).replace(/[^0-9.]/g, '');
+        amount = Number(clean) || 0;
+        const matched = String(block.estimatedCost || block.approxCost).match(/[A-Z]{3}/i);
+        if (matched) currency = matched[0].toUpperCase();
+      }
+
+      let type = 'activity';
+      const text = `${description}`.toLowerCase();
+      if (text.includes('hotel') || text.includes('stay') || text.includes('hostel') || text.includes('check-in') || text.includes('check in') || text.includes('overnight') || text.includes('lodging')) {
+        type = 'stay';
+        totalStay += amount;
+      } else if (text.includes('transit') || text.includes('travel') || text.includes('board') || text.includes('bus') || text.includes('train') || text.includes('flight') || text.includes('airport') || text.includes('cab') || text.includes('taxi') || text.includes('metro') || text.includes('drive')) {
+        type = 'travel';
+        totalTransport += amount;
+      } else if (text.includes('food') || text.includes('lunch') || text.includes('dinner') || text.includes('breakfast') || text.includes('cafe') || text.includes('restaurant') || text.includes('delicacies') || text.includes('tasting') || text.includes('bistro') || text.includes('barbecue') || text.includes('eat')) {
+        type = 'food';
+        totalFood += amount;
+      } else {
+        totalActivity += amount;
+      }
+      grandTotal += amount;
+
+      return {
+        description,
+        estimatedCost: { amount, currency },
+        type
+      };
+    };
+
+    const morning = processBlock(rawMorning, 'Morning sightseeing and exploring.');
+    const afternoon = processBlock(rawAfternoon, 'Afternoon local lunch and walk.');
+    const evening = processBlock(rawEvening, 'Evening dinner and relaxation.');
+
+    const d = new Date(baseDate);
+    d.setDate(d.getDate() + idx);
+    const dateStr = d.toISOString().split('T')[0];
+
+    const notes = Array.isArray(rawDay.notes) ? rawDay.notes : (rawDay.notes ? [rawDay.notes] : ['Wear comfortable walking shoes.']);
+
+    dayByDayPlan.push({
+      dayNumber,
+      date: dateStr,
+      title,
+      theme,
+      morning,
+      afternoon,
+      evening,
+      notes
     });
-  });
+  }
 
   let transportPercent = 25;
   let stayPercent = 35;
@@ -127,14 +132,6 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     activitiesPercent = 100 - (transportPercent + stayPercent + foodPercent);
   }
 
-  const summary = {
-    destination: destName,
-    totalDays: normalizedDays.length,
-    approxTotalCost: estCostVal,
-    currency: estCostCurr,
-    dailyAverageCost: Math.round(estCostVal / normalizedDays.length)
-  };
-
   const budgetBreakdown = {
     transportPercent,
     stayPercent,
@@ -142,16 +139,94 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     activitiesPercent
   };
 
+  const rawSL = itinerary.safetyAndLogistics || {};
+  const safetyAndLogistics = {
+    localTransportTips: rawSL.localTransportTips || 'Use authorized local taxis or public transit.',
+    areaSafetyNotes: rawSL.areaSafetyNotes || 'Keep your belongings secure in crowded spots.',
+    moneySavingTips: rawSL.moneySavingTips || 'Look for combo passes for entry tickets.'
+  };
+
+  const localCurrencyNote = itinerary.localCurrencyNote || null;
+
   return {
-    destination: destName,
-    days: normalizedDays,
-    estimatedTotalCost: {
-      value: estCostVal,
-      currency: estCostCurr
+    tripSummary: {
+      destination,
+      totalDays,
+      travelStyle,
+      estimatedTotalCost: {
+        amount: estCostAmount,
+        currency: estCostCurrency
+      },
+      bestTimeAdvice
     },
-    localCurrencyNote: itinerary.localCurrencyNote || null,
-    summary,
-    budgetBreakdown
+    dayByDayPlan,
+    safetyAndLogistics,
+    localCurrencyNote,
+    budgetBreakdown,
+    destination,
+    days: dayByDayPlan.map(day => ({
+      dayNumber: day.dayNumber,
+      date: day.date,
+      title: day.title,
+      location: destination,
+      theme: day.theme,
+      notes: day.notes,
+      blocks: [
+        {
+          timeWindow: 'Morning (09:00 - 12:00)',
+          timeSlot: 'Morning (09:00 - 12:00)',
+          title: '☀️ Morning',
+          placeName: '☀️ Morning Plan',
+          description: day.morning.description,
+          activity: day.morning.description,
+          areaOrNeighborhood: destination,
+          approxCost: {
+            value: day.morning.estimatedCost.amount,
+            currency: day.morning.estimatedCost.currency
+          },
+          type: day.morning.type
+        },
+        {
+          timeWindow: 'Afternoon (13:00 - 17:00)',
+          timeSlot: 'Afternoon (13:00 - 17:00)',
+          title: '🌤️ Afternoon',
+          placeName: '🌤️ Afternoon Plan',
+          description: day.afternoon.description,
+          activity: day.afternoon.description,
+          areaOrNeighborhood: destination,
+          approxCost: {
+            value: day.afternoon.estimatedCost.amount,
+            currency: day.afternoon.estimatedCost.currency
+          },
+          type: day.afternoon.type
+        },
+        {
+          timeWindow: 'Evening (18:00 - 22:00)',
+          timeSlot: 'Evening (18:00 - 22:00)',
+          title: '🌙 Evening',
+          placeName: '🌙 Evening Plan',
+          description: day.evening.description,
+          activity: day.evening.description,
+          areaOrNeighborhood: destination,
+          approxCost: {
+            value: day.evening.estimatedCost.amount,
+            currency: day.evening.estimatedCost.currency
+          },
+          type: day.evening.type
+        }
+      ]
+    })),
+    estimatedTotalCost: {
+      value: estCostAmount,
+      currency: estCostCurrency
+    },
+    summary: {
+      destination,
+      totalDays,
+      approxTotalCost: estCostAmount,
+      currency: estCostCurrency,
+      dailyAverageCost: Math.round(estCostAmount / totalDays)
+    }
   };
 }
 
@@ -209,7 +284,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     ]
   };
 
-  const days = [];
+  const dayByDayPlan = [];
   for (let i = 0; i < totalDays; i++) {
     const activeInterest = interests && interests.length > 0
       ? interests[i % interests.length]
@@ -223,70 +298,54 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     d.setDate(d.getDate() + i);
     const dateStr = d.toISOString().split('T')[0];
 
-    days.push({
-      date: dateStr,
-      title: `Day ${i + 1}: Discover ${destName}`,
-      blocks: [
-        {
-          timeSlot: '09:00 - 11:30',
-          placeName: `${destName} Central Transit`,
-          areaOrNeighborhood: 'Central Area',
-          activity: 'Transit check-in and cozy stay setup.',
-          approxCost: {
-            value: Math.round(avgDaily * 0.15),
-            currency: curr
-          }
-        },
-        {
-          timeSlot: '12:30 - 14:00',
-          placeName: 'Local Heritage Kitchen',
-          areaOrNeighborhood: 'Old Town',
-          activity: 'Taste popular street foods and regional lunch delicacies.',
-          approxCost: {
-            value: Math.round(avgDaily * 0.2),
-            currency: curr
-          }
-        },
-        {
-          timeSlot: '15:00 - 18:00',
-          placeName: `${destName} Cultural Landmarks`,
-          areaOrNeighborhood: 'Historic Center',
-          activity: `${act1}. Take photos and sightseeing.`,
-          approxCost: {
-            value: Math.round(avgDaily * 0.25),
-            currency: curr
-          }
-        },
-        {
-          timeSlot: '19:00 - 21:30',
-          placeName: `${activeInterest.toUpperCase()} Hub`,
-          areaOrNeighborhood: 'Vibrant Quarter',
-          activity: `${act2}. Meet travelers and enjoy evening atmosphere.`,
-          approxCost: {
-            value: Math.round(avgDaily * 0.25),
-            currency: curr
-          }
-        },
-        {
-          timeSlot: '22:00 onwards',
-          placeName: 'Boutique Hotel Stay',
-          areaOrNeighborhood: 'Peaceful District',
-          activity: 'Wind down and enjoy quiet rest.',
-          approxCost: {
-            value: Math.round(avgDaily * 0.15),
-            currency: curr
-          }
+    dayByDayPlan.push({
+      dayNumber: i + 1,
+      title: `Explore ${destName}`,
+      theme: activeInterest.toUpperCase(),
+      morning: {
+        description: `Visit ${destName} central landmark. Transit check-in and cozy stay setup.`,
+        estimatedCost: {
+          amount: Math.round(avgDaily * 0.3),
+          currency: curr
         }
+      },
+      afternoon: {
+        description: `Taste local street foods at Local Heritage Kitchen and enjoy regional lunch. Also visit local markets for shopping.`,
+        estimatedCost: {
+          amount: Math.round(avgDaily * 0.3),
+          currency: curr
+        }
+      },
+      evening: {
+        description: `${act1}. Stroll around ${activeInterest} Hub, meet other travelers, and enjoy evening atmosphere.`,
+        estimatedCost: {
+          amount: Math.round(avgDaily * 0.4),
+          currency: curr
+        }
+      },
+      notes: [
+        'Prefer using local transport for exploring the city.',
+        'Book major attractions online in advance.'
       ]
     });
   }
 
   const rawMock = {
-    destination: destName,
-    days,
-    estimatedTotalCost: {
-      value: totalBudget,
-      currency: curr
+    tripSummary: {
+      destination: destName,
+      totalDays: totalDays,
+      travelStyle: 'mixed',
+      estimatedTotalCost: {
+        amount: totalBudget,
+        currency: curr
+      },
+      bestTimeAdvice: 'Generally, visiting during the dry season offers the best climate.'
+    },
+    dayByDayPlan,
+    safetyAndLogistics: {
+      localTransportTips: 'Taxis and auto-rickshaws are widely available. Agree on fares or use app-based rides.',
+      areaSafetyNotes: 'Safe area. Just take standard precautions with personal belongings in crowded markets.',
+      moneySavingTips: 'Enjoy street food, utilize public transit, and visit free public beaches and parks.'
     }
   };
 
@@ -296,33 +355,78 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
 // ----------------------------------------------------
 // AI TRIP GENERATION CONTROLLER
 // ----------------------------------------------------
+function preprocessInputs(inputs) {
+  let { prompt, destination, budget, currency, startDate, endDate, interests, mustDo, mustAvoid } = inputs;
+  
+  // 1. Group/condense interests if > 6 items
+  let safeInterests = Array.isArray(interests) ? interests : [];
+  if (safeInterests.length > 6) {
+    const groups = {
+      nature: ['nature', 'trek', 'hiking', 'mountain', 'wildlife', 'national park', 'scenic', 'outdoors', 'hills', 'lake', 'river', 'forest'],
+      culture: ['culture', 'history', 'temple', 'museum', 'monument', 'art', 'heritage', 'local life', 'palace', 'fort', 'historical'],
+      food: ['food', 'dining', 'street food', 'cooking', 'restaurant', 'tasting', 'drinks', 'bar', 'cafe', 'culinary'],
+      adventure: ['adventure', 'trek', 'water sports', 'climbing', 'active', 'sports', 'rafting', 'scuba', 'skydiving'],
+      relaxation: ['chill', 'relax', 'beach', 'spa', 'resort', 'leisure', 'slow-paced', 'unwind'],
+      shopping: ['shopping', 'market', 'flea market', 'mall', 'souvenir', 'bazaar']
+    };
+    
+    const matchedGroups = new Set();
+    const unmatched = [];
+    
+    for (const interest of safeInterests) {
+      let matched = false;
+      const lower = String(interest).toLowerCase();
+      for (const [groupName, keywords] of Object.entries(groups)) {
+        if (keywords.some(kw => lower.includes(kw))) {
+          matchedGroups.add(groupName);
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        unmatched.push(interest);
+      }
+    }
+    
+    safeInterests = Array.from(matchedGroups);
+    if (unmatched.length > 0) {
+      safeInterests.push(...unmatched.slice(0, 3));
+    }
+  }
+
+  // 2. Truncate/condense long inputs
+  const maxTextLength = 600;
+  if (prompt && prompt.length > maxTextLength) {
+    prompt = prompt.substring(0, 400) + '... [summarized for context length] ...' + prompt.substring(prompt.length - 150);
+  }
+  
+  if (mustDo && mustDo.length > 300) {
+    mustDo = mustDo.substring(0, 200) + '... [summarized] ...' + mustDo.substring(mustDo.length - 80);
+  }
+  
+  if (mustAvoid && mustAvoid.length > 300) {
+    mustAvoid = mustAvoid.substring(0, 200) + '... [summarized] ...' + mustAvoid.substring(mustAvoid.length - 80);
+  }
+  
+  return {
+    prompt,
+    destination,
+    budget,
+    currency,
+    startDate,
+    endDate,
+    interests: safeInterests,
+    mustDo,
+    mustAvoid
+  };
+}
+
 async function generateTrip(req, res) {
   const startTime = Date.now();
   console.log(`[AI Trip Generation] Start processing request at ${new Date().toISOString()}`);
+  
   try {
-    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency } = req.body;
-
-    // Silently trim interests to first 3 if more are provided (validation.js also does this,
-    // but guard here too in case of direct API calls)
-    const safeInterests = (interests && Array.isArray(interests))
-      ? interests.slice(0, 3)
-      : (interests ? [interests] : []);
-    if (interests && Array.isArray(interests) && interests.length > 3) {
-      console.log(`[AI Trip Generation] Trimmed ${interests.length} interests to 3: ${safeInterests.join(', ')}`);
-    }
-
-    // Check user limit if logged in
-    let activeUser = null;
-    if (req.userId) {
-      activeUser = db.users.findById(req.userId);
-      const creditStatus = db.users.consumeCredit(req.userId);
-      if (!creditStatus.allowed) {
-        return res.status(403).json({
-          code: 'FREE_LIMIT_REACHED',
-          error: 'You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer features!'
-        });
-      }
-    }
+    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency, simplified } = req.body;
 
     // Determine total days
     let daysCount = 3;
@@ -336,135 +440,253 @@ async function generateTrip(req, res) {
       }
     }
 
-    let parsedBudget = Number(budget) || 15000;
-    let activeCurrency = currency || 'INR';
-    // Preferred display currency for the user (may differ from budget input currency)
+    // Check user premium status
+    let activeUser = null;
+    let isPremium = false;
+    if (req.userId) {
+      activeUser = db.users.findById(req.userId);
+      if (activeUser && activeUser.isPremium) {
+        isPremium = true;
+      }
+    }
+
+    // Premium Check: If trip length is more than 3 months (> 92 days)
+    if (daysCount > 92 && !isPremium) {
+      console.log(`[AI Trip Generation] Long trip premium restriction: ${daysCount} days requested.`);
+      return res.status(403).json({
+        errorCode: "NEED_PREMIUM_FOR_LONG_TRIP",
+        code: "NEED_PREMIUM_FOR_LONG_TRIP",
+        error: "Premium subscription required for trips longer than 3 months (92 days)."
+      });
+    }
+
+    // Check user limit if logged in (free user)
+    if (activeUser && !isPremium) {
+      const creditStatus = db.users.consumeCredit(req.userId);
+      if (!creditStatus.allowed) {
+        return res.status(403).json({
+          code: 'FREE_LIMIT_REACHED',
+          error: 'You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer features!'
+        });
+      }
+    }
+
+    const parsedBudget = Number(budget) || 15000;
+    const activeCurrency = currency || 'INR';
     const displayCurrency = preferredCurrency || activeCurrency || 'INR';
+
+    const fallbackResponse = () => {
+      console.log('[AI Trip Generation] Fallback triggered. Generating server-side mock itinerary.');
+      const safeInterests = Array.isArray(interests) ? interests : [];
+      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate);
+      
+      if (activeUser && !isPremium) {
+        db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
+      }
+      return res.json({ itinerary });
+    };
 
     // Initialize Gemini dynamically if not already done
     if (!genAI && config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
       genAI = new GoogleGenerativeAI(config.GEMINI_API_KEY);
     }
 
-    // If Gemini API Key is missing, return configuration error (500)
     if (!genAI) {
       console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server.');
-      return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
+      return fallbackResponse();
     }
 
-    // Call Gemini SDK — gemini-3.5-flash is the correct fast model
     const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
-    // Optimized Prompt: specify exactly 3 blocks per day, keep text instructions brief
-    const systemPrompt = `You are TRAVNIFY, a premium AI travel assistant.
-Your job is to parse the user's travel request and output a highly detailed, budget-aware day-by-day trip plan.
+    // Preprocessing step
+    const preprocessed = preprocessInputs({
+      prompt,
+      destination,
+      budget,
+      currency,
+      startDate,
+      endDate,
+      interests,
+      mustDo: req.body.mustDo || '',
+      mustAvoid: req.body.mustAvoid || ''
+    });
 
-USER PARAMETERS:
-- Free prompt request: "${prompt || 'none'}"
-- Destination: "${destination || 'Goa, India'}"
-- Total Budget: ${parsedBudget} ${activeCurrency}
-- Start Date: ${startDate || 'today'}
-- Duration: ${daysCount} Days
-- Interests: ${safeInterests.length > 0 ? safeInterests.join(', ') : 'sightseeing, food, relaxing'}
-- User Preferred Currency: ${displayCurrency}
+    const userName = activeUser ? activeUser.name : 'Traveler';
+    const origin = req.body.origin || (activeUser ? activeUser.country : '');
+    const groupType = req.body.groupType || 'solo/couple/friends/family';
 
-YOUR OUTPUT INSTRUCTIONS:
-Generate a valid JSON object matching the exact schema below.
-- Do NOT output any markdown tags (like \`\`\`json). Return ONLY the raw JSON string starting with { and ending with }.
-- Do NOT invent specific hotel or restaurant brand names. Use generic types, like "3-star boutique hotel near center".
-- Location understanding (worldwide): Choose sensible cities/areas/districts inside the destination for each day (e.g. Rome/Florence/Venice for Italy).
-- Date and Day Count: Generate exactly ${daysCount} days in the "days" array, with dates starting on ${startDate || 'today'} and incrementing by 1 day per step (format: YYYY-MM-DD).
-- Day Structure: For each day, include EXACTLY 3 blocks (Morning, Afternoon, Evening) for fast response times.
-- Budget Awareness: Plan within the total budget of ${parsedBudget} ${activeCurrency}. Keep the sum of approxCost values roughly matching this total budget.
-- IMPORTANT — Currency Output: All approxCost values and the estimatedTotalCost MUST be output in the user's preferred currency: ${displayCurrency}. Convert all costs to ${displayCurrency}. Do NOT use the destination's local currency.
-- If the destination's local currency is different from ${displayCurrency}, you MAY add a short note like: "Local currency: THB, but estimates are shown in ${displayCurrency} (your chosen currency)." as a field "localCurrencyNote" at the root level of the JSON.
-- Adjust style based on budget: If budget is low, prioritize free sights, parks, and street food. If budget is high, prioritize paid activities and fine dining.
-- Interest-based planning: Prioritize activities matching user interests. Use real, well-known locations.
+    let simplifiedInstruction = "";
+    if (simplified) {
+      simplifiedInstruction = "\n- SIMPLIFIED MODE ACTIVATED: Keep all descriptions under 10 words. Propose simple, well-known locations only. Minimize nesting complexity.";
+    }
 
-JSON Schema structure:
+    const systemPrompt = `You are an expert travel planner who creates highly detailed, realistic itineraries that feel like a personal travel coach telling the user exactly what to do each day.
+
+Your goals:
+- Always return a complete, day‑by‑day itinerary.
+- Never refuse or say it is not possible; if budget or time is tight, still propose the best possible plan within constraints.
+- Optimize for enjoyment, realism, local culture, safety, and efficient routing.
+- Respect the user’s budget and preferences as much as possible.
+
+Required output format:
+Reply in JSON only, no extra text.
+
+JSON structure:
 {
-  "destination": "Name of the destination",
-  "localCurrencyNote": "(optional) e.g. Local currency: THB, but estimates are shown in USD (your chosen currency).",
-  "days": [
+  "tripSummary": {
+    "destination": "string",
+    "totalDays": number,
+    "travelStyle": "chill/adventure/luxury/budget/mixed",
+    "estimatedTotalCost": {
+      "amount": number,
+      "currency": "${displayCurrency}"
+    },
+    "bestTimeAdvice": "string"
+  },
+  "dayByDayPlan": [
     {
-      "date": "YYYY-MM-DD",
-      "title": "Short summary of the day",
-      "blocks": [
-        {
-          "timeSlot": "09:00-11:30",
-          "placeName": "Specific attraction name",
-          "areaOrNeighborhood": "District or neighborhood name",
-          "activity": "Activity description (maximum 10 words for fast generation)",
-          "approxCost": {
-            "value": 40,
-            "currency": "${displayCurrency}"
-          }
+      "dayNumber": 1,
+      "title": "Short title for the day",
+      "theme": "string",
+      "morning": {
+        "description": "Detailed step‑by‑step plan for morning (subah kya karein)",
+        "estimatedCost": {
+          "amount": number,
+          "currency": "${displayCurrency}"
         }
+      },
+      "afternoon": {
+        "description": "Detailed step‑by‑step plan for afternoon (dopahar kya karein)",
+        "estimatedCost": {
+          "amount": number,
+          "currency": "${displayCurrency}"
+        }
+      },
+      "evening": {
+        "description": "Detailed step‑by‑step plan for evening (shaam kya karein)",
+        "estimatedCost": {
+          "amount": number,
+          "currency": "${displayCurrency}"
+        }
+      },
+      "notes": [
+        "short practical tip 1",
+        "short practical tip 2"
       ]
     }
   ],
-  "estimatedTotalCost": {
-    "value": 750,
-    "currency": "${displayCurrency}"
+  "safetyAndLogistics": {
+    "localTransportTips": "string",
+    "areaSafetyNotes": "string",
+    "moneySavingTips": "string"
   }
-}`;
+}
+
+Style & Constraint Rules:
+- Plan every single day with specific activities for morning, afternoon, and evening (like "subah yeh karo, dopahar yeh, shaam yeh").
+- Each day must feel like "Day X: do this in the morning, this in the afternoon, this in the evening".
+- For each day, always fill morning, afternoon, and evening with concrete actions, not generic advice.
+- If the trip is long (over 14 days), you can repeat patterns, but still give each day its own description/plan.
+- If the trip is very long (up to 92 days), you must still return an entry in dayByDayPlan for every single day, but make the descriptions and plans short and concise (e.g. 5-15 words per time slot) to prevent timeouts and token length issues.
+- If budget is low, prioritize free/cheap but fun activities and mention that clearly.
+- If budget is high, include some premium experiences but still keep the plan balanced.
+- Always stay within the user’s approximate budget overall.
+- If the user’s input is messy or unstructured, first internally clarify: exact/approximate destination(s), number of days (infer if only dates or duration is mentioned), rough budget level, main vibes/interests. Then generate the best possible itinerary.
+${simplifiedInstruction}
+
+User details for the trip:
+Name (optional): ${userName}
+Origin city/country: ${origin || 'Traveler Location'}
+Main destination(s): ${preprocessed.destination || 'Selected Destination'}
+Start date: ${preprocessed.startDate || 'today'}
+End date: ${preprocessed.endDate || 'tomorrow'}
+Total days (if known): ${daysCount}
+Group type: ${groupType}
+Approx budget in ${displayCurrency}: ${preprocessed.budget || parsedBudget}
+Vibes / interests: ${preprocessed.interests.join(', ') || 'sightseeing, local life, relaxing'}
+Must‑do things: ${preprocessed.mustDo || 'none'}
+Must‑avoid things: ${preprocessed.mustAvoid || 'none'}
+
+User’s raw text description (as they typed it in their language):
+"""
+${preprocessed.prompt || ''}
+"""
+
+Based on all this, generate the best possible trip itinerary following the JSON format and rules above.`;
 
     const aiStartTime = Date.now();
+    console.log(`[AI LLM Request Payload]:\n${systemPrompt}`);
+    
     // API Call with 45 seconds timeout
     const apiCallPromise = model.generateContent(systemPrompt);
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('AI request timed out after 45 seconds')), 45000)
     );
 
-    let itinerary = null;
-    let aiDuration = 0;
+    let textResponse = "";
     try {
       const result = await Promise.race([apiCallPromise, timeoutPromise]);
-      aiDuration = Date.now() - aiStartTime;
-      const textResponse = result.response.text().trim();
-      
-      try {
-        // Clean markdown code blocks if any
-        let cleaned = textResponse;
-        if (cleaned.startsWith('```')) {
-          cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-        }
-        
-        const parsed = JSON.parse(cleaned);
-        itinerary = normalizeItinerary(parsed, startDate, parsedBudget, activeCurrency, daysCount);
-      } catch (parseError) {
-        console.error('[AI Trip Generation] Failed to parse Gemini output as JSON, using mock fallback.', parseError.message);
-        console.log('[AI Trip Generation] Raw AI text was:', textResponse.substring(0, 300));
-        itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate);
-      }
-    } catch (aiError) {
-      aiDuration = Date.now() - aiStartTime;
-      // Gemini call itself failed (wrong model, quota, network, timeout) — fall back to mock
-      console.error('[AI Trip Generation] Gemini API call failed, using mock fallback. Error:', aiError.message);
-      itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate);
+      textResponse = result.response.text().trim();
+      console.log(`[AI LLM Raw Response]:\n${textResponse}`);
+    } catch (apiError) {
+      console.error('[AI Trip Generation] LLM generation failed or timed out. Error:', apiError.message);
+      return fallbackResponse();
     }
 
-    // Increment user usage counter
-    if (activeUser && !activeUser.isPremium) {
+    let parsedJson = null;
+    const cleanText = (txt) => {
+      let cleaned = txt.trim();
+      if (cleaned.startsWith('```')) {
+        cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+      }
+      return cleaned;
+    };
+
+    try {
+      parsedJson = JSON.parse(cleanText(textResponse));
+    } catch (parseError) {
+      console.warn('[AI Trip Generation] First JSON parse attempt failed. Attempting reformat retry with LLM...');
+      
+      const reformatPrompt = `You are a strict JSON formatter. I asked you to generate a travel itinerary in a specific JSON structure, but your response was not valid JSON.
+     
+Here is the original instruction:
+${systemPrompt}
+
+Here is your previous response:
+${textResponse}
+
+Please reformat the last answer into the required JSON schema only. Respond with ONLY the raw JSON string starting with { and ending with }. Do NOT include any markdown code blocks, explanation or additional text.`;
+
+      console.log(`[AI Re-asking LLM for Reformat Payload]:\n${reformatPrompt}`);
+      try {
+        const reformatCallPromise = model.generateContent(reformatPrompt);
+        const reformatResult = await Promise.race([reformatCallPromise, timeoutPromise]);
+        const reformatText = reformatResult.response.text().trim();
+        console.log(`[AI LLM Reformat Raw Response]:\n${reformatText}`);
+        
+        parsedJson = JSON.parse(cleanText(reformatText));
+      } catch (retryError) {
+        console.error('[AI Trip Generation] Reformatting attempt failed or timed out. Falling back.', retryError.message);
+        return fallbackResponse();
+      }
+    }
+
+    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount);
+    if (!itinerary) {
+      return fallbackResponse();
+    }
+
+    if (activeUser && !isPremium) {
       db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
     }
 
     const duration = Date.now() - startTime;
-    console.log(`[AI Trip Generation Success] Gemini duration: ${aiDuration}ms, Total endpoint latency: ${duration}ms`);
+    console.log(`[AI Trip Generation Success] Total endpoint latency: ${duration}ms`);
     return res.json({ itinerary });
+
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error('[AI Trip Generation Error] Failed request payload:', {
-      prompt: req.body.prompt,
-      destination: req.body.destination,
-      budget: req.body.budget,
-      currency: req.body.currency,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-      interests: req.body.interests
-    });
-    console.error(`[AI Trip Generation Error] Failed after ${duration}ms with error:`, error);
-    return res.status(500).json({ error: error.message || 'AI service temporarily unavailable. Please contact support.' });
+    console.error(`[AI Trip Generation Fatal Error] Error:`, error);
+    return fallbackResponse();
   }
 }
 

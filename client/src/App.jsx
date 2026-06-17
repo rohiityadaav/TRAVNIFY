@@ -115,34 +115,167 @@ export default function App() {
     setActiveTab('home');
   };
 
+  // Helper to calculate length in days
+  const calculateLengthInDays = (startDate, endDate) => {
+    if (!startDate || !endDate) return 1;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return isNaN(diffDays) ? 1 : diffDays;
+  };
+
+  // Helper to generate a basic fallback template itinerary on the client
+  const generateClientItineraryTemplate = (details) => {
+    const destName = details.destination || 'Selected Destination';
+    const daysCount = calculateLengthInDays(details.startDate, details.endDate);
+    const budget = Number(details.budget) || 15000;
+    const currency = details.currency || 'INR';
+    const avgDaily = Math.round(budget / daysCount);
+    const baseDate = details.startDate ? new Date(details.startDate) : new Date();
+
+    const dayByDayPlan = [];
+    for (let i = 0; i < daysCount; i++) {
+      const d = new Date(baseDate);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+
+      dayByDayPlan.push({
+        dayNumber: i + 1,
+        date: dateStr,
+        title: `Explore ${destName}`,
+        theme: 'EXPLORE',
+        morning: {
+          description: `Morning sightseeing and exploring central attractions of ${destName}.`,
+          estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
+        },
+        afternoon: {
+          description: `Afternoon visit to local spots, historical sites, and regional lunch.`,
+          estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
+        },
+        evening: {
+          description: `Evening walk, shopping in local markets, and traditional dinner.`,
+          estimatedCost: { amount: Math.round(avgDaily * 0.4), currency }
+        },
+        notes: [
+          'Wear comfortable shoes for walking.',
+          'Agree on fares or use taxi apps for transport.'
+        ]
+      });
+    }
+
+    return {
+      tripSummary: {
+        destination: destName,
+        totalDays: daysCount,
+        travelStyle: 'mixed',
+        estimatedTotalCost: { amount: budget, currency },
+        bestTimeAdvice: 'Generally, visiting during local dry seasons offers the best climate.'
+      },
+      dayByDayPlan,
+      safetyAndLogistics: {
+        localTransportTips: 'Taxis, public transit and walking are the best ways to get around.',
+        areaSafetyNotes: 'Safe area. Just take standard precautions with personal belongings in crowded spots.',
+        moneySavingTips: 'Enjoy street food, utilize public transit, and visit free attractions like public parks.'
+      },
+      budgetBreakdown: {
+        transportPercent: 25,
+        stayPercent: 35,
+        foodPercent: 20,
+        activitiesPercent: 20
+      },
+      destination: destName,
+      days: dayByDayPlan.map(day => ({
+        dayNumber: day.dayNumber,
+        date: day.date,
+        title: day.title,
+        location: destName,
+        blocks: [
+          {
+            timeWindow: 'Morning (09:00 - 12:00)',
+            title: '☀️ Morning',
+            description: day.morning.description,
+            approxCost: { value: day.morning.estimatedCost.amount, currency: day.morning.estimatedCost.currency },
+            type: 'activity'
+          },
+          {
+            timeWindow: 'Afternoon (13:00 - 17:00)',
+            title: '🌤️ Afternoon',
+            description: day.afternoon.description,
+            approxCost: { value: day.afternoon.estimatedCost.amount, currency: day.afternoon.estimatedCost.currency },
+            type: 'food'
+          },
+          {
+            timeWindow: 'Evening (18:00 - 22:00)',
+            title: '🌙 Evening',
+            description: day.evening.description,
+            approxCost: { value: day.evening.estimatedCost.amount, currency: day.evening.estimatedCost.currency },
+            type: 'activity'
+          }
+        ]
+      })),
+      estimatedTotalCost: {
+        value: budget,
+        currency: currency
+      },
+      summary: {
+        destination: destName,
+        totalDays: daysCount,
+        approxTotalCost: budget,
+        currency: currency,
+        dailyAverageCost: avgDaily
+      }
+    };
+  };
+
   // 2. AI Travel Plan Generation Trigger
   const handleGenerateTrip = async (details) => {
     setIsLoading(true);
     setTripError(null);
     setActiveTripDetails(details);
+
+    // Compute trip length in days
+    const lengthInDays = calculateLengthInDays(details.startDate, details.endDate);
     
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-    }, 20000); // 20s hard timeout
-    
+    // Check if user is Premium for long trips (> 92 days)
+    if (lengthInDays > 92 && (!user || !user.isPremium)) {
+      setIsLoading(false);
+      openPricingModal();
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const makeRequest = async (isSimplified = false) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 30000); // 30s timeout per call
+
+      try {
+        const response = await safeFetch('/api/generateTrip', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            ...details,
+            preferredCurrency: user?.preferredCurrency || details.currency || 'INR',
+            simplified: isSimplified
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return await response.json();
+      } catch (err) {
+        clearTimeout(timeoutId);
+        throw err;
+      }
+    };
+
     try {
-      const token = localStorage.getItem('token');
-      const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-
-      const response = await safeFetch('/api/generateTrip', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          ...details,
-          preferredCurrency: user?.preferredCurrency || details.currency || 'INR'
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-      const data = await response.json();
+      // First attempt
+      const data = await makeRequest(false);
       setIsLoading(false);
       setActiveItinerary(data.itinerary);
       
@@ -161,28 +294,66 @@ export default function App() {
         });
       }
     } catch (err) {
-      clearTimeout(timeoutId);
-      setIsLoading(false);
-      if (err.name === 'AbortError') {
-        setTripError("This is taking longer than usual. Please try again or simplify your inputs (shorter trips, fewer interests).");
-      } else if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
+      console.warn('[AI Trip Generation] First attempt failed. Error:', err.message);
+      
+      // If it's a premium gate error from the server, handle immediately without retrying or fallback
+      if (err.code === 'NEED_PREMIUM_FOR_LONG_TRIP' || err.message?.includes('NEED_PREMIUM_FOR_LONG_TRIP')) {
+        setIsLoading(false);
         openPricingModal();
-      } else if (err.code === 'INVALID_INPUT') {
-        setTripError(err.message);
-      } else {
-        const isNetworkError = err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('offline');
-        const isTimeout = err.message?.toLowerCase().includes('timeout') || err.message?.toLowerCase().includes('timed out');
-        const errorMsg = isNetworkError
-          ? "We couldn't generate your trip right now. Please check your connection and try again."
-          : isTimeout
-          ? "The AI took too long to respond. Please try again — it usually works within seconds."
-          : (err.message && err.message !== 'Server returned an invalid response')
-            ? err.message
-            : "We couldn't generate your trip right now. Please try again.";
-        setTripError(errorMsg);
+        return;
       }
-    } finally {
-      setIsLoading(false);
+
+      // If it's normal credit limit error, handle immediately
+      if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
+        setIsLoading(false);
+        openPricingModal();
+        return;
+      }
+
+      // Retry once with simplified flag
+      console.log('[AI Trip Generation] Retrying once with simplified flag...');
+      try {
+        const data = await makeRequest(true);
+        setIsLoading(false);
+        setActiveItinerary(data.itinerary);
+
+        // Track plan generation success
+        trackEvent('plan_created', {
+          days: data.itinerary?.summary?.totalDays || details.days || 3,
+          destinationCount: details.destination ? details.destination.split(',').length : 1,
+          simplified: true
+        });
+
+        if (user && !user.isPremium) {
+          setUser({ 
+            ...user, 
+            freeTripsGenerated: user.freeTripsGenerated + 1,
+            dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
+          });
+        }
+      } catch (retryErr) {
+        console.error('[AI Trip Generation] Retry attempt also failed. Error:', retryErr.message);
+        
+        // Final fallback: show a basic template itinerary generated on the client
+        setIsLoading(false);
+        const fallbackItinerary = generateClientItineraryTemplate(details);
+        setActiveItinerary(fallbackItinerary);
+        
+        // Track fallback generation
+        trackEvent('plan_created', {
+          days: fallbackItinerary?.tripSummary?.totalDays || 3,
+          destinationCount: details.destination ? details.destination.split(',').length : 1,
+          fallback: true
+        });
+
+        if (user && !user.isPremium) {
+          setUser({ 
+            ...user, 
+            freeTripsGenerated: user.freeTripsGenerated + 1,
+            dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
+          });
+        }
+      }
     }
   };
 

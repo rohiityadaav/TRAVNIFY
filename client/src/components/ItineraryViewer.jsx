@@ -149,6 +149,54 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
         </div>
       )}
 
+      {/* Safety & Logistics Tips Panel */}
+      {itinerary?.safetyAndLogistics && (
+        <div style={{
+          background: '#FFF',
+          border: '1px solid #E2E8F0',
+          borderRadius: '12px',
+          padding: '1.2rem',
+          marginTop: '1.2rem',
+          marginBottom: '1.2rem',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '1.2rem',
+          textAlign: 'left'
+        }}>
+          {itinerary.safetyAndLogistics.localTransportTips && (
+            <div>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                🚗 Local Transport
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                {itinerary.safetyAndLogistics.localTransportTips}
+              </p>
+            </div>
+          )}
+          {itinerary.safetyAndLogistics.areaSafetyNotes && (
+            <div>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                🛡️ Area Safety
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                {itinerary.safetyAndLogistics.areaSafetyNotes}
+              </p>
+            </div>
+          )}
+          {itinerary.safetyAndLogistics.moneySavingTips && (
+            <div>
+              <h4 style={{ fontSize: '0.9rem', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                💡 Money Saving
+              </h4>
+              <p style={{ fontSize: '0.85rem', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                {itinerary.safetyAndLogistics.moneySavingTips}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Accordion day cards */}
       <div>
         {days.map((day, idx) => {
@@ -156,11 +204,24 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
           return (
             <div key={idx} className="day-card">
               <div className="day-header" onClick={() => toggleDay(idx)}>
-                <div className="day-header-title">
+                <div className="day-header-title" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', textAlign: 'left' }}>
                   <div className="day-circle">{day.dayNumber}</div>
                   <strong style={{ fontWeight: '600', fontSize: '1.15rem' }}>
                     Day {day.dayNumber}: {day.location || 'Explore City'} {day.date ? `(${day.date})` : ''}
                   </strong>
+                  {day.theme && (
+                    <span style={{ 
+                      fontSize: '0.75rem', 
+                      background: 'rgba(124, 58, 237, 0.1)', 
+                      color: '#7C3AED', 
+                      padding: '0.2rem 0.5rem', 
+                      borderRadius: '6px',
+                      fontWeight: '600',
+                      marginLeft: '0.5rem'
+                    }}>
+                      ✨ {day.theme}
+                    </span>
+                  )}
                 </div>
                 <div>
                   {isOpen ? <ChevronUp size={20} className="text-medium" /> : <ChevronDown size={20} className="text-medium" />}
@@ -168,7 +229,7 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
               </div>
 
               {isOpen && (
-                <div className="day-body">
+                <div className="day-body" style={{ textAlign: 'left' }}>
                   {day.blocks.map((block, bIdx) => (
                     <div key={bIdx} className="time-slot">
                       <div className="time-badge">
@@ -192,6 +253,26 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
                       </div>
                     </div>
                   ))}
+
+                  {/* Day-specific practical tips/notes */}
+                  {day.notes && Array.isArray(day.notes) && day.notes.length > 0 && (
+                    <div style={{ 
+                      marginTop: '1rem', 
+                      padding: '0.8rem 1rem', 
+                      background: '#F8FAFC', 
+                      borderRadius: '8px', 
+                      borderLeft: '4px solid #F26430'
+                    }}>
+                      <h5 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#475569', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        💡 Practical Tips
+                      </h5>
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem', color: '#64748B' }}>
+                        {day.notes.map((note, nIdx) => (
+                          <li key={nIdx} style={{ marginBottom: '0.2rem' }}>{note}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
