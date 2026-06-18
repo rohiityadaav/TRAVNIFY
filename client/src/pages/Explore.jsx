@@ -924,6 +924,22 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
     const q = term || activityQuery;
     if (!q.trim()) return;
     setIsActivityLoading(true); setActivityError(''); setActivityShowUpsell(false); setSearchedActivity(q);
+    
+    const syncUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token && setUser) {
+        try {
+          const resMe = await safeFetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
+          if (resMe.ok) {
+            const uData = await resMe.json();
+            setUser(uData);
+          }
+        } catch (e) {
+          console.warn("Failed to sync user credits in Explore", e);
+        }
+      }
+    };
+
     try {
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
@@ -934,11 +950,10 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
       if (data.premiumUpsell) setActivityShowUpsell(true);
       
       // Sync daily credits in state
-      if (user && !user.isPremium && setUser) {
-        setUser({
-          ...user,
-          dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
-        });
+      if (data.user && setUser) {
+        setUser(data.user);
+      } else {
+        await syncUser();
       }
 
       // Track Activity Explorer Search Success
@@ -948,6 +963,7 @@ export default function Explore({ onSelectTemplate, user, setUser, openPricingMo
         alert("You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer searches!");
         openPricingModal();
         setActivityError("Daily free limit reached. Please upgrade to Premium.");
+        await syncUser();
       } else {
         const errorMsg = (err.status >= 500 || err.message?.toLowerCase().includes('fetch') || err.message?.toLowerCase().includes('network') || err.message?.toLowerCase().includes('timeout'))
           ? "We couldn’t search for this activity right now. Please try again."

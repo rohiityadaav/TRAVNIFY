@@ -1,6 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const db = require('../db');
 const config = require('../config');
+const authController = require('./authController');
 
 // Helper to generate unique ID
 function generateId(prefix = 'trip') {
@@ -690,7 +691,8 @@ async function generateTrip(req, res) {
       if (activeUser && !isPremium) {
         db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
       }
-      return res.json({ itinerary });
+      const freshUser = activeUser ? db.users.findById(activeUser.id) : null;
+      return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
     };
 
     // Initialize Gemini dynamically if not already done
@@ -898,7 +900,8 @@ Please reformat the last answer into the required JSON schema only. Respond with
 
     const duration = Date.now() - startTime;
     console.log(`[AI Trip Generation Success] Total endpoint latency: ${duration}ms`);
-    return res.json({ itinerary });
+    const freshUser = activeUser ? db.users.findById(activeUser.id) : null;
+    return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
 
   } catch (error) {
     console.error(`[AI Trip Generation Fatal Error] Error:`, error);

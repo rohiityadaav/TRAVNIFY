@@ -95,6 +95,24 @@ export default function App() {
     setPricingModalOpen(true);
   };
 
+  const syncUserCredits = async () => {
+    const token = localStorage.getItem('token');
+    if (token && setUser) {
+      try {
+        const res = await safeFetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const contentType = res.headers.get("content-type");
+        if (res.ok && contentType && contentType.includes("application/json")) {
+          const userData = await res.json();
+          setUser(userData);
+        }
+      } catch (err) {
+        console.warn('Failed to sync user credits from server:', err);
+      }
+    }
+  };
+
   const fetchSavedTrips = async (token) => {
     try {
       const response = await safeFetch('/api/trips', {
@@ -559,12 +577,10 @@ export default function App() {
       });
 
       // Sync limits left on profile if logged in
-      if (user && !user.isPremium) {
-        setUser({ 
-          ...user, 
-          freeTripsGenerated: user.freeTripsGenerated + 1,
-          dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
-        });
+      if (data.user && setUser) {
+        setUser(data.user);
+      } else {
+        syncUserCredits();
       }
     } catch (err) {
       console.warn('[AI Trip Generation] First attempt failed. Error:', err.message);
@@ -580,6 +596,7 @@ export default function App() {
       if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
         setIsLoading(false);
         openPricingModal();
+        syncUserCredits();
         return;
       }
 
@@ -597,12 +614,10 @@ export default function App() {
           simplified: true
         });
 
-        if (user && !user.isPremium) {
-          setUser({ 
-            ...user, 
-            freeTripsGenerated: user.freeTripsGenerated + 1,
-            dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
-          });
+        if (data.user && setUser) {
+          setUser(data.user);
+        } else {
+          syncUserCredits();
         }
       } catch (retryErr) {
         console.error('[AI Trip Generation] Retry attempt also failed. Error:', retryErr.message);
@@ -619,13 +634,7 @@ export default function App() {
           fallback: true
         });
 
-        if (user && !user.isPremium) {
-          setUser({ 
-            ...user, 
-            freeTripsGenerated: user.freeTripsGenerated + 1,
-            dailyCreditsUsed: (user.dailyCreditsUsed || 0) + 1
-          });
-        }
+        syncUserCredits();
       }
     }
   };

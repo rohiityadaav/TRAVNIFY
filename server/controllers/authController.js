@@ -552,5 +552,6 @@ module.exports = {
   optionalAuthenticateToken,
   firebaseSync,
   verifyEmail,
-  resendVerification
+  resendVerification,
+  formatUserProfile
 };
