@@ -75,6 +75,32 @@ app.post('/api/subscribe/verify', authController.authenticateToken, paymentContr
 app.post('/api/payments/create-order', authController.authenticateToken, paymentController.createOrder);
 app.post('/api/payments/verify', authController.authenticateToken, paymentController.verifyPayment);
 
+// Diagnostic Endpoint for Gemini connectivity
+app.get('/api/debug-gemini', async (req, res) => {
+  const apiKey = config.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.json({ status: 'error', message: 'GEMINI_API_KEY is missing or empty in config and process.env' });
+  }
+  try {
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    const tempAI = new GoogleGenerativeAI(apiKey);
+    const model = tempAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const result = await model.generateContent('Say word: PONG');
+    return res.json({
+      status: 'success',
+      message: 'Gemini connectivity verified successfully',
+      apiKeyPreview: apiKey.substring(0, 8) + '...',
+      response: result.response.text().trim()
+    });
+  } catch (err) {
+    return res.json({
+      status: 'error',
+      message: err.message,
+      stack: err.stack
+    });
+  }
+});
+
 // ----------------------------------------------------
 // PRODUCTION STATIC FILE SERVING
 // ----------------------------------------------------
