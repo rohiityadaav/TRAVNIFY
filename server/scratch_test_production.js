@@ -97,38 +97,133 @@ async function run() {
       console.log('    Body:', JSON.stringify(activity.body, null, 2));
     }
 
-    // 5. Test real Delhi trip generation on Render production
-    console.log('\n[5] Generating Delhi 10-day trip on Render production...');
-    const tripRes = await httpsRequest(`${RENDER_BASE}/api/generateTrip`, 'POST', {
-      prompt: "Delhi for 10 days, budget 20000 INR, party, shopping and food vibes",
-      destination: "Delhi",
-      budget: 20000,
-      currency: "INR",
-      startDate: "2026-07-01",
-      endDate: "2026-07-10",
-      interests: ["party", "shopping", "food"]
-    }, {
-      Authorization: `Bearer ${sync.body.token}`,
-    });
-
-    if (tripRes.status === 200 && tripRes.body.itinerary) {
-      console.log(`    ✅ Production Trip generation successful!`);
-      const itin = tripRes.body.itinerary;
-      console.log(`    → Destination: ${itin.destination}`);
-      console.log(`    → Days Count : ${itin.days?.length}`);
-      if (itin.days && itin.days.length > 0) {
-        console.log(`    → Day 1 Title: ${itin.days[0].title}`);
-        const mDesc = itin.days[0].blocks?.[0]?.description || "";
-        console.log(`    → Day 1 Morning Activity: ${mDesc}`);
-        if (mDesc.includes('Jama Masjid') || mDesc.includes('Chandni Chowk') || mDesc.includes('Karim')) {
-          console.log('    ✅ Verified Delhi-specific spots present in production output!');
-        } else {
-          console.log('    ⚠️ Delhi-specific spots NOT found in Day 1. Please check if mock was returned.');
-        }
+    // 5. Test real trip generation across 6 destinations on Render production
+    const testCases = [
+      {
+        name: "Delhi",
+        destination: "Delhi",
+        budget: 20000,
+        currency: "INR",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        interests: ["party", "shopping", "food"],
+        expectedKeywords: ["chandni", "hauz khas", "connaught", "lodhi", "gurudwara", "karim", "red fort", "lotus", "india gate", "qutub"]
+      },
+      {
+        name: "Paris",
+        destination: "Paris",
+        budget: 800,
+        currency: "EUR",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        interests: ["culture", "food", "shopping"],
+        expectedKeywords: ["eiffel", "louvre", "montmartre", "seine", "luxembourg", "champs", "marais", "orsay", "bistro"]
+      },
+      {
+        name: "New York",
+        destination: "New York",
+        budget: 1000,
+        currency: "USD",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        interests: ["sightseeing", "nightlife", "food"],
+        expectedKeywords: ["brooklyn", "central park", "high line", "times square", "wall street", "soho", "chelsea", "grimaldi", "broadway"]
+      },
+      {
+        name: "Manali",
+        destination: "Manali",
+        budget: 15000,
+        currency: "INR",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        interests: ["nature", "adventure", "food"],
+        expectedKeywords: ["hadimba", "solang", "mall road", "vashisht", "beas", "naggar", "van vihar"]
+      },
+      {
+        name: "Kasol",
+        destination: "Kasol",
+        budget: 10000,
+        currency: "INR",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        interests: ["nature", "chill", "trek"],
+        expectedKeywords: ["chalal", "parvati", "manikaran", "tosh", "evergreen", "morrison", "israeli"]
+      },
+      {
+        name: "Rishikesh",
+        destination: "Rishikesh",
+        budget: 12000,
+        currency: "INR",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        interests: ["culture", "adventure", "yoga"],
+        expectedKeywords: ["laxman", "ram jhula", "beatles", "ganga aarti", "parmarth", "triveni", "shivpuri"]
       }
-    } else {
-      console.log(`    ❌ Production Trip generation failed! Status: ${tripRes.status}`);
-      console.log('    Body:', JSON.stringify(tripRes.body, null, 2));
+    ];
+
+    console.log('\n[5] Running trip generation E2E tests for all 6 target destinations on Render...');
+    for (const tc of testCases) {
+      console.log(`\n----------------------------------------`);
+      console.log(`Testing Destination: ${tc.name}`);
+      console.log(`----------------------------------------`);
+
+      const tripRes = await httpsRequest(`${RENDER_BASE}/api/generateTrip`, 'POST', {
+        prompt: `${tc.name} trip, budget ${tc.budget} ${tc.currency}, interests: ${tc.interests.join(", ")}`,
+        destination: tc.destination,
+        budget: tc.budget,
+        currency: tc.currency,
+        startDate: tc.startDate,
+        endDate: tc.endDate,
+        interests: tc.interests
+      }, {
+        Authorization: `Bearer ${sync.body.token}`,
+      });
+
+      if (tripRes.status === 200 && tripRes.body.itinerary) {
+        console.log(`  ✅ HTTP 200 Success`);
+        const itin = tripRes.body.itinerary;
+        console.log(`  → Returned Destination: ${itin.destination}`);
+        console.log(`  → Estimated Cost      : ${itin.estimatedTotalCost?.value || itin.tripSummary?.estimatedTotalCost?.amount} ${itin.estimatedTotalCost?.currency || itin.tripSummary?.estimatedTotalCost?.currency}`);
+        console.log(`  → Total Days          : ${itin.days?.length || itin.dayByDayPlan?.length}`);
+
+        const days = itin.days || [];
+        const descriptions = [];
+        let matchingKeywords = 0;
+
+        days.forEach(day => {
+          (day.blocks || []).forEach(block => {
+            const desc = block.description || "";
+            descriptions.push(desc);
+            
+            const lowerDesc = desc.toLowerCase();
+            tc.expectedKeywords.forEach(kw => {
+              if (lowerDesc.includes(kw.toLowerCase())) {
+                matchingKeywords++;
+              }
+            });
+          });
+        });
+
+        // Uniqueness check
+        const uniqueDescs = new Set(descriptions);
+        console.log(`  → Total Slots Checked : ${descriptions.length}`);
+        console.log(`  → Unique Descriptions : ${uniqueDescs.size}`);
+        
+        if (uniqueDescs.size === descriptions.length) {
+          console.log(`  ✅ SUCCESS: No duplicated block descriptions!`);
+        } else {
+          console.log(`  ⚠️ WARNING: Found some duplicate descriptions (${descriptions.length - uniqueDescs.size} repetitions).`);
+        }
+
+        if (matchingKeywords > 0) {
+          console.log(`  ✅ SUCCESS: Found ${matchingKeywords} specific local landmark/activity matches! Itinerary is highly destination-aware.`);
+        } else {
+          console.log(`  ❌ FAILURE: Could not find any expected local keywords in the descriptions!`);
+        }
+      } else {
+        console.log(`  ❌ E2E Request failed! Status: ${tripRes.status}`);
+        console.log('  Response:', JSON.stringify(tripRes.body, null, 2));
+      }
     }
 
   } else {
