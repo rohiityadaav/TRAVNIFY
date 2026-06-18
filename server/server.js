@@ -109,5 +109,6 @@ app.listen(config.PORT, () => {
   console.log(`====================================================`);
   console.log(`   🚀 TRAVNIFY Full-Stack Server Running on Port ${config.PORT}`);
   console.log(`   💡 Sandbox Simulation Payment: ENABLED`);
+  console.log(`   🔑 GEMINI_API_KEY length on startup: ${process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0}`);
   console.log(`====================================================`);
 });
