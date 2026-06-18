@@ -47,49 +47,74 @@ const runTest = async (testName, payload) => {
 };
 
 async function main() {
-  // Scenario 1: Paris
-  await runTest("Paris, 3 days, 500 EUR, culture + food", {
-    prompt: "Paris for 3 days, budget 500 EUR, culture and food",
-    destination: "Paris",
-    budget: 500,
-    currency: "EUR",
-    startDate: "2026-07-01",
-    endDate: "2026-07-03",
-    interests: ["culture", "food"]
-  });
+  const testCases = [
+    {
+      name: "Delhi (Big City - India)",
+      destination: "Delhi",
+      budget: 20000,
+      currency: "INR",
+      startDate: "2026-07-01",
+      endDate: "2026-07-05",
+      interests: ["party", "shopping", "food"]
+    },
+    {
+      name: "Paris (Big International City)",
+      destination: "Paris",
+      budget: 800,
+      currency: "EUR",
+      startDate: "2026-07-01",
+      endDate: "2026-07-04",
+      interests: ["culture", "food", "shopping"]
+    },
+    {
+      name: "New York (Big International City)",
+      destination: "New York",
+      budget: 1000,
+      currency: "USD",
+      startDate: "2026-07-01",
+      endDate: "2026-07-04",
+      interests: ["sightseeing", "nightlife", "food"]
+    },
+    {
+      name: "Manali (Indian Hill Station)",
+      destination: "Manali",
+      budget: 15000,
+      currency: "INR",
+      startDate: "2026-07-01",
+      endDate: "2026-07-04",
+      interests: ["nature", "adventure", "food"]
+    },
+    {
+      name: "Kasol (Indian Hill Station)",
+      destination: "Kasol",
+      budget: 10000,
+      currency: "INR",
+      startDate: "2026-07-01",
+      endDate: "2026-07-04",
+      interests: ["nature", "chill", "trek"]
+    },
+    {
+      name: "Rishikesh (Indian Spiritual/Adventure Town)",
+      destination: "Rishikesh",
+      budget: 12000,
+      currency: "INR",
+      startDate: "2026-07-01",
+      endDate: "2026-07-04",
+      interests: ["culture", "adventure", "yoga"]
+    }
+  ];
 
-  // Scenario 2: Bali
-  await runTest("Bali, 5 days, 300 USD, beach + nightlife", {
-    prompt: "Bali for 5 days, budget 300 USD, beach and nightlife",
-    destination: "Bali",
-    budget: 300,
-    currency: "USD",
-    startDate: "2026-08-10",
-    endDate: "2026-08-14",
-    interests: ["beach", "nightlife"]
-  });
-
-  // Scenario 3: Tokyo
-  await runTest("Tokyo, 4 days, 800 USD, shopping + anime/culture", {
-    prompt: "Tokyo for 4 days, budget 800 USD, shopping and anime/culture",
-    destination: "Tokyo",
-    budget: 800,
-    currency: "USD",
-    startDate: "2026-09-05",
-    endDate: "2026-09-08",
-    interests: ["shopping", "culture"]
-  });
-
-  // Scenario 4: Bihar
-  await runTest("Bihar, 3 days, 20000 INR, culture + food", {
-    prompt: "Bihar for 3 days, budget 20000 INR, culture and food",
-    destination: "Bihar",
-    budget: 20000,
-    currency: "INR",
-    startDate: "2026-10-15",
-    endDate: "2026-10-17",
-    interests: ["culture", "food"]
-  });
+  for (const tc of testCases) {
+    await runTest(tc.name, {
+      prompt: `${tc.destination} trip for ${tc.name}, interests: ${tc.interests.join(", ")}`,
+      destination: tc.destination,
+      budget: tc.budget,
+      currency: tc.currency,
+      startDate: tc.startDate,
+      endDate: tc.endDate,
+      interests: tc.interests
+    });
+  }
 }
 
 main();

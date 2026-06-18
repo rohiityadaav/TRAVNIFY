@@ -1,5 +1,6 @@
+require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const genAI = new GoogleGenerativeAI("AIzaSyAMjTDce2g2KCqP-vJ5w8_CsWRI4mCtlRc");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const prompt = `You are TRAVNIFY, a premium AI travel assistant.
 Your job is to parse the user's travel request and output a highly detailed, budget-aware day-by-day trip plan.
@@ -51,10 +52,10 @@ JSON Schema structure:
 }`;
 
 async function testOptimized() {
-  console.log("Testing optimized prompt with gemini-3.5-flash...");
+  console.log("Testing optimized prompt with gemini-2.5-flash...");
   const startTime = Date.now();
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const res = await model.generateContent(prompt);
     const text = res.response.text();
     const duration = Date.now() - startTime;

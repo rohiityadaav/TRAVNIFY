@@ -134,34 +134,307 @@ export default function App() {
     const avgDaily = Math.round(budget / daysCount);
     const baseDate = details.startDate ? new Date(details.startDate) : new Date();
 
+    const knownDestinationsMockData = {
+      "delhi": {
+        morning: [
+          "Walk through the historic lanes of Chandni Chowk, taking in the sights and scents.",
+          "Explore the majestic Red Fort and learn about its Mughal architecture.",
+          "Visit the serene Lotus Temple and spend some quiet time meditating.",
+          "Stroll around Connaught Place (CP) and admire the colonial-era architecture.",
+          "Explore the ruins and lush greenery of Lodhi Gardens.",
+          "Visit Humayun's Tomb, a magnificent precursor to the Taj Mahal.",
+          "Head to Qutub Minar, the world's tallest brick minaret, and check out the ruins."
+        ],
+        afternoon: [
+          "Have delicious paranthas at the famous Paranthe Wali Gali in Old Delhi.",
+          "Enjoy a classic lunch at Karim's near Jama Masjid, trying their legendary kebabs.",
+          "Browse handicrafts and regional cuisines from different states at Dilli Haat INA.",
+          "Shop for bargain fashion at the bustling Sarojini Nagar Market.",
+          "Explore the high-street brands and cafes in Connaught Place Inner Circle.",
+          "Visit the Crafts Museum and enjoy a traditional Indian meal at Lota Cafe.",
+          "Wander around Khan Market, checking out boutique bookstores and upscale cafes."
+        ],
+        evening: [
+          "Enjoy the vibrant nightlife at Hauz Khas Village, hopping between rooftop bars.",
+          "Experience a sufi music night or dine at a fine-dining spot in Aerocity.",
+          "Walk near India Gate, enjoy a street-side ice cream, and see the illuminated war memorial.",
+          "Visit the lively CyberHub in Gurugram for drinks, pub food, and live DJ sets.",
+          "Check out the nightlife and cocktail bars in Greater Kailash (GK) M-Block market.",
+          "Indulge in a premium Mughlai dinner at Al Jawahar or Moti Mahal.",
+          "Relax at a trendy lounge or microbrewery in Connaught Place."
+        ]
+      },
+      "paris": {
+        morning: [
+          "Walk around the iconic Eiffel Tower and take photos from Trocadéro Gardens.",
+          "Stroll through the artistic streets of Montmartre up to the Sacré-Cœur Basilica.",
+          "Visit the world-famous Louvre Museum to admire the Mona Lisa and other masterpieces.",
+          "Wander along the Seine River and check out the historic booksellers (bouquinistes).",
+          "Explore the beautiful Luxembourg Gardens, watching locals play chess and sail toy boats.",
+          "Visit the Notre-Dame Cathedral area and stroll through Île de la Cité.",
+          "Walk down the grand Avenue des Champs-Élysées towards the Arc de Triomphe."
+        ],
+        afternoon: [
+          "Grab fresh croissants and coffee at a cozy sidewalk bistro in the Latin Quarter.",
+          "Enjoy a picnic with French cheese and baguettes in the Champ de Mars park.",
+          "Browse the designer shops and historic boutiques in Le Marais district.",
+          "Visit the Musée d'Orsay to see the stunning collection of Impressionist art.",
+          "Have lunch at a classic brasserie like Bouillon Chartier, tasting traditional French onion soup.",
+          "Explore the historic covered passages of Paris, like Passage des Panoramas.",
+          "Visit the Palais Garnier opera house and shop at the nearby Galeries Lafayette."
+        ],
+        evening: [
+          "Enjoy a cruise along the Seine River as the city lights up and monuments glow.",
+          "Experience Paris's wine culture at a local cave à vin (wine bar) in Saint-Germain-des-Prés.",
+          "Walk around the lively Pigalle area and dine at a trendy bistro.",
+          "Dine at a premium restaurant in Le Marais, enjoying fine French cuisine and pastries.",
+          "Attend a live jazz performance at Le Caveau de la Huchette in the Latin Quarter.",
+          "Relax with a glass of champagne at a rooftop bar overlooking the sparkling Eiffel Tower.",
+          "Take an evening stroll through the illuminated courtyard of the Louvre."
+        ]
+      },
+      "new york": {
+        morning: [
+          "Walk across the iconic Brooklyn Bridge and enjoy skyline views of Manhattan.",
+          "Stroll through Central Park, visiting Bethesda Fountain and the Strawberry Fields memorial.",
+          "Visit the historic Statue of Liberty and Ellis Island by taking the ferry.",
+          "Walk the High Line, an elevated public park built on a historic freight rail line.",
+          "Visit the Top of the Rock observation deck at Rockefeller Center for panoramic city views.",
+          "Explore the grand Beaux-Arts building of the New York Public Library and Bryant Park.",
+          "Walk through the Charging Bull and Wall Street in the Financial District."
+        ],
+        afternoon: [
+          "Grab a classic New York slice of pizza in Greenwich Village or Soho.",
+          "Explore the galleries and museums along the Museum Mile, including the Met or MoMA.",
+          "Browse the boutique shops and art galleries in the trendy neighborhood of Soho.",
+          "Have a pastrami sandwich at a legendary NYC deli, trying classic local specialties.",
+          "Wander through the bustling streets of Chinatown and Little Italy.",
+          "Visit Grand Central Terminal and have lunch at the Grand Central Oyster Bar.",
+          "Shop along Fifth Avenue or explore the unique shops in Chelsea Market."
+        ],
+        evening: [
+          "See the bright neon lights of Times Square and catch a Broadway musical show.",
+          "Enjoy craft cocktails at a speakeasy bar in the East Village.",
+          "Experience the nightlife and live music at a jazz club in Greenwich Village.",
+          "Dine at a trendy restaurant in the Meatpacking District or Williamsburg, Brooklyn.",
+          "Take an evening cruise or walk along the Hudson River Park to watch the sunset.",
+          "Grab a local craft beer at a rooftop lounge with views of the Empire State Building.",
+          "Dine at a classic steakhouse or modern eatery in Midtown Manhattan."
+        ]
+      },
+      "manali": {
+        morning: [
+          "Walk through the pine-scented trails of Van Vihar National Park near the Beas River.",
+          "Visit the historic wooden Hadimba Temple nestled amidst giant deodar forests.",
+          "Take a scenic drive to the Solang Valley and enjoy the crisp mountain air.",
+          "Walk around the rustic lanes of Old Manali, taking photos of traditional wooden houses.",
+          "Visit the serene Nyingmapa Buddhist Monastery and spin the prayer wheels.",
+          "Head to Vashisht Village to see the natural hot water springs.",
+          "Start a short trek up to the beautiful Jogini Waterfalls near Vashisht."
+        ],
+        afternoon: [
+          "Have lunch at a cozy cafe in Old Manali, enjoying wood-fired trout or local Himachali Siddu.",
+          "Explore Mall Road, shopping for woolen shawls, wooden crafts, and local apricots.",
+          "Enjoy paragliding or zorbing in the Solang Valley activity grounds.",
+          "Sit by the banks of the Beas River, listening to the rushing water and enjoying a hot cup of tea.",
+          "Visit the Himalayan Nyinmapa Tibetan Buddhist Temple and browse local shops nearby.",
+          "Have lunch at Cafe 1947 or Dylan's Toasted & Roasted Coffee House in Old Manali.",
+          "Wander through the peaceful orchards and pine forests of Manu Temple road."
+        ],
+        evening: [
+          "Stroll along the lively Mall Road, tasting local street food like momos and softies.",
+          "Enjoy live music and craft beer at a vibrant pub/lounge in Old Manali.",
+          "Relax around a cozy bonfire at your cottage or resort, enjoying a hearty dinner.",
+          "Dine at a rooftop restaurant overlooking the valley, watching the stars and town lights.",
+          "Visit a local German Bakery for delicious apple pie and hot chocolate.",
+          "Spend a quiet evening at a riverside cafe in Old Manali, chatting with other travelers.",
+          "Try local fruit wines and traditional dishes at a heritage Himachali kitchen."
+        ]
+      },
+      "kasol": {
+        morning: [
+          "Walk along the roaring Parvati River, enjoying the misty pine forest vibes.",
+          "Hike the scenic nature trail from Kasol to the peaceful village of Chalal.",
+          "Visit the nearby holy site of Manikaran Sahib Gurudwara and see the hot springs.",
+          "Start a short trek to Rasol village or towards the high viewpoints of the valley.",
+          "Walk through the local Kasol market and enjoy the laid-back hippie culture.",
+          "Find a quiet spot by the river for morning meditation or photography.",
+          "Drive to the start of the Tosh village trail and enjoy the dramatic mountain views."
+        ],
+        afternoon: [
+          "Have lunch at an Israeli cafe in Kasol, trying Shakshuka, Hummus, and pita bread.",
+          "Shop for bohemian clothes, crystals, incense, and dreamcatchers in the Kasol bazaar.",
+          "Enjoy a warm bath in the natural hot springs of Manikaran.",
+          "Relax at the famous Evergreen Cafe or Jim Morrison Cafe, enjoying music and food.",
+          "Explore the rustic pine-wood houses and Apple orchards of Chalal village.",
+          "Sip herbal tea or local coffee while reading a book in a riverside cafe.",
+          "Walk up the Tosh trail, stopping at local hillside dhabas for instant noodles and tea."
+        ],
+        evening: [
+          "Dine at a vibrant cafe in Kasol with chill psychedelic trance music and cozy floor seating.",
+          "Gather around a riverside bonfire under a clear starry night sky.",
+          "Relax at a local German bakery, enjoying cinnamon rolls and hot chocolate.",
+          "Take a peaceful evening stroll along the Kasol-Manikaran road, watching the sunset.",
+          "Socialize with international travelers at local cafes like Moon Dance or Little Italy.",
+          "Dine at a local trout fish kitchen, tasting freshly caught river fish.",
+          "Enjoy the serene mountain silence from a wooden cafe balcony overlooking the Parvati valley."
+        ]
+      },
+      "rishikesh": {
+        morning: [
+          "Attend an early morning yoga or meditation session at a peaceful ashram by the Ganges.",
+          "Walk across the iconic suspension bridge Laxman Jhula and watch the sunrise over the river.",
+          "Take a holy dip in the cool waters of the Ganges at Triveni Ghat.",
+          "Explore the ruins of the famous Beatles Ashram (Chaurasi Kutia) and its colorful graffiti.",
+          "Visit the 13-story Trayambakeshwar Temple near Laxman Jhula.",
+          "Embark on a white-water rafting adventure starting from Shivpuri down the rapids.",
+          "Hike to the scenic Neer Garh Waterfall for a refreshing morning bath."
+        ],
+        afternoon: [
+          "Have lunch at a health food cafe overlooking the river, trying Ayurvedic thalis or smoothies.",
+          "Browse the spiritual bookshops, crystal stores, and yoga wear shops in Ram Jhula.",
+          "Visit the historic Swarg Ashram and learn about its spiritual history.",
+          "Enjoy a quiet lunch at the Beatles Cafe or Freedom Cafe, enjoying the river view.",
+          "Take a walking tour of the local spice and incense markets.",
+          "Relax at a riverside beach, watching rafters navigate the rapids.",
+          "Visit the Vashishta Gufa cave along the banks of the Ganges for deep quietude."
+        ],
+        evening: [
+          "Witness the mesmerizing and spiritual Ganga Aarti ceremony at Parmarth Niketan or Triveni Ghat.",
+          "Sip ginger lemon honey tea at a rooftop cafe in Laxman Jhula, listening to the temple bells.",
+          "Dine at Chotiwala restaurant, enjoying a traditional North Indian thali.",
+          "Stroll along the river ghats in the cool evening breeze, listening to devotional music.",
+          "Dine at a premium organic cafe, enjoying organic wood-fired pizza and herbal teas.",
+          "Relax with a sound healing session or watch a classical sitar performance.",
+          "Enjoy the serene, alcohol-free nightlife, chatting with fellow seekers in cozy cafes."
+        ]
+      }
+    };
+
+    const cleanDest = destName.toLowerCase().trim();
+    let isKnown = false;
+    let knownKey = "";
+    for (const key of Object.keys(knownDestinationsMockData)) {
+      if (cleanDest.includes(key)) {
+        isKnown = true;
+        knownKey = key;
+        break;
+      }
+    }
+
     const dayByDayPlan = [];
+    const safeInterests = details.interests && details.interests.length > 0 ? details.interests : ['general'];
+
     for (let i = 0; i < daysCount; i++) {
+      const activeInterest = safeInterests[i % safeInterests.length];
       const d = new Date(baseDate);
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
 
-      dayByDayPlan.push({
-        dayNumber: i + 1,
-        date: dateStr,
-        title: `Explore ${destName}`,
-        theme: 'EXPLORE',
-        morning: {
-          description: `Morning sightseeing and exploring central attractions of ${destName}.`,
-          estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
-        },
-        afternoon: {
-          description: `Afternoon visit to local spots, historical sites, and regional lunch.`,
-          estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
-        },
-        evening: {
-          description: `Evening walk, shopping in local markets, and traditional dinner.`,
-          estimatedCost: { amount: Math.round(avgDaily * 0.4), currency }
-        },
-        notes: [
-          'Wear comfortable shoes for walking.',
-          'Agree on fares or use taxi apps for transport.'
-        ]
-      });
+      if (isKnown) {
+        const pool = knownDestinationsMockData[knownKey];
+        const morningDesc = pool.morning[i % pool.morning.length];
+        const afternoonDesc = pool.afternoon[i % pool.afternoon.length];
+        const eveningDesc = pool.evening[i % pool.evening.length];
+
+        const notesPool = [
+          `Use authorized local transport or walk to explore the unique corners of ${destName}.`,
+          `Wear comfortable walking shoes for the day's sightseeing across ${destName}.`,
+          `Check local entry times and carry some cash for street purchases in ${destName}.`,
+          `Ask the locals for the best hidden viewpoints and local eateries in ${destName}.`
+        ];
+
+        dayByDayPlan.push({
+          dayNumber: i + 1,
+          date: dateStr,
+          title: `Explore ${destName} - Day ${i + 1}`,
+          theme: activeInterest.toUpperCase(),
+          morning: {
+            description: morningDesc,
+            estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
+          },
+          afternoon: {
+            description: afternoonDesc,
+            estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
+          },
+          evening: {
+            description: eveningDesc,
+            estimatedCost: { amount: Math.round(avgDaily * 0.4), currency }
+          },
+          notes: [
+            notesPool[i % notesPool.length],
+            notesPool[(i + 2) % notesPool.length]
+          ]
+        });
+      } else {
+        // General dynamic generator ensuring high variety and destination-awareness
+        const mornings = [
+          `Begin your day exploring the iconic central landmark of ${destName}. Take photos and enjoy the historic surroundings.`,
+          `Take a scenic morning walk through the beautiful public parks and green gardens of ${destName}.`,
+          `Visit a historic museum or cultural heritage center in ${destName} to learn about local history and traditions.`,
+          `Head to a stunning local viewpoint or natural spot in ${destName} for panoramic views in the soft morning light.`,
+          `Explore the old quarters and historic streets of ${destName}, observing the local architecture and lifestyle.`,
+          `Take a guided local walking tour through the oldest neighborhood in ${destName}.`,
+          `Visit a peaceful religious or spiritual landmark (temple/church/monastery) in ${destName}.`
+        ];
+
+        const afternoons = [
+          `Head to the main market area of ${destName} for shopping. Enjoy a traditional lunch at a local heritage kitchen.`,
+          `Try famous street foods at a popular food lane in ${destName}, followed by browsing local handicraft stalls.`,
+          `Have a leisurely lunch at a cozy local cafe in ${destName}, then stroll through the bustling downtown shopping district.`,
+          `Enjoy a picnic lunch by the scenic riverbank, lake, or beachside area in ${destName}.`,
+          `Visit local artisanal workshops in ${destName} to see traditional crafts being made, and grab a quick bite.`,
+          `Explore the local botanical gardens or nature reserves of ${destName}, followed by lunch at a nearby bistro.`,
+          `Wander through the art galleries and boutique shops in the creative district of ${destName}.`
+        ];
+
+        const evenings = [
+          `Relax at a popular sunset point in ${destName}, followed by dining at a top-rated traditional regional restaurant.`,
+          `Experience the local nightlife of ${destName} by visiting a vibrant lounge or pub with music and drinks.`,
+          `Stroll through the lively evening night bazaar of ${destName}, enjoying street music and late-night snacks.`,
+          `Dine at a premium restaurant in ${destName} specializing in regional delicacies and fresh local ingredients.`,
+          `Socialize with other travelers and locals at a popular music cafe or community gathering spot in ${destName}.`,
+          `Take a scenic evening cruise, beachside walk, or harbor stroll in ${destName} under the city lights.`,
+          `Enjoy a quiet, relaxing dinner at a cozy garden restaurant in ${destName}, wrapping up the day's experiences.`
+        ];
+
+        const notesPool = [
+          `Use authorized local transport or walk to get the most authentic feel of ${destName}.`,
+          `Keep small changes in local currency handy for street shopping in ${destName}.`,
+          `Dress respectfully when visiting religious and heritage sites in ${destName}.`,
+          `Ask locals for food recommendations; they know the best hidden culinary spots in ${destName}.`,
+          `Start your days early in ${destName} to beat the mid-day crowd at popular spots.`,
+          `Keep a water bottle and comfortable walking shoes ready for exploring ${destName}.`,
+          `Check the local weather forecast daily before planning outdoor activities in ${destName}.`
+        ];
+
+        const morningIdx = i % mornings.length;
+        const afternoonIdx = (i + 2) % afternoons.length;
+        const eveningIdx = (i + 4) % evenings.length;
+
+        dayByDayPlan.push({
+          dayNumber: i + 1,
+          date: dateStr,
+          title: `Discover ${destName} - Day ${i + 1}`,
+          theme: activeInterest.toUpperCase(),
+          morning: {
+            description: mornings[morningIdx],
+            estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
+          },
+          afternoon: {
+            description: afternoons[afternoonIdx],
+            estimatedCost: { amount: Math.round(avgDaily * 0.3), currency }
+          },
+          evening: {
+            description: evenings[eveningIdx],
+            estimatedCost: { amount: Math.round(avgDaily * 0.4), currency }
+          },
+          notes: [
+            notesPool[i % notesPool.length],
+            notesPool[(i + 3) % notesPool.length]
+          ]
+        });
+      }
     }
 
     return {
@@ -170,13 +443,13 @@ export default function App() {
         totalDays: daysCount,
         travelStyle: 'mixed',
         estimatedTotalCost: { amount: budget, currency },
-        bestTimeAdvice: 'Generally, visiting during local dry seasons offers the best climate.'
+        bestTimeAdvice: `Generally, visiting ${destName} during the dry season offers the best climate.`
       },
       dayByDayPlan,
       safetyAndLogistics: {
-        localTransportTips: 'Taxis, public transit and walking are the best ways to get around.',
-        areaSafetyNotes: 'Safe area. Just take standard precautions with personal belongings in crowded spots.',
-        moneySavingTips: 'Enjoy street food, utilize public transit, and visit free attractions like public parks.'
+        localTransportTips: `Taxis, public transport, and walking are the best ways to get around ${destName}.`,
+        areaSafetyNotes: `Keep your belongings secure in crowded spots and markets around ${destName}.`,
+        moneySavingTips: `Look for local food joints and free entry parks in ${destName} to save costs.`
       },
       budgetBreakdown: {
         transportPercent: 25,
