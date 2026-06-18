@@ -51,15 +51,6 @@ app.get('/api/auth/me', authController.authenticateToken, authController.getMe);
 app.patch('/api/auth/profile', authController.authenticateToken, authController.updateProfile);
 app.get('/api/auth/verify-email', authController.verifyEmail);
 app.post('/api/auth/resend-verification', authController.resendVerification);
-app.get('/api/debug-key', (req, res) => {
-  const key = process.env.GEMINI_API_KEY || '';
-  res.json({
-    length: key.length,
-    prefix: key.substring(0, 6),
-    suffix: key.substring(key.length - 6),
-    hasAngleBrackets: key.startsWith('<') && key.endsWith('>')
-  });
-});
 
 // Trip Planning & Refinements
 app.post('/api/generateTrip', authController.authenticateToken, validation.validateGenerateTrip, aiRateLimiter, tripController.generateTrip);
@@ -109,6 +100,5 @@ app.listen(config.PORT, () => {
   console.log(`====================================================`);
   console.log(`   🚀 TRAVNIFY Full-Stack Server Running on Port ${config.PORT}`);
   console.log(`   💡 Sandbox Simulation Payment: ENABLED`);
-  console.log(`   🔑 GEMINI_API_KEY length on startup: ${process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0}`);
   console.log(`====================================================`);
 });
