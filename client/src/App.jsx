@@ -326,6 +326,167 @@ export default function App() {
           "Relax with a sound healing session or watch a classical sitar performance.",
           "Enjoy the serene, alcohol-free nightlife, chatting with fellow seekers in cozy cafes."
         ]
+      },
+      "bihar": {
+        morning: [
+          "Begin the morning exploring Patna, visiting the historic Patna Museum and seeing the ancient relics, then walking around the famous Golghar structure.",
+          "Head to Bodh Gaya to visit the sacred Mahabodhi Temple complex, meditate near the Bodhi Tree, and view the massive 80-foot Giant Great Buddha Statue.",
+          "Explore the majestic ruins of ancient Nalanda University, checking out the historic Nalanda Archaeological Museum and its surrounding excavations.",
+          "Drive to Rajgir and take the scenic ropeway chairlift up to the magnificent Vishwa Shanti Stupa on top of Ratnagiri Hill.",
+          "Visit the historic Vishnupad Temple in Gaya, followed by a walk along the peaceful ghats of the Phalgu River."
+        ],
+        afternoon: [
+          "Have a delicious lunch trying traditional Litti Chokha at the popular Maurya Lok street food complex in Patna.",
+          "Enjoy a peaceful vegetarian lunch at the Root Institute Cafe in Bodh Gaya, followed by visiting the beautiful Thai and Bhutanese Buddhist Monasteries.",
+          "Have lunch at a local garden restaurant in Nalanda, then explore the historic temples of Kundalpur nearby.",
+          "Relax with a leisurely lunch at a hillside eatery in Rajgir, followed by a visit to the historic hot springs at Saptaparni Cave.",
+          "Try local sweets like Tilkut and Anarsa at a famous heritage kitchen in Gaya town."
+        ],
+        evening: [
+          "Take a scenic evening walk along Gandhi Ghat on the Ganges River in Patna, watching the daily Ganga Aarti ceremony.",
+          "Stroll through the local Bodh Gaya Market, shopping for handicrafts and ending the evening at the peaceful Japanese Nippon Temple.",
+          "Dine at the traditional Nalanda Retreat Restaurant, trying regional Bihari delicacies and local specialties.",
+          "Explore the ancient Bimbisara Jail ruins in Rajgir and take a relaxing evening walk near the Cyclopean Wall.",
+          "Visit the sacred Mangla Gauri Temple in Gaya, followed by dining at a popular traditional diner in the central bazaar."
+        ]
+      },
+      "himachal pradesh": {
+        morning: [
+          "Walk down the famous Ridge in Shimla, taking in views of Christ Church and hiking up to the hilltop Jakhoo Temple.",
+          "Explore the pine-scented trails of Van Vihar National Park in Manali, visiting the wooden Hadimba Temple.",
+          "Visit the peaceful Tsuglagkhang Complex (Dalai Lama Temple) in McLeod Ganj, walking the spiritual Kora path.",
+          "Start the day at the beautiful Khajjiar Lake near Dalhousie, walking through the lush cedar forest surrounds.",
+          "Take a scenic drive through the apple orchards of Kasauli, visiting the historic Christ Church."
+        ],
+        afternoon: [
+          "Enjoy a traditional Himachali lunch of Siddu and local food at Cafe Shimla Times, then stroll down Mall Road.",
+          "Have lunch at Dylan's Toasted & Roasted Cafe in Old Manali, then sit by the rushing waters of the Beas River.",
+          "Have lunch trying delicious Tibetan momos and Thukpa at the popular Tibet Kitchen in McLeod Ganj.",
+          "Enjoy a picnic lunch on the green lawns of Khajjiar, followed by a horse ride through the valley.",
+          "Have lunch at a cozy cafe on Kasauli Mall Road, then hike to the Gilbert Trail viewpoint."
+        ],
+        evening: [
+          "Watch the sunset from Scandal Point in Shimla, followed by shopping for wooden crafts at Lakkar Bazar.",
+          "Relax around a cozy bonfire at a riverside cafe in Old Manali, enjoying live local acoustic music.",
+          "Sip herbal butter tea at Illiterati Cafe in McLeod Ganj, enjoying spectacular sunset views of the Dhauladhar range.",
+          "Explore the Gandhi Chowk market in Dalhousie, picking up woolen shawls and local souvenirs.",
+          "Take in panoramic views of the plains from Sunset Point in Kasauli, followed by a quiet dinner."
+        ]
+      },
+      "goa": {
+        morning: [
+          "Visit the historic Basilica of Bom Jesus and Se Cathedral in Old Goa, then walk through the colorful Fontainhas Latin Quarter.",
+          "Stroll along Calangute Beach and Baga Beach, taking photos and watching early morning fishermen.",
+          "Hike up to the ancient lighthouse at the historic Fort Aguada ruins, enjoying panoramic sea views.",
+          "Explore the quiet, scenic shores of Palolem Beach and take a dolphin-spotting boat trip to Butterfly Beach.",
+          "Start your morning with a guided tour of a lush local Spice Plantation in Ponda."
+        ],
+        afternoon: [
+          "Dine at Mum's Kitchen in Panaji, enjoying a traditional Goan fish thali and local vindaloo.",
+          "Have a beachside lunch at Britto's on Baga Beach, trying Goan prawn curry and seafood.",
+          "Enjoy a relaxed lunch at a garden cafe in Candolim, followed by shopping for local shell crafts.",
+          "Have a fresh seafood lunch at a beach shack on Palolem Beach, then relax on a sunbed.",
+          "Enjoy a traditional Goan buffet lunch at the Sahakari Spice Farm."
+        ],
+        evening: [
+          "Embark on a scenic sunset boat cruise on the Mandovi River in Panaji, enjoying Goan folk dances.",
+          "Browse the lively Anjuna Flea Market, watching the fire dancers and enjoying drinks at a beach bar.",
+          "Take a sunset walk along the sandy Miramar Beach, followed by dinner at a popular Panaji bistro.",
+          "Enjoy a quiet beach bonfire and candlelit dinner under the stars at a beach restaurant in Colva.",
+          "Dine at a premium hilltop restaurant in Vagator, overlooking the illuminated Chapora Fort."
+        ]
+      },
+      "rajasthan": {
+        morning: [
+          "Visit the iconic Hawa Mahal (Palace of Winds) and the grand Amer Fort in Jaipur, admiring Rajput architecture.",
+          "Take a scenic boat ride on Lake Pichola in Udaipur, visiting the historic Jag Mandir palace.",
+          "Explore the towering Mehrangarh Fort in Jodhpur, looking down at the famous blue-painted streets.",
+          "Explore the spectacular Jaisalmer Fort (Golden Fort) and walk through its historic living sandcastle streets.",
+          "Walk around the sacred Pushkar Lake and visit the rare Brahma Temple during sunrise."
+        ],
+        afternoon: [
+          "Have traditional Dal Baati Churma at Laxmi Mishthan Bhandar in Johri Bazar in Jaipur.",
+          "Enjoy lunch at a lakeview rooftop restaurant in Udaipur, then tour the magnificent City Palace.",
+          "Try classic local Mawa Kachoris at Janta Sweet Home near the clock tower in Jodhpur.",
+          "Have a traditional Rajasthani thali at a desert restaurant in Jaisalmer, then visit Patwon Ki Haveli.",
+          "Have lunch at a rooftop cafe in Pushkar, shopping for silver jewelry and colorful clothes in the bazaar."
+        ],
+        evening: [
+          "Watch the sunset over the Pink City from Nahargarh Fort, followed by shopping at Bapu Bazar.",
+          "Watch a traditional Rajasthani puppet and folk dance show at Bagore Ki Haveli in Udaipur.",
+          "Stroll around the bustling Jodhpur Clock Tower market, and dine at a rooftop garden restaurant.",
+          "Embark on an evening camel safari in the Sam Sand Dunes of Jaisalmer, watching traditional folk dances.",
+          "Watch the evening aarti prayers at Varaha Ghat in Pushkar, enjoying the peaceful chanting."
+        ]
+      },
+      "kerala": {
+        morning: [
+          "Stroll around Fort Kochi to see the giant Chinese Fishing Nets and visit the historic Santa Cruz Basilica.",
+          "Explore the misty, emerald tea gardens of Munnar, visiting the Lockhart Tea Museum.",
+          "Board a traditional Kettuvallam houseboat for a scenic cruise through the peaceful backwaters of Alleppey.",
+          "Take a walk along the spectacular cliffside of Varkala Beach, listening to the crashing waves.",
+          "Explore the wildlife trails of Periyar National Park in Thekkady, looking for birds and elephants."
+        ],
+        afternoon: [
+          "Have lunch trying Kerala parotta and vegetable stew at a historic warehouse cafe in Jew Town Kochi.",
+          "Dine at Rapsy Restaurant in Munnar, then take a walk around the scenic Mattupetty Dam.",
+          "Enjoy a traditional Kerala lunch served on a fresh banana leaf on board your Alleppey houseboat.",
+          "Enjoy a fresh coconut water and local meal at a clifftop restaurant in Varkala.",
+          "Visit the spice markets in Kumily, trying local cardamom tea and buying spices."
+        ],
+        evening: [
+          "Watch a mesmerizing Kathakali dance performance at the Kerala Kathakali Centre in Fort Kochi.",
+          "Watch the sunset over the tea hills from the scenic Echo Point in Munnar.",
+          "Stroll along the sandy Alleppey Beach, watching the sunset near the historic lighthouse.",
+          "Watch the sunset into the Arabian Sea from Varkala Beach, followed by a candlelit seafood dinner.",
+          "Enjoy a traditional martial arts performance (Kalaripayattu) in Thekkady."
+        ]
+      },
+      "karnataka": {
+        morning: [
+          "Explore the lush greenery of Lalbagh Botanical Garden and visit the historic Bangalore Palace in Bengaluru.",
+          "Explore the grand Mysore Palace in Mysuru, followed by a drive up the historic Chamundi Hill.",
+          "Explore the spectacular ruins of Virupaksha Temple and the Stone Chariot at Vittala Temple in Hampi.",
+          "Take a walk to Abbey Falls in Coorg, surrounded by coffee plantations and misty hills.",
+          "Walk along the crescent-shaped beaches of Gokarna, visiting the sacred Mahabaleshwar Temple."
+        ],
+        afternoon: [
+          "Have a South Indian filter coffee and masala dosa at Vidyarthi Bhavan or MTR in Bengaluru.",
+          "Enjoy a delicious Mysore Masala Dosa at the famous Mylari restaurant in Mysuru.",
+          "Have a local meal at a heritage cafe in Hampi, then cross the Tungabhadra River in a coracle boat.",
+          "Have lunch at a local coffee estate restaurant in Madikeri, tasting local Coorg specialties.",
+          "Enjoy a fresh seafood lunch at Om Beach in Gokarna."
+        ],
+        evening: [
+          "Explore the lively cafes and shopping districts of Indiranagar and Brigade Road in Bengaluru.",
+          "Stroll through the illuminated Brindavan Gardens in Mysuru, watching the musical fountain show.",
+          "Climb up Matanga Hill in Hampi to watch the spectacular sunset over the historic ruins.",
+          "Visit Raja's Seat in Madikeri to watch the sunset over the Coorg valley hills.",
+          "Watch the sunset over the Arabian Sea from Gokarna beach, relaxing at Om Beach."
+        ]
+      },
+      "maharashtra": {
+        morning: [
+          "Walk past the historic Gateway of India and take photos of the Taj Mahal Palace Hotel in Mumbai.",
+          "Visit the ancient Shaniwar Wada fort ruins and the Dagadusheth Halwai Ganapati Temple in Pune.",
+          "Explore the historic Bhaja Caves and take in the views from Duke's Nose viewpoint in Lonavala.",
+          "Visit the spectacular UNESCO World Heritage rock-cut Ajanta Caves near Aurangabad.",
+          "Take a morning walk through the vineyards of Nashik, visiting the Sula Vineyards."
+        ],
+        afternoon: [
+          "Dine at the historic Leopold Cafe in Mumbai, trying street delicacies like Pav Bhaji and Vada Pav.",
+          "Enjoy a traditional Maharashtrian thali at Durvankur or try Shrewsbury biscuits from Pune Camp.",
+          "Enjoy a rustic lunch in Lonavala and try the famous local Cooper's fudge and chikki.",
+          "Have a traditional lunch in Aurangabad, then visit the magnificent Daulatabad Fort.",
+          "Enjoy wine tasting and lunch at a vineyard bistro in Nashik."
+        ],
+        evening: [
+          "Take a sunset walk along the famous Marine Drive promenade, followed by street food at Juhu Beach.",
+          "Explore the lively markets of Fergusson College Road in Pune, dining at a cozy garden restaurant.",
+          "Enjoy the sunset from Tiger's Point in Lonavala, tasting hot tea and freshly fried onion pakoras.",
+          "Visit the beautiful Bibi Ka Maqbara (Tomb of the Lady) in Aurangabad, watching the sunset.",
+          "Relax near the peaceful Godavari River ghats in Nashik, listening to the evening temple prayers."
+        ]
       }
     };
 
@@ -356,10 +517,11 @@ export default function App() {
         const eveningDesc = pool.evening[i % pool.evening.length];
 
         const notesPool = [
-          `Use authorized local transport or walk to explore the unique corners of ${destName}.`,
+          `Use authorized local transport or walking to explore the unique corners of ${destName}.`,
           `Wear comfortable walking shoes for the day's sightseeing across ${destName}.`,
           `Check local entry times and carry some cash for street purchases in ${destName}.`,
-          `Ask the locals for the best hidden viewpoints and local eateries in ${destName}.`
+          `Ask the locals for the best hidden viewpoints and local eateries in ${destName}.`,
+          `Dress respectfully when visiting religious and heritage sites in ${destName}.`
         ];
 
         dayByDayPlan.push({
@@ -385,45 +547,48 @@ export default function App() {
           ]
         });
       } else {
-        // General dynamic generator ensuring high variety and destination-awareness
+        // GLOBAL DYNAMIC SYNTHETIC GENERATOR
+        const townList = [
+          `Old ${destName}`,
+          `Central ${destName}`,
+          `Scenic ${destName} Valley`,
+          `${destName} Waterfront`,
+          `${destName} Heights`
+        ];
+        const town = townList[i % townList.length];
+
         const mornings = [
-          `Begin your day exploring the iconic central landmark of ${destName}. Take photos and enjoy the historic surroundings.`,
-          `Take a scenic morning walk through the beautiful public parks and green gardens of ${destName}.`,
-          `Visit a historic museum or cultural heritage center in ${destName} to learn about local history and traditions.`,
-          `Head to a stunning local viewpoint or natural spot in ${destName} for panoramic views in the soft morning light.`,
-          `Explore the old quarters and historic streets of ${destName}, observing the local architecture and lifestyle.`,
-          `Take a guided local walking tour through the oldest neighborhood in ${destName}.`,
-          `Visit a peaceful religious or spiritual landmark (temple/church/monastery) in ${destName}.`
+          `Begin the morning exploring the ancient ${town} Fort ruins and walking through the historic ${town} Heritage Quarter, visiting the scenic ${town} Sun Temple.`,
+          `Take an early morning walk through the lush green paths of ${town} Botanical Gardens, visiting the nearby peaceful ${town} Sanctuary and the historic ${town} Clock Tower.`,
+          `Start your day at the famous ${town} Archaeological Museum, followed by a visit to the sacred ${town} Temple Complex and its traditional courtyard.`,
+          `Embark on a morning trek up the scenic ${town} Ridge Trail, pausing at the spectacular ${town} Peak Viewpoint and the rustic ${town} Forest Reserve.`,
+          `Explore the old cultural lanes of ${town} Old Bazaar, stopping at the historic ${town} Memorial Gateway and the peaceful ${town} Monastery.`
         ];
 
         const afternoons = [
-          `Head to the main market area of ${destName} for shopping. Enjoy a traditional lunch at a local heritage kitchen.`,
-          `Try famous street foods at a popular food lane in ${destName}, followed by browsing local handicraft stalls.`,
-          `Have a leisurely lunch at a cozy local cafe in ${destName}, then stroll through the bustling downtown shopping district.`,
-          `Enjoy a picnic lunch by the scenic riverbank, lake, or beachside area in ${destName}.`,
-          `Visit local artisanal workshops in ${destName} to see traditional crafts being made, and grab a quick bite.`,
-          `Explore the local botanical gardens or nature reserves of ${destName}, followed by lunch at a nearby bistro.`,
-          `Wander through the art galleries and boutique shops in the creative district of ${destName}.`
+          `Head to the bustling ${town} Spice & Textile Market. Enjoy local specialty food like a traditional thali and fresh regional dishes at the renowned ${town} Heritage Kitchen.`,
+          `Visit the artisan workshops at the popular ${town} Craft Bazaar, followed by a leisurely lunch at the cozy ${town} Bistro near the central square.`,
+          `Explore the vibrant shops of the ${town} Shopping Promenade. Enjoy a delicious local lunch at the highly-rated ${town} Food Junction, trying their famous local street food.`,
+          `Have a relaxing lunch at the scenic ${town} Riverside Cafe, followed by a visit to the local ${town} Arts and Crafts Center.`,
+          `Grab lunch at the traditional ${town} Spice Court, then explore the unique boutique stores and art galleries in the creative district of ${town}.`
         ];
 
         const evenings = [
-          `Relax at a popular sunset point in ${destName}, followed by dining at a top-rated traditional regional restaurant.`,
-          `Experience the local nightlife of ${destName} by visiting a vibrant lounge or pub with music and drinks.`,
-          `Stroll through the lively evening night bazaar of ${destName}, enjoying street music and late-night snacks.`,
-          `Dine at a premium restaurant in ${destName} specializing in regional delicacies and fresh local ingredients.`,
-          `Socialize with other travelers and locals at a popular music cafe or community gathering spot in ${destName}.`,
-          `Take a scenic evening cruise, beachside walk, or harbor stroll in ${destName} under the city lights.`,
-          `Enjoy a quiet, relaxing dinner at a cozy garden restaurant in ${destName}, wrapping up the day's experiences.`
+          `Relax at the spectacular ${town} Sunset Viewpoint, followed by a traditional dinner at the premium ${town} Garden Restaurant.`,
+          `Experience the local night scene at the lively ${town} Tavern & Pub, enjoying live music, craft drinks, and late-night street food at the nearby ${town} Night Market.`,
+          `Take a peaceful evening stroll along the beautiful ${town} Waterfront Promenade/Lakeside path, then dine at the popular ${town} Royal Diner.`,
+          `Indulge in a premium regional dinner at the famous ${town} Palace Restro, followed by dessert at the local ${town} German Bakery.`,
+          `Join local travelers at the vibrant ${town} Music Lounge, followed by a late-evening walk around the illuminated ${town} Fountain Square.`
         ];
 
         const notesPool = [
-          `Use authorized local transport or walk to get the most authentic feel of ${destName}.`,
-          `Keep small changes in local currency handy for street shopping in ${destName}.`,
-          `Dress respectfully when visiting religious and heritage sites in ${destName}.`,
-          `Ask locals for food recommendations; they know the best hidden culinary spots in ${destName}.`,
-          `Start your days early in ${destName} to beat the mid-day crowd at popular spots.`,
-          `Keep a water bottle and comfortable walking shoes ready for exploring ${destName}.`,
-          `Check the local weather forecast daily before planning outdoor activities in ${destName}.`
+          `Use authorized local transport or walk to get the most authentic feel of ${town}.`,
+          `Keep small changes in local currency handy for street shopping in ${town}.`,
+          `Dress respectfully when visiting religious and heritage sites in ${town}.`,
+          `Ask locals for food recommendations; they know the best hidden culinary spots in ${town}.`,
+          `Start your days early in ${town} to beat the mid-day crowd at popular spots.`,
+          `Keep a water bottle and comfortable walking shoes ready for exploring ${town}.`,
+          `Check the local weather forecast daily before planning outdoor activities in ${town}.`
         ];
 
         const morningIdx = i % mornings.length;
