@@ -496,7 +496,7 @@ async function generateTrip(req, res) {
       return fallbackResponse();
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // Preprocessing step
     const preprocessed = preprocessInputs({
@@ -730,7 +730,7 @@ async function refineTrip(req, res) {
       return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const refinementPrompt = `You are TRAVNIFY, an expert AI Travel Planner.
 Your task is to refine the following day-by-day travel itinerary.
