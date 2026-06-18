@@ -496,7 +496,7 @@ async function generateTrip(req, res) {
       return fallbackResponse();
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
     // Preprocessing step
     const preprocessed = preprocessInputs({
@@ -513,14 +513,13 @@ async function generateTrip(req, res) {
 
     const userName = activeUser ? activeUser.name : 'Traveler';
     const origin = req.body.origin || (activeUser ? activeUser.country : '');
-    const groupType = req.body.groupType || 'solo/couple/friends/family';
 
     let simplifiedInstruction = "";
     if (simplified) {
       simplifiedInstruction = "\n- SIMPLIFIED MODE ACTIVATED: Keep all descriptions under 10 words. Propose simple, well-known locations only. Minimize nesting complexity.";
     }
 
-    const systemPrompt = `You are an expert travel planner who creates highly detailed, realistic itineraries that feel like a personal travel coach telling the user exactly what to do each day.
+    const systemPrompt = `You are an expert travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach telling the user exactly what to do each day.
 
 Your goals:
 - Always return a complete, day‑by‑day itinerary.
@@ -549,21 +548,21 @@ JSON structure:
       "title": "Short title for the day",
       "theme": "string",
       "morning": {
-        "description": "Detailed step‑by‑step plan for morning (subah kya karein)",
+        "description": "Detailed step‑by‑step plan for morning (subah kya karein) with SPECIFIC named locations and what to eat/do there.",
         "estimatedCost": {
           "amount": number,
           "currency": "${displayCurrency}"
         }
       },
       "afternoon": {
-        "description": "Detailed step‑by‑step plan for afternoon (dopahar kya karein)",
+        "description": "Detailed step‑by‑step plan for afternoon (dopahar kya karein) with SPECIFIC named markets, sights, or cafes.",
         "estimatedCost": {
           "amount": number,
           "currency": "${displayCurrency}"
         }
       },
       "evening": {
-        "description": "Detailed step‑by‑step plan for evening (shaam kya karein)",
+        "description": "Detailed step‑by‑step plan for evening (shaam kya karein) with SPECIFIC named restaurants, street food stalls, or nightlife clubs/bars.",
         "estimatedCost": {
           "amount": number,
           "currency": "${displayCurrency}"
@@ -583,15 +582,19 @@ JSON structure:
 }
 
 Style & Constraint Rules:
+- DESTINATION AWARENESS: You MUST use famous, real-life attractions, monuments, markets, food joints, street food stalls, and nightlife options that actually exist in the destination city. Avoid generic placeholders like "explore the city", "local market", "nearby cafe", or "eat local food".
+  - Example (Delhi): Use Connaught Place, Chandni Chowk, Hauz Khas Village, Sarojini Nagar, India Gate, Qutub Minar, Paranthe Wali Gali, Karim's, Cyber Hub, etc.
+  - Example (Mumbai): Use Marine Drive, Gateway of India, Colaba Causeway, Crawford Market, Juhu Beach, Leopold Cafe, etc.
+- INTERESTS & VIBES: Strongly align the daily plans with the traveler's interests (e.g. party, shopping, food, culture, nature).
+  - If "party" is selected, recommend specific real clubs, pubs, or lounge bars active in the night.
+  - If "shopping" is selected, name specific real flea markets, shopping streets, or malls.
+  - If "food" is selected, name specific popular street food lanes or heritage restaurants.
+- BUDGET DISCIPLINE: Keep the sum of all estimated costs within the user's budget.
+  - If the budget is low, prioritize free or very cheap activities (public parks, monuments, street walking, cheap street food) and explicitly note money-saving tips.
+  - If the budget is high, include premium experiences (fine dining, private tours, upscale lounges) but keep it balanced.
 - Plan every single day with specific activities for morning, afternoon, and evening (like "subah yeh karo, dopahar yeh, shaam yeh").
-- Each day must feel like "Day X: do this in the morning, this in the afternoon, this in the evening".
-- For each day, always fill morning, afternoon, and evening with concrete actions, not generic advice.
 - If the trip is long (over 14 days), you can repeat patterns, but still give each day its own description/plan.
 - If the trip is very long (up to 92 days), you must still return an entry in dayByDayPlan for every single day, but make the descriptions and plans short and concise (e.g. 5-15 words per time slot) to prevent timeouts and token length issues.
-- If budget is low, prioritize free/cheap but fun activities and mention that clearly.
-- If budget is high, include some premium experiences but still keep the plan balanced.
-- Always stay within the user’s approximate budget overall.
-- If the user’s input is messy or unstructured, first internally clarify: exact/approximate destination(s), number of days (infer if only dates or duration is mentioned), rough budget level, main vibes/interests. Then generate the best possible itinerary.
 ${simplifiedInstruction}
 
 User details for the trip:
@@ -601,7 +604,7 @@ Main destination(s): ${preprocessed.destination || 'Selected Destination'}
 Start date: ${preprocessed.startDate || 'today'}
 End date: ${preprocessed.endDate || 'tomorrow'}
 Total days (if known): ${daysCount}
-Group type: ${groupType}
+Group type: ${req.body.groupType || 'solo/couple/friends/family'}
 Approx budget in ${displayCurrency}: ${preprocessed.budget || parsedBudget}
 Vibes / interests: ${preprocessed.interests.join(', ') || 'sightseeing, local life, relaxing'}
 Must‑do things: ${preprocessed.mustDo || 'none'}
@@ -727,7 +730,7 @@ async function refineTrip(req, res) {
       return res.status(500).json({ error: 'AI service configuration error: GEMINI_API_KEY is missing on the server. Please configure the environment variable.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
     const refinementPrompt = `You are TRAVNIFY, an expert AI Travel Planner.
 Your task is to refine the following day-by-day travel itinerary.

@@ -70,7 +70,7 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
   const startTime = Date.now();
   try {
     console.log(`[POST /api/discover/hidden-gems] Starting Gemini API call at ${new Date().toISOString()} with model gemini-1.5-flash...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
     
     // API Call with 45 seconds timeout
     const apiCallPromise = model.generateContent(prompt);
@@ -160,7 +160,7 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
   const startTime = Date.now();
   try {
     console.log(`[POST /api/discover/best-for-activity] Starting Gemini API call at ${new Date().toISOString()} with model gemini-1.5-flash...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
     
     // API Call with 45 seconds timeout
     const apiCallPromise = model.generateContent(prompt);
