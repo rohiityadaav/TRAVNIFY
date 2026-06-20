@@ -1596,6 +1596,10 @@ select.form-input {
   animation: spin 1s linear infinite;
 }
 
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 /* ==========================================================================
    YATRAI "NEAR ME" PREMIUM PAGE STYLING
    ========================================================================== */

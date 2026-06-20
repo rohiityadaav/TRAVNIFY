@@ -195,6 +195,25 @@
       "isPremium": true,
       "freeTripsGenerated": 0,
       "dailyCreditsUsed": 0
+    },
+    {
+      "id": "usr_obq7ncmem",
+      "name": "MultiCurrency Tester",
+      "email": "test_mc_d4ehou0@example.com",
+      "passwordHash": "$2b$10$ga9gzkLhQcF6d75YJMbjEuUbhps661kWroCIBMjZc3Yyz0TIn1yCK",
+      "country": "US",
+      "currency": "USD",
+      "preferredCurrency": "EUR",
+      "isPremium": false,
+      "subscriptionType": null,
+      "subscriptionStart": null,
+      "subscriptionEnd": null,
+      "freeTripsGenerated": 0,
+      "dailyCreditsUsed": 0,
+      "creditsWindowStartedAt": null,
+      "emailVerified": false,
+      "emailVerificationToken": "dfbb2f94a43e94ba6b2e4e5097a827ef7573214cf48d7f939d7d8be599e6e85d",
+      "emailVerificationExpiresAt": 1781892486494
     }
   ],
   "trips": [
@@ -1387,6 +1406,36 @@
       "currency": "INR",
       "status": "created",
       "createdAt": "2026-05-20T09:00:44.019Z"
+    },
+    {
+      "id": "tx_jeg5jd8y7",
+      "userId": "usr_obq7ncmem",
+      "orderId": "order_T3BgnogTJsPk2M",
+      "paymentId": "",
+      "amount": 2.19,
+      "currency": "EUR",
+      "status": "created",
+      "createdAt": "2026-06-18T18:08:06.978Z"
+    },
+    {
+      "id": "tx_3kikvynu4",
+      "userId": "usr_obq7ncmem",
+      "orderId": "order_T3Bgnvu8o2szLD",
+      "paymentId": "",
+      "amount": 199,
+      "currency": "INR",
+      "status": "created",
+      "createdAt": "2026-06-18T18:08:07.070Z"
+    },
+    {
+      "id": "tx_63l8urk2i",
+      "userId": "usr_obq7ncmem",
+      "orderId": "order_T3Bgo1xhDPQwLL",
+      "paymentId": "",
+      "amount": 199,
+      "currency": "INR",
+      "status": "created",
+      "createdAt": "2026-06-18T18:08:07.165Z"
     }
   ],
   "otps": [

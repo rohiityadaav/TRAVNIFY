@@ -70,18 +70,28 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
 
   const startTime = Date.now();
   try {
-    console.log(`[POST /api/discover/hidden-gems] Starting Gemini API call at ${new Date().toISOString()} with model gemini-1.5-flash...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    
-    // API Call with 45 seconds timeout
-    const apiCallPromise = model.generateContent(prompt);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI discovery request timed out after 45 seconds')), 45000)
-    );
-
-    const result = await Promise.race([apiCallPromise, timeoutPromise]);
-    const response = await result.response;
-    const text = response.text();
+    let text = "";
+    try {
+      console.log(`[POST /api/discover/hidden-gems] Starting Gemini API call at ${new Date().toISOString()} with model gemini-2.5-flash...`);
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const apiCallPromise = model.generateContent(prompt);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('AI discovery request timed out after 45 seconds')), 45000)
+      );
+      const result = await Promise.race([apiCallPromise, timeoutPromise]);
+      const response = await result.response;
+      text = response.text();
+    } catch (primaryError) {
+      console.warn(`[POST /api/discover/hidden-gems] Primary model (gemini-2.5-flash) failed: ${primaryError.message}. Trying fallback model (gemini-2.5-flash-lite)...`);
+      const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+      const fallbackCallPromise = fallbackModel.generateContent(prompt);
+      const fallbackTimeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Fallback AI discovery request timed out after 45 seconds')), 45000)
+      );
+      const fallbackResult = await Promise.race([fallbackCallPromise, fallbackTimeout]);
+      const response = await fallbackResult.response;
+      text = response.text();
+    }
 
     console.log('[Gemini Raw Response]:', text);
 
@@ -309,18 +319,28 @@ Ensure your output is pure, valid JSON with absolutely no markdown wrapper block
 
   const startTime = Date.now();
   try {
-    console.log(`[POST /api/discover/best-for-activity] Starting Gemini API call at ${new Date().toISOString()} with model gemini-2.5-flash...`);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    
-    // API Call with 25 seconds timeout
-    const apiCallPromise = model.generateContent(prompt);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('AI activity search request timed out')), 25000)
-    );
-
-    const result = await Promise.race([apiCallPromise, timeoutPromise]);
-    const response = await result.response;
-    const text = response.text();
+    let text = "";
+    try {
+      console.log(`[POST /api/discover/best-for-activity] Starting Gemini API call at ${new Date().toISOString()} with model gemini-2.5-flash...`);
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const apiCallPromise = model.generateContent(prompt);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('AI activity search request timed out')), 25000)
+      );
+      const result = await Promise.race([apiCallPromise, timeoutPromise]);
+      const response = await result.response;
+      text = response.text();
+    } catch (primaryError) {
+      console.warn(`[POST /api/discover/best-for-activity] Primary model (gemini-2.5-flash) failed: ${primaryError.message}. Trying fallback model (gemini-2.5-flash-lite)...`);
+      const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+      const fallbackCallPromise = fallbackModel.generateContent(prompt);
+      const fallbackTimeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Fallback AI activity search request timed out')), 25000)
+      );
+      const fallbackResult = await Promise.race([fallbackCallPromise, fallbackTimeout]);
+      const response = await fallbackResult.response;
+      text = response.text();
+    }
 
     console.log('[Gemini Raw Response]:', text);
 
