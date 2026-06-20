@@ -443,23 +443,41 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           notesPool[(i + 2) % notesPool.length]
         ]
       });
-    } else {
-      // LAST-RESORT SMART SYNTHETIC: Use geographically-varied, realistic-sounding place descriptions WITHOUT fake landmark names
       const syntheticPlans = [
         {
-          morning: `Explore the old historic quarter of ${destName}, visiting the central heritage market street, the ancient stone church or temple, and a scenic viewpoint nearby.`,
-          afternoon: `Head to the bustling riverside or waterfront district of ${destName}. Have a traditional local lunch at a family-run restaurant near the town square.`,
-          evening: `Walk along the main evening promenade of ${destName}, visit the illuminated central square, and dine at a local eatery serving regional specialties.`
+          morning: `Explore the central historic quarter of ${destName}, walking down the main heritage streets, visiting the municipal museum, and stopping at a scenic city overlook.`,
+          afternoon: `Visit the central market square of ${destName} to explore local stalls. Have a traditional local lunch at a popular family-run restaurant nearby.`,
+          evening: `Take an evening walk along the main waterfront promenade or central plaza of ${destName}, and enjoy dinner at a highly-rated local eatery serving regional specialties.`
         },
         {
-          morning: `Start with a guided walking tour through ${destName}'s historic streets, visiting the municipal museum, the local market hall, and a scenic overlook.`,
-          afternoon: `Browse the artisan craft workshops and souvenir stalls in the old quarter of ${destName}. Enjoy lunch at a courtyard café known for its regional recipes.`,
-          evening: `Experience the local night scene at a popular street or cultural center in ${destName}. Try regional desserts and evening street food at the night market area.`
+          morning: `Join a guided walking tour through ${destName}'s oldest neighborhood to see the historic architecture and learn about local heritage.`,
+          afternoon: `Browse the artisan workshops and local craft boutiques in the creative arts district of ${destName}. Have lunch at a cozy courtyard cafe.`,
+          evening: `Experience the local evening vibe at a popular street food lane or central square in ${destName}, tasting authentic local street eats.`
         },
         {
-          morning: `Visit a scenic nature reserve or local heritage site near ${destName} — known for its trails, viewpoints, and peaceful atmosphere.`,
-          afternoon: `Relax in a central neighborhood of ${destName} — browse local boutique shops, visit an art gallery, and have a traditional lunch.`,
-          evening: `Attend a local cultural event or evening ceremony in ${destName}. Dine at a rooftop restaurant with a panoramic view of the skyline.`
+          morning: `Visit a peaceful scenic park, nature reserve, or iconic natural viewpoint just outside the central area of ${destName}.`,
+          afternoon: `Explore a prominent cultural center, art gallery, or history archive in ${destName}. Have a relaxing lunch at a nearby bistro.`,
+          evening: `Relax at a popular local sunset spot or rooftop lounge in ${destName}. Enjoy a premium dinner featuring fresh regional ingredients.`
+        },
+        {
+          morning: `Walk through a vibrant shopping district or local high street in ${destName}, stopping by historic architecture sites along the way.`,
+          afternoon: `Visit a botanical garden, municipal glasshouse, or scenic green space in ${destName}. Have lunch at a garden cafe known for fresh local produce.`,
+          evening: `Attend a traditional cultural show, live music performance, or community event in ${destName}, followed by dinner at a cozy tavern.`
+        },
+        {
+          morning: `Explore the ruins of a historic fort, castle, or old stone heritage structure in or near ${destName}.`,
+          afternoon: `Head to a bustling bazaar or flea market in ${destName} to buy unique local crafts. Enjoy lunch at a traditional diner nearby.`,
+          evening: `Enjoy a peaceful evening boat ride, riverfront stroll, or lakeside walk in ${destName}, followed by dining at a waterfront restaurant.`
+        },
+        {
+          morning: `Take a morning walk through a quiet residential neighborhood of ${destName} to see how locals live, visiting a popular local bakery.`,
+          afternoon: `Explore a local science museum, library, or historic archive in ${destName}. Have lunch at a popular cafe nearby.`,
+          evening: `Discover the local nightlife scene in a lively district of ${destName}, visiting a popular pub or music lounge for drinks and snacks.`
+        },
+        {
+          morning: `Visit a beautiful local monument, historic bridge, or ancient architectural tower in ${destName}.`,
+          afternoon: `Spend the afternoon exploring local boutique shops and souvenir markets in ${destName}. Enjoy a farewell lunch at a highly-rated local diner.`,
+          evening: `Gather at the main central square of ${destName} to see the city lights, and enjoy a final celebratory dinner at a premium restaurant.`
         }
       ];
 
@@ -718,7 +736,7 @@ async function generateTrip(req, res) {
           destinationDataBlock += `Real Shopping: ${(ct.shopping || []).join(', ')}\n`;
           destinationDataBlock += `Real Culture: ${(ct.culture || []).join(', ')}\n`;
         }
-        destinationDataBlock += `\nCRITICAL: Use ONLY real-world, physically existing landmarks and places (like the ones listed above). Do not invent or make up any place names.`;
+        destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in these cities to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
       }
     } else if (matchedDbCity) {
       destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (City: ${matchedDbCity.name}, ${matchedDbCity.country}):\n`;
@@ -728,7 +746,7 @@ async function generateTrip(req, res) {
       destinationDataBlock += `Real Activities: ${(matchedDbCity.activities || []).join(', ')}\n`;
       destinationDataBlock += `Real Shopping: ${(matchedDbCity.shopping || []).join(', ')}\n`;
       destinationDataBlock += `Real Culture: ${(matchedDbCity.culture || []).join(', ')}\n`;
-      destinationDataBlock += `\nCRITICAL: Use ONLY real-world, physically existing landmarks and places (like the ones listed above). Do not invent or make up any place names. You may add other real places you know about this city beyond this list, but never fabricate place names.`;
+      destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in this city to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
     }
 
     const systemPrompt = `You are an expert travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach telling the user exactly what to do each day.
@@ -794,21 +812,24 @@ JSON structure:
 }
 
 Style & Constraint Rules:
-- REAL PLACE NAMES ONLY: For any well-known city, country, or region in the world (e.g., Paris, New York, Tokyo, Edinburgh, Rome, London, Bangkok, Delhi, etc.), you MUST use REAL, verifiable place names — real landmarks, real neighborhoods, real restaurants, real markets, real museums, real parks, real cultural venues. Do NOT invent, fabricate, or make up fake place names. Every place name you output must be a real place that exists in the real world. If you do not know real landmarks or restaurants for a destination, use generic descriptions of the activities (e.g., "visit a local museum", "dine at a traditional restaurant") instead of inventing specific place names.
-- DESTINATION AWARENESS: For any destination in the world, always use real local places (monuments, areas, markets, parks, beaches, museums, streets, local food spots, cafes, etc.) that actually exist there. Never use generic placeholders like "explore local markets", "visit attractions", "nearby cafe", or "eat regional cuisine". Always name specific places, markets, local food/eateries, and nightlife spots for each day.
-  - State/Region/Country Query Rule: If the destination is a state, country, or large region (e.g., "Bihar", "Himachal Pradesh", "Rajasthan", "Japan", "Italy", "California", "Bavaria"), you MUST internally pick 1 to 3 key real cities/towns within that region (e.g., Patna, Bodh Gaya, and Nalanda for Bihar; Shimla, Manali, and Dharamshala for Himachal Pradesh; Tokyo, Kyoto, and Osaka for Japan) and structure the day-by-day plan around them.
-  - Concrete Naming Rule: For EVERY single day and EVERY time block (morning, afternoon, evening), you MUST mention at least 2 to 3 concrete place names (cities, neighborhoods, monuments, temples, ghats, lakes, beaches, parks, markets, restaurants, cafes, clubs) that fit the destination.
-  - No Vague Placeholders: You must NEVER output vague, generic, or template-like filler phrases. Every description must contain real, specific, and actual names of places (such as naming a specific street, neighborhood, restaurant, temple, park, or monument). For example, do not write "a local temple" or "the main riverbank" without specifying its actual name (e.g., "Mahabodhi Temple" or "Gandhi Ghat").
-  - Day-by-Day Variety: Do not repeat similar sentences or structures across days. Each day must feel unique, showcasing a different selection of neighborhoods, landmarks, local eats, and activities.
-  - Never fall back to a single generic template repeated across multiple days. Make each day unique and interesting, presenting a diverse mix of sightseeing, food, shopping, and nightlife.
-- INTERESTS & VIBES: Strongly align the daily plans with the traveler's interests (e.g. party, shopping, food, culture, nature).
-  - If "party" is selected, recommend specific real clubs, pubs, or lounge bars active in the night.
-  - If "shopping" is selected, name specific real flea markets, shopping streets, or malls.
-  - If "food" is selected, name specific popular street food lanes or heritage restaurants.
-  - If no specific interests are selected, show the best of everything: a balanced mix of landmarks, culture, nature, food, shopping, and nightlife — showcase what the destination is most famous for.
-- BUDGET DISCIPLINE: Keep the sum of all estimated costs within the user's budget.
-  - If the budget is low, prioritize free or very cheap activities (public parks, monuments, street walking, cheap street food) and explicitly note money-saving tips.
-  - If the budget is high, include premium experiences (fine dining, private tours, upscale lounges) but keep it balanced.
+- HIGH DETAIL IMMERSIVE EXPERIENCE: Provide rich, detailed, and highly descriptive plans for each time slot (morning, afternoon, evening). Each description block MUST be at least 30 to 60 words. Do not use short summaries; describe the sights, history, atmosphere, specific dishes to order, and scenic spots to make the user feel like they have a premium local travel guide.
+- GLOBAL PLACE DETECTION: Detect what the destination is and structure the itinerary accordingly:
+  * If it is a Landmark/Famous Spot (e.g. "Taj Mahal", "Eiffel Tower"): Structure the plan around that landmark and its surrounding city/neighborhood.
+  * If it is a Country or State/Region (e.g. "India", "California", "Scotland", "Kenya"): Structure the plan across 1 to 3 key cities within that region (e.g. Edinburgh and Glasgow for Scotland).
+  * If it is a City: Organize days by distinct neighborhoods to minimize transit time.
+- BALANCED DEFAULT (NO SPECIFIC INTERESTS): If no specific interests or vibes are chosen, you MUST automatically output a "Best of the Destination" itinerary. Each day must include a balanced mix of:
+  * At least 1-2 top landmarks or major tourist attractions.
+  * At least 1 famous local dish or must-try food joint (name specific restaurants/cafes/street stalls).
+  * At least 1 popular local market, bazaar, shopping street, or mall.
+  * At least 1 cultural or heritage site (museum, old town quarter, temple/church, art gallery).
+  * 1-2 unique local experiences or panoramic viewpoints.
+- INTERESTS CUSTOMIZATION: If specific interests (e.g. party, shopping, food) are chosen, bias the plan to focus heavily on those activities, but you must still keep the plan practical and balanced, ensuring it still includes local food, attractions, and cultural context.
+- BUDGET ADAPTATION: The itinerary MUST adapt its recommendations based on the user's budget tier:
+  * LOW BUDGET: Propose free attractions (parks, public squares, walking tours, free museums), street food markets, budget local eateries, and public transit tips.
+  * MID BUDGET: Propose a mix of famous paid attractions, mid-range local restaurants, local shopping streets, and standard transport options.
+  * HIGH BUDGET: Propose premium experiences, fine-dining restaurants, guided private tours, upscale neighborhoods, shopping malls/boutiques, and taxi/private transfer options.
+- REAL PLACE NAMES ONLY: You MUST use REAL, verifiable place names — real landmarks, real neighborhoods, real restaurants, real markets, real museums, real parks, real cultural venues. Do NOT invent, fabricate, or make up fake place names. If you do not know real landmarks or restaurants for a destination, use generic descriptions of the activities (e.g., "visit a local museum", "dine at a traditional restaurant") instead of inventing specific place names.
+- Day-by-Day Variety: Do not repeat similar sentences or structures across days. Each day must feel unique, showcasing a different selection of neighborhoods, landmarks, local eats, and activities.
 - Plan every single day with specific activities for morning, afternoon, and evening (like "subah yeh karo, dopahar yeh, shaam yeh").
 - If the trip is long (over 14 days), you can repeat patterns, but still give each day its own description/plan.
 - If the trip is very long (up to 92 days), you must still return an entry in dayByDayPlan for every single day, but make the descriptions and plans short and concise (e.g. 5-15 words per time slot) to prevent timeouts and token length issues.
