@@ -313,36 +313,61 @@ function matchDestinationInDb(destName) {
 
   // Try to find matching city FIRST (more specific)
   let matchedCity = null;
+  const cityCandidates = [];
   for (const [key, ct] of Object.entries(cities)) {
     if (destinationMatches(key, primaryToken)) {
-      matchedCity = ct;
-      break;
+      cityCandidates.push(ct);
     }
+  }
+  if (cityCandidates.length > 0) {
+    const matchingCountry = cityCandidates.find(ct => {
+      const countryLower = (ct.country || '').toLowerCase();
+      return cleanDest.includes(countryLower);
+    });
+    const exactNameMatch = cityCandidates.find(ct => (ct.name || '').toLowerCase() === primaryToken);
+    matchedCity = matchingCountry || exactNameMatch || cityCandidates[0];
   }
 
   // If no city matches directly, check if the input matches any landmark of a city!
   if (!matchedCity) {
+    const landmarkCandidates = [];
     for (const [key, ct] of Object.entries(cities)) {
       const landmarks = ct.landmarks || [];
       const matchedLandmark = landmarks.find(lm => {
         const cleanLm = lm.toLowerCase().trim();
-        return cleanLm.includes(primaryToken) || primaryToken.includes(cleanLm) || isFuzzyMatch(cleanLm, primaryToken);
+        const escaped = primaryToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const boundaryRegex = new RegExp(`(^|[\\s,\\/\\(\\)-])${escaped}([\\s,\\/\\(\\)-]|$)`, 'i');
+        return boundaryRegex.test(cleanLm) || isFuzzyMatch(cleanLm, primaryToken);
       });
       if (matchedLandmark) {
-        matchedCity = ct;
-        break;
+        landmarkCandidates.push(ct);
       }
+    }
+    if (landmarkCandidates.length > 0) {
+      const matchingCountry = landmarkCandidates.find(ct => {
+        const countryLower = (ct.country || '').toLowerCase();
+        return cleanDest.includes(countryLower);
+      });
+      matchedCity = matchingCountry || landmarkCandidates[0];
     }
   }
 
   // Try to find matching region only if no city (direct or landmark) was matched
   let matchedRegion = null;
   if (!matchedCity) {
+    const regionCandidates = [];
     for (const [key, reg] of Object.entries(regions)) {
       if (destinationMatches(key, primaryToken)) {
-        matchedRegion = reg;
-        break;
+        regionCandidates.push(reg);
       }
+    }
+    if (regionCandidates.length > 0) {
+      const matchingCountry = regionCandidates.find(reg => {
+        const countryLower = (reg.country || '').toLowerCase();
+        return cleanDest.includes(countryLower);
+      });
+      const exactNameMatch = regionCandidates.find(reg => (reg.name || '').toLowerCase() === primaryToken);
+      matchedRegion = matchingCountry || exactNameMatch || regionCandidates[0];
     }
   }
 
@@ -852,7 +877,7 @@ async function generateTrip(req, res) {
 
       if (regionCities.length > 0) {
         destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (Region: ${matchedDbRegion.name}, ${matchedDbRegion.country}):\nThis is a known region. You MUST structure the itinerary around these real cities within it: ${matchedDbRegion.cities.join(', ')}.\n`;
-        for (const ct of regionCities.slice(0, 3)) {
+        for (const ct of regionCities.slice(0, 10)) {
           destinationDataBlock += `\n--- ${ct.name} ---\n`;
           destinationDataBlock += `Real Landmarks: ${(ct.landmarks || []).join(', ')}\n`;
           destinationDataBlock += `Real Neighborhoods: ${(ct.neighborhoods || []).join(', ')}\n`;

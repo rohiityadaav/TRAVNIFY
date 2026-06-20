@@ -1333,46 +1333,43 @@
       "state": "Maharashtra",
       "landmarks": [
         "Gateway of India",
-        "Taj Mahal Palace Hotel",
-        "CSMT Station",
-        "Marine Drive",
-        "Haji Ali Dargah",
-        "Siddhivinayak Temple",
+        "CST Railway Station",
         "Elephanta Caves",
-        "Bandra-Worli Sea Link"
+        "Haji Ali Dargah",
+        "Siddhivinayak Temple"
       ],
       "neighborhoods": [
         "Colaba",
         "Bandra",
-        "Juhu",
+        "Lower Parel",
+        "Worli",
         "Marine Drive",
-        "Fort",
-        "Kala Ghoda"
+        "Chor Bazaar"
       ],
       "food": [
-        "Vada Pav at street stalls",
-        "Pav Bhaji at Sardar",
-        "Keema Ghotala at Café Leopold",
-        "Irani Chai and Bun Maska at Yazdani Bakery",
-        "Bhel Puri at Chowpatty Beach"
+        "Ashok Vada Pav",
+        "Britannia & Co. Parsi berry pulav",
+        "Trishna seafood",
+        "Bademiya late-night kebabs",
+        "Leopold Cafe"
       ],
       "activities": [
-        "Ferry from Gateway of India to Elephanta Caves",
-        "Driving Bandra-Worli Sea Link",
-        "Walking Marine Drive at sunset",
-        "Drinks at Cafe Leopold",
-        "Walking Juhu Beach in the evening"
+        "Walking Marine Drive Queens Necklace",
+        "Taking ferry to Elephanta Caves",
+        "Bandra nightlife strip (Toto's Garage, The Daddy, Hoppipola)",
+        "Lower Parel and Worli clubs (Trilogy, Royalty)"
       ],
       "shopping": [
-        "Colaba Causeway bazaar",
-        "Linking Road Bandra",
-        "Crawford Market for spices"
+        "Colaba Causeway jewelry",
+        "Crawford Market spices",
+        "Fashion Street budget wear",
+        "Chor Bazaar antiques",
+        "Linking Road Bandra boutiques"
       ],
       "culture": [
-        "Elephanta Caves",
-        "Kala Ghoda art galleries",
-        "Haji Ali Dargah",
-        "Siddhivinayak Temple"
+        "Home of Bollywood cinema",
+        "Colonial-era architecture landmarks",
+        "Haji Ali Dargah sea walk"
       ]
     },
     "bengaluru": {
@@ -1382,48 +1379,36 @@
       "landmarks": [
         "Bangalore Palace",
         "Lalbagh Botanical Garden",
-        "Cubbon Park",
         "Vidhana Soudha",
-        "Bull Temple",
-        "Tipu Sultan Palace",
-        "Bannerghatta Park",
-        "ISKCON Temple",
-        "Nandi Hills"
+        "Bull Temple"
       ],
       "neighborhoods": [
-        "Indiranagar",
         "Koramangala",
-        "Jayanagar",
-        "Malleswaram",
+        "Indiranagar",
+        "MG Road",
         "Brigade Road",
-        "MG Road"
+        "Commercial Street",
+        "Chickpet"
       ],
       "food": [
-        "Filter Coffee and Masala Dosa at Vidyarthi Bhavan or MTR",
-        "Craft beer at Toit",
-        "Traditional meals at Nagarjuna",
-        "Idli and Vada at Airlines Hotel garden cafe",
-        "Mysore Pak sweet"
+        "Mavalli Tiffin Room MTR since 1924",
+        "Vidyarthi Bhavan dosa",
+        "Truffles burgers",
+        "Empire Restaurant"
       ],
       "activities": [
-        "Walking the green paths of Cubbon Park",
-        "Viewing the Lalbagh glasshouse",
-        "Craft beer hopping in Indiranagar breweries",
-        "Touring the Bangalore Palace",
-        "Watching sunrise at Nandi Hills",
-        "Monolithic Bull Temple visit"
+        "Touring Bangalore Palace",
+        "Strolling Lalbagh Botanical Garden greenhouses",
+        "Pub crawling in Koramangala (Toit Brewpub) and Indiranagar's 100 Feet Road"
       ],
       "shopping": [
-        "Commercial Street for fabrics",
-        "Brigade Road markets",
-        "Chikpet for traditional sarees",
-        "UB City mall for luxury"
+        "Commercial Street",
+        "Chickpet wholesale textiles and jewelry",
+        "Russell Market"
       ],
       "culture": [
-        "Vidhana Soudha assembly building",
-        "Tipu Sultan's wood-carved palace",
-        "National Gallery of Modern Art",
-        "Government Museum"
+        "Silicon Valley of India",
+        "Pub Capital craft beer scene"
       ]
     },
     "chennai": {
@@ -1431,53 +1416,35 @@
       "country": "India",
       "state": "Tamil Nadu",
       "landmarks": [
-        "Marina Beach",
         "Kapaleeshwarar Temple",
-        "San Thome Basilica",
-        "Government Museum Chennai",
+        "Santhome Basilica",
         "Fort St. George",
-        "DakshinaChitra (heritage museum nearby)",
-        "Guindy National Park",
-        "Edward Elliot's Beach",
-        "St. Thomas Mount",
-        "Valluvar Kottam"
+        "Marina Beach"
       ],
       "neighborhoods": [
         "Mylapore",
         "T. Nagar",
-        "Adyar",
-        "Besant Nagar (Bessie)",
         "Nungambakkam",
-        "Georgetown"
+        "OMR",
+        "Pondy Bazaar"
       ],
       "food": [
-        "Filter Coffee and Idli at Saravana Bhavan",
-        "Crispy Masala Dosa at Murugan Idli Shop",
-        "Traditional Tamil Meals on banana leaf",
-        "Sundal street snack on Marina Beach",
-        "Chettinad Pepper Chicken",
-        "Biryani at local messes"
+        "Murugan Idli Shop",
+        "Saravana Bhavan",
+        "Karpagambal Mess"
       ],
       "activities": [
-        "Walking along Marina Beach (world's second longest urban beach) at dawn",
-        "Exploring the colorful Dravidian architecture of Kapaleeshwarar Temple",
-        "Visiting Fort St. George (first English fortress in India)",
-        "Catching a classical Carnatic concert at Nungambakkam sabhas (December season)",
-        "Watching sunset at Besant Nagar Beach",
-        "Walking through the galleries of Government Museum"
+        "Visiting Kapaleeshwarar Temple",
+        "Walking Marina Beach (world second longest beach)",
+        "Experiencing Chennai December Music Season Carnatic music sabhas",
+        "Hanging out at Nungambakkam bars"
       ],
       "shopping": [
-        "T. Nagar Ranganathan Street for silks and gold",
-        "Pondy Bazaar for apparel and sandals",
-        "Express Avenue mall",
-        "Saree shopping at Nalli or RmKV"
+        "T. Nagar silk sarees and jewelry",
+        "Pondy Bazaar street shops"
       ],
       "culture": [
-        "Kapaleeshwarar Temple in Mylapore",
-        "San Thome Basilica built over St. Thomas' tomb",
-        "Fort St. George Museum",
-        "Theosophical Society gardens in Adyar",
-        "Kalakshetra Foundation for traditional dance"
+        "Dravidian culture and Carnatic classical music heritage"
       ]
     },
     "kolkata": {
@@ -1488,52 +1455,37 @@
         "Victoria Memorial",
         "Howrah Bridge",
         "Dakshineswar Kali Temple",
-        "Belur Math",
-        "Indian Museum",
-        "Marble Palace",
         "St. Paul's Cathedral",
-        "College Street Boi Para",
-        "Science City",
-        "Eden Gardens"
+        "Indian Museum"
       ],
       "neighborhoods": [
         "Park Street",
         "College Street",
-        "Kumartuli",
-        "Salt Lake",
+        "New Market",
         "Gariahat",
-        "Ballygunge",
-        "Dalhousie Square"
+        "Camac Street"
       ],
       "food": [
-        "Kolkata Kathi Roll at Nizam's",
-        "Traditional Bengali fish curry and rice at Oh! Calcutta",
-        "Rasgulla and Sandesh sweets from KC Das or Balaram Mullick",
-        "Kolkata Mutton Biryani with potato",
-        "Phuchka (street panipuri) at Gariahat",
-        "Irani Tea at Flurys on Park Street"
+        "Flurys tea and cakes",
+        "Peter Cat chelo kebab",
+        "Bhojohori Manna traditional Bengali",
+        "Mishti Doi shops"
       ],
       "activities": [
-        "Walking across the iconic Howrah Bridge",
-        "Taking a hand-pulled rickshaw or yellow cab ride",
-        "Taking a boat ride on the Hooghly River at Babu Ghat",
-        "Browsing rare books in the stalls of College Street",
-        "Strolling around the gardens of Victoria Memorial",
-        "Watching clay artisans sculpt idols in Kumartuli"
+        "Exploring Victoria Memorial white marble",
+        "Walking across historic Howrah Bridge",
+        "Visiting Dakshineswar Temple",
+        "Kolkata nightlife along Park Street (Trincas, Mocambo, Some Place Else) and Camac Street lounges",
+        "Durga Puja festival events (October)"
       ],
       "shopping": [
-        "New Market (Hogg Market) bazaar",
-        "Gariahat market for sarees and handicrafts",
-        "Dakshinapan Shopping Center for state handlooms",
-        "College Street book market"
+        "New Market colonial arcade",
+        "College Street book market (world largest second-hand book market)",
+        "Gariahat Market sarees"
       ],
       "culture": [
-        "Victoria Memorial white marble gallery",
-        "Indian Museum (Asia's oldest museum)",
-        "Belur Math headquarters of Ramakrishna Mission",
-        "Dakshineswar Kali Temple",
-        "St. Paul's Cathedral gothic architecture",
-        "Mother House (Mother Teresa's home)"
+        "Cultural Capital of India",
+        "Former capital of British India heritage"
       ]
     },
     "hyderabad": {
@@ -1543,51 +1495,37 @@
       "landmarks": [
         "Charminar",
         "Golconda Fort",
-        "Salar Jung Museum",
-        "Chowmahalla Palace",
-        "Hussain Sagar Lake and Buddha Statue",
-        "Birla Mandir",
         "Qutb Shahi Tombs",
-        "Ramoji Film City",
-        "Laad Bazaar",
-        "Nehru Zoological Park"
+        "Chowmahalla Palace",
+        "Ramoji Film City"
       ],
       "neighborhoods": [
-        "Old City",
+        "Laad Bazaar",
         "Banjara Hills",
         "Jubilee Hills",
         "Gachibowli",
-        "Secunderabad",
-        "Begumpet"
+        "Begum Bazaar"
       ],
       "food": [
-        "Hyderabadi Dum Biryani at Paradise or Bawarchi",
-        "Haleem at Pista House or Shah Ghouse",
-        "Double ka Meetha dessert",
-        "Irani Chai and Osmania Biscuits at Nimrah Cafe",
-        "Spicy Andhra thali at local diners",
-        "Pathar ka Gosht"
+        "Paradise Restaurant biryani",
+        "Bawarchi",
+        "Shah Ghouse Cafe haleem",
+        "Pista House"
       ],
       "activities": [
-        "Climbing the minarets of Charminar for old city views",
-        "Listening to the echo effects in the chambers of Golconda Fort",
-        "Taking a boat ride to the giant Buddha statue on Hussain Sagar Lake",
-        "Drinking Irani Chai next to Charminar at Nimrah Cafe",
-        "Viewing the extensive collection at Salar Jung Museum",
-        "Exploring the illuminated Qutb Shahi Tombs at dusk"
+        "Exploring historic Charminar",
+        "Sound and light show at Golconda Fort",
+        "Touring Ramoji Film City (world largest film studio complex)",
+        "Jubilee Hills and Banjara Hills nightlife (10 Downing Street, Prism Club)"
       ],
       "shopping": [
-        "Laad Bazaar for traditional lac bangles",
-        "Perfume markets near Charminar",
-        "Shilparamam Crafts Village in Hitech City",
-        "Begum Bazaar wholesale market"
+        "Laad Bazaar lac bangles and pearls",
+        "Begum Bazaar",
+        "Sultan Bazaar"
       ],
       "culture": [
-        "Charminar central monument",
-        "Chowmahalla Palace of the Nizams",
-        "Qutb Shahi Tombs royal necropolis",
-        "Birla Mandir white marble temple",
-        "Golconda Fort citadel ruins"
+        "Nizami royal heritage",
+        "GI-tagged Hyderabadi Biryani food culture"
       ]
     },
     "jaipur": {
@@ -1595,51 +1533,40 @@
       "country": "India",
       "state": "Rajasthan",
       "landmarks": [
-        "Hawa Mahal (Palace of Winds)",
-        "Amer Fort",
+        "Amber Fort",
+        "Hawa Mahal",
         "City Palace",
-        "Jantar Mantar Observatory",
-        "Albert Hall Museum",
-        "Jal Mahal (Water Palace)",
-        "Nahargarh Fort",
-        "Jaigarh Fort",
-        "Galta Ji (Monkey Temple)",
-        "Birla Mandir"
+        "Jantar Mantar",
+        "Nahargarh Fort"
       ],
       "neighborhoods": [
-        "Pink City (Old Walled)",
-        "C-Scheme",
-        "Malviya Nagar",
-        "Raja Park",
-        "Mansarovar"
+        "Johari Bazaar",
+        "Bapu Bazaar",
+        "Tripolia Bazaar",
+        "Chandpole Bazaar"
       ],
       "food": [
-        "Dal Baati Churma at Laxmi Mishthan Bhandar (LMB)",
-        "Pyaaz Kachori at Rawat Mishthan Bhandar",
-        "Traditional Rajasthani Thali at Chokhi Dhani",
-        "Laal Maas (spicy mutton curry)",
-        "Lassi in earthen cups at Lassiwala on MI Road"
+        "Rawat Mishthan Bhandar pyaz kachori",
+        "Laxmi Misthan Bhandar LMB",
+        "Chokhi Dhani traditional dining",
+        "Spice Court"
       ],
       "activities": [
-        "Exploring the grand ramparts of Amer Fort",
-        "Taking photos of Hawa Mahal's pink honeycombed facade",
-        "Watching the sunset over the Pink City from Nahargarh Fort",
-        "Viewing the massive cannon at Jaigarh Fort",
-        "Viewing astronomical instruments at Jantar Mantar",
-        "Watching folk puppetry at City Palace gardens"
+        "Touring UNESCO Amber Fort",
+        "Photographing Hawa Mahal",
+        "Exploring Jantar Mantar instruments",
+        "Watching sunset from Nahargarh Fort",
+        "Jaipur Literature Festival events",
+        "Bar Palladio nightlife, Peacock Rooftop, Club 14"
       ],
       "shopping": [
-        "Johri Bazar for jewelry and gemstones",
-        "Bapu Bazar for traditional block-print textiles",
-        "Tripolia Bazar for lac bangles and ironware",
-        "Kishanpole Bazar for wooden crafts"
+        "Johari gemstone and jewelry market",
+        "Bapu Bazaar textiles and juttis",
+        "Tripolia lac bangles and brassware"
       ],
       "culture": [
-        "City Palace royal residence",
-        "Jantar Mantar UNESCO observatory",
-        "Albert Hall Indo-Saracenic museum",
-        "Amer Fort Rajput architecture",
-        "Galta Ji holy spring and temple"
+        "Pink City royal history",
+        "Rajasthani folk performances and art"
       ]
     },
     "udaipur": {
@@ -1647,50 +1574,38 @@
       "country": "India",
       "state": "Rajasthan",
       "landmarks": [
-        "City Palace Udaipur",
-        "Lake Pichola and Lake Palace",
-        "Jag Mandir Palace",
+        "City Palace complex",
+        "Lake Pichola",
+        "Jag Mandir",
         "Sajjangarh Monsoon Palace",
-        "Saheliyon-ki-Bari (Courtyard of Maidens)",
-        "Jagdish Temple",
-        "Bagore Ki Haveli",
-        "Fateh Sagar Lake",
-        "Shilpgram (crafts village)",
-        "Karni Mata Temple Ropeway"
+        "Jagdish Temple"
       ],
       "neighborhoods": [
-        "Lakeside (Old City)",
-        "Fateh Sagar",
-        "Hiran Magri",
-        "Ambrai Ghat",
-        "Sajjan Nagar"
+        "Hathi Pol",
+        "Lal Ghat",
+        "Bada Bazaar",
+        "Lake Palace road"
       ],
       "food": [
-        "Traditional Mewari Thali at Natraj",
-        "Dinner at Ambrai Restaurant with lit City Palace view",
-        "Kadhi Kachori street snack",
-        "Mawad sweet lassi",
-        "Spicy Lal Maas at lakeside bistros"
+        "Ambrai Restaurant lakeside dining",
+        "Upre by 1559 AD",
+        "Millets of Mewar"
       ],
       "activities": [
-        "Taking a boat cruise on Lake Pichola past Lake Palace",
-        "Watching a traditional puppet and folk dance show at Bagore Ki Haveli",
-        "Enjoying dinner overlooking the lit Palace from Ambrai Ghat",
-        "Driving up to Monsoon Palace for sunset views over lakes",
-        "Exploring the vast courtyards of City Palace",
-        "Taking the ropeway to Karni Mata Temple"
+        "Boating on Lake Pichola",
+        "Exploring Udaipur City Palace",
+        "Visiting Jag Mandir island palace",
+        "Watching sunset at Monsoon Palace",
+        "Rooftop bar hangouts near Lal Ghat",
+        "Lakeside cafe live music"
       ],
       "shopping": [
-        "Hathi Pol bazaar for Pichwai paintings",
-        "Bada Bazar for leather bags and mojari shoes",
-        "Rajasthali government handicraft emporium",
-        "Lake Palace Road shops"
+        "Hathi Pol Bazaar miniature paintings",
+        "Bada Bazaar silver jewelry"
       ],
       "culture": [
-        "City Palace architecture museum",
-        "Jagdish Temple Indo-Aryan stone carvings",
-        "Bagore Ki Haveli historical museum",
-        "Shilpgram rural arts exhibit"
+        "Venice of the East lake culture",
+        "Mewar dynasty royal history"
       ]
     },
     "patna": {
@@ -1698,52 +1613,31 @@
       "country": "India",
       "state": "Bihar",
       "landmarks": [
-        "Golghar",
-        "Patna Museum",
-        "Bihar Museum",
-        "Kumhrar (Mauryan ruins)",
-        "Takht Sri Patna Sahib (Gurudwara)",
-        "Sanjay Gandhi Jaivik Udyan (Zoo)",
-        "Gandhi Maidan",
-        "Mahavir Mandir",
-        "Gandhi Ghat",
-        "Sabhyata Dwar"
+        "Patna Sahib Gurudwara",
+        "Golghar granary"
       ],
       "neighborhoods": [
-        "Kankarbagh",
-        "Patliputra Colony",
+        "Maurya Lok",
+        "Boring Road",
         "Fraser Road",
-        "Exhibition Road",
-        "Rajendra Nagar",
-        "Boring Road"
+        "Gandhi Maidan"
       ],
       "food": [
-        "Traditional Litti Chokha at Maurya Lok complex",
-        "Sweets like Anarsa, Tilkut, and Khaja",
-        "Bihari Fish Curry",
-        "Makhana kheer",
-        "Sattu sharbat drink"
+        "Local litti-chokha stalls near Gandhi Maidan",
+        "Bikaner Sweets"
       ],
       "activities": [
-        "Walking up the circular stairs of the beehive-shaped Golghar",
-        "Viewing ancient Mauryan stone sculptures at Patna Museum",
-        "Taking a boat cruise on the Ganges from Gandhi Ghat",
-        "Paying respects at the birthplace of Guru Gobind Singh at Patna Sahib",
-        "Strolling in the modern galleries of Bihar Museum",
-        "Watching the evening Ganges Aarti at Gandhi Ghat"
+        "Paying respects at Takht Sri Patna Sahib (birthplace of Guru Gobind Singh)",
+        "Climbing Golghar for city views",
+        "Visiting Boring Road and Fraser Road bars and restaurants"
       ],
       "shopping": [
-        "Maurya Lok shopping complex",
-        "Hathwa Market for sarees",
-        "Patna Market for local goods",
-        "Khaitan Market"
+        "Maurya Lok Complex shopping",
+        "Patna Market"
       ],
       "culture": [
-        "Takht Sri Patna Sahib Gurudwara",
-        "Kumhrar ancient ruins of Pataliputra",
-        "Bihar Museum cultural heritage displays",
-        "Patna Museum collections",
-        "Mahavir Mandir next to railway station"
+        "Ancient city Pataliputra history",
+        "Sikhism birthplace heritage"
       ]
     },
     "gaya": {
@@ -1938,46 +1832,39 @@
       "country": "India",
       "state": "Himachal Pradesh",
       "landmarks": [
-        "The Ridge",
-        "Jakhoo Temple (Monkey Temple)",
         "Christ Church",
-        "Mall Road Shimla",
-        "Viceregal Lodge (Indian Institute of Advanced Study)",
-        "Kalka-Shimla Toy Train",
-        "Tara Devi Temple",
-        "Kufri (nearby)"
+        "Viceregal Lodge",
+        "Jakhoo Temple",
+        "Gaiety Theatre",
+        "The Ridge"
       ],
       "neighborhoods": [
         "Mall Road",
-        "The Ridge area",
-        "Lakkar Bazar",
-        "Chotta Shimla",
-        "Summer Hill"
+        "The Ridge",
+        "Lakkar Bazaar",
+        "Lower Bazaar"
       ],
       "food": [
-        "Traditional Himachali Siddu with ghee",
-        "Chha Gosht spicy meat",
-        "Local fruit wines",
-        "Cafes on Mall Road like Cafe Shimla Times",
-        "Warm Tibetan momos"
+        "Baljees",
+        "Cafe Sol",
+        "Wake & Bake Cafe",
+        "Embassy Restaurant"
       ],
       "activities": [
-        "Riding the UNESCO Kalka-Shimla Toy Train through tunnels",
-        "Hiking up Jakhoo Hill to see the giant Hanuman statue",
-        "Strolling along the pedestrian-only Mall Road and Ridge",
+        "Exploring Christ Church",
         "Touring the historic Viceregal Lodge",
-        "Watching the sunset from Scandal Point"
+        "Visiting Jakhoo Temple Hanumant statue",
+        "Strolling along The Ridge"
       ],
       "shopping": [
-        "Lakkar Bazar for wooden handicrafts and toys",
-        "Mall Road shops for woolens",
-        "Tibetan Market for winter wear"
+        "Mall Road shopping",
+        "Lakkar Bazaar wooden crafts",
+        "Lower Bazaar local goods"
       ],
       "culture": [
-        "Christ Church Elizabethan architecture",
-        "Viceregal Lodge colonial history",
-        "Tara Devi hilltop temple",
-        "State Museum detailing Himachali art"
+        "Gaiety Theatre cultural events",
+        "Former summer capital history",
+        "Kalka-Shimla Toy Train ride"
       ]
     },
     "manali": {
@@ -1986,45 +1873,37 @@
       "state": "Himachal Pradesh",
       "landmarks": [
         "Hadimba Temple",
-        "Solang Valley",
-        "Rohtang Pass (nearby)",
-        "Jogini Waterfalls",
-        "Manu Temple",
-        "Vashisht Hot Water Springs",
-        "Van Vihar National Park",
-        "Tibetan Monasteries"
+        "Vashisht Hot Springs",
+        "Manu Temple"
       ],
       "neighborhoods": [
+        "Mall Road",
         "Old Manali",
-        "New Manali Mall Road",
-        "Vashisht Village",
-        "Solang Village",
-        "Aleo"
+        "Vashisht",
+        "Solang Valley"
       ],
       "food": [
-        "Fresh river Trout fish",
-        "Local Siddu pastry",
-        "Tibetan Thukpa noodle soup",
-        "Apples from orchards",
-        "Dining at Old Manali cafes like Cafe 1947 or Dylan's Coffee House"
+        "Johnson's Cafe trout",
+        "Cafe 1947",
+        "Drifters' Cafe",
+        "German Bakery"
       ],
       "activities": [
-        "Visiting the wooden Hadimba Temple inside pine forest",
-        "Adventure sports like paragliding in Solang Valley",
-        "Trekking to the scenic Jogini Waterfalls",
-        "Bathing in Vashisht sulfur hot springs",
-        "Relaxing by the rushing Beas River in Old Manali",
-        "Day trip driving to the snow-covered Rohtang Pass"
+        "Visiting Hadimba Temple wooden structure",
+        "Bathing in Vashisht Hot Springs",
+        "Strolling in Old Manali lanes",
+        "Solang Valley paragliding",
+        "Rohtang Pass excursion"
       ],
       "shopping": [
-        "Mall Road market for shawls and rugs",
-        "Old Manali streets for bohemian clothes and dreamcatchers",
-        "Tibetan bazaar for handicrafts"
+        "Mall Road woolens",
+        "Old Manali lanes boho shops",
+        "Himachali caps shopping"
       ],
       "culture": [
-        "Hadimba Temple wooden pagoda architecture",
-        "Manu Temple dedicated to sage Manu",
-        "Nyingmapa Buddhist Monastery and prayer wheels"
+        "Manu Temple historic walk",
+        "Leh-Ladakh road trip gateway",
+        "Old Manali riverside live music"
       ]
     },
     "dharamshala": {
@@ -2078,44 +1957,32 @@
       "country": "India",
       "state": "Himachal Pradesh",
       "landmarks": [
-        "Khajjiar Lake (Mini Switzerland)",
-        "Dainkund Peak",
-        "Panchpula waterfall",
-        "Kalatop Wildlife Sanctuary",
         "St. John's Church",
-        "St. Patrick's Church",
-        "Subhash Baoli"
+        "Khajjiar Lake",
+        "Golden Devi Temple"
       ],
       "neighborhoods": [
         "Gandhi Chowk",
         "Subhash Chowk",
-        "Khajjiar valley",
-        "Panchpula area",
-        "Bakrota Hills"
+        "Khajjiar meadow"
       ],
       "food": [
-        "Traditional North Indian thali",
-        "Tibetan street foods",
-        "Local apples and plums",
-        "Hot tea with maggi at viewpoints",
-        "Chinese and continental dishes at Mall Road diners"
+        "Lovely Restaurant",
+        "Cafe Nilgiri"
       ],
       "activities": [
-        "Strolling the pine-rimmed meadows of Khajjiar Lake",
-        "Hiking to Dainkund Peak for 360-degree mountain views",
-        "Walking past pine trails in Kalatop Wildlife Sanctuary",
-        "Viewing the monument of Sardar Ajit Singh at Panchpula",
-        "Strolling between Gandhi Chowk and Subhash Chowk"
+        "Visiting colonial-era St. John's Church",
+        "Walking around Khajjiar Lake meadow",
+        "Visiting Golden Devi Temple",
+        "Taking in panoramic Himalayan views"
       ],
       "shopping": [
-        "Gandhi Chowk Tibetan market for shawls",
-        "Himachal Handloom Industry Emporium",
-        "Local woolens shops"
+        "Gandhi Chowk Tibetan handicrafts",
+        "Subhash Chowk woolen markets"
       ],
       "culture": [
-        "St. John's Church oldest chapel in town",
-        "St. Patrick's Church stone structure",
-        "Bhuri Singh Museum in nearby Chamba"
+        "Colonial-era hill station architecture",
+        "Mini Switzerland meadows and pine forests"
       ]
     },
     "kasol": {
@@ -2123,46 +1990,35 @@
       "country": "India",
       "state": "Himachal Pradesh",
       "landmarks": [
-        "Parvati River",
-        "Chalal Village trail",
-        "Manikaran Sahib Gurudwara and Hot Springs",
-        "Tosh Village trail",
-        "Kheerganga Trek trail",
-        "Katagla",
-        "Kasol Temple"
+        "Manikaran Sahib",
+        "Chalal village walk"
       ],
       "neighborhoods": [
-        "Kasol Bazaar",
-        "Chalal pine woods",
-        "Manikaran holy town",
-        "Tosh hillside village",
-        "Barsheni road"
+        "Kasol Main Market",
+        "Chalal",
+        "Parvati Valley",
+        "Kasol riverside"
       ],
       "food": [
-        "Israeli Shakshuka, Hummus, and Pita",
-        "Local river trout fish",
-        "Tibetan momos",
-        "German bakery pastries at Evergreen Cafe",
-        "Hot instant noodles (Maggi) along trails",
-        "Local apples"
+        "Israeli cafes falafel and hummus",
+        "Kasol German Bakery",
+        "Evergreen Cafe"
       ],
       "activities": [
-        "Hiking along the roaring Parvati River to Chalal village",
-        "Bathing in the naturally boiling water springs at Manikaran Gurudwara",
-        "Hiking the steep stone trails of Tosh village",
-        "Trekking to Kheerganga hot springs",
-        "Sitting on river boulders listening to the water",
-        "Chilling at riverside music cafes"
+        "Bathing in Manikaran Sahib hot springs",
+        "Walking the scenic path to Chalal village",
+        "backpacker party and trance music scene in cafes",
+        "Riverside bonfire gatherings",
+        "Kheerganga trek baseline walk"
       ],
       "shopping": [
-        "Kasol hippie market for hemp bags, dreamcatchers, and crystals",
-        "Local shawl and woolen shops",
-        "Tosh local artisan stalls"
+        "Kasol main market street",
+        "Trance-print clothing shops",
+        "Handmade jewelry stalls"
       ],
       "culture": [
-        "Manikaran Sahib historic Gurudwara and temple complex",
-        "Traditional wooden temples of Tosh and Chalal villages",
-        "Local devta festivals in Parvati Valley"
+        "Nicknamed 'Mini Israel' backpacker culture",
+        "Parvati Valley spiritual walks"
       ]
     },
     "jodhpur": {
@@ -2171,47 +2027,31 @@
       "state": "Rajasthan",
       "landmarks": [
         "Mehrangarh Fort",
-        "Jaswant Thada",
         "Umaid Bhawan Palace",
-        "Ghanta Ghar (Clock Tower)",
-        "Toorji Ka Jhalra (Stepwell)",
-        "Mandore Gardens",
-        "Kaylana Lake",
-        "Rao Jodha Desert Rock Park"
+        "Jaswant Thada"
       ],
       "neighborhoods": [
-        "Blue City (Old Jodhpur)",
         "Sardar Market",
-        "Shastri Nagar",
-        "Ratanada",
-        "Sardarpura"
+        "Clock Tower",
+        "Blue City lanes"
       ],
       "food": [
-        "Famous Mawa Kachori sweet from Janta Sweet Home",
-        "Mirchi Bada spicy snack",
-        "Pyaaz Kachori",
-        "Lal Maas spicy mutton",
-        "Makhania Lassi (saffron lassi) at clock tower"
+        "Gypsy Restaurant thali",
+        "Shri Mishrilal Hotel makhaniya lassi"
       ],
       "activities": [
-        "Exploring the massive Mehrangarh Fort towering over the blue city",
-        "Walking past the blue-painted houses in the old town lanes",
-        "Visiting the white marble memorial of Jaswant Thada",
-        "Stepping down the stone steps of Toorji Ka Jhalra stepwell",
-        "Taking a zip-line tour over the fort walls (Flying Fox Jodhpur)",
-        "Touring the museum at Umaid Bhawan Palace"
+        "Touring Mehrangarh Fort",
+        "Visiting Umaid Bhawan Palace museum",
+        "Strolling Jaswant Thada cenotaph",
+        "Rooftop cafe dining with fort-lit night views"
       ],
       "shopping": [
-        "Sardar Market around the clock tower for spices",
-        "Mochi Bazar for embroidered leather shoes (jotis)",
-        "Tripolia Bazar for handicrafts and antiques",
-        "Nai Sarak bandhani fabrics"
+        "Sardar Market spices and handlooms",
+        "Clock Tower textiles"
       ],
       "culture": [
-        "Mehrangarh Fort royal museum",
-        "Jaswant Thada cenotaph architecture",
-        "Mandore Gardens historic cenotaph ruins",
-        "Umaid Bhawan Palace Art Deco architecture"
+        "Blue City indigo-washed heritage",
+        "Marwar dynasty royal legacy"
       ]
     },
     "jaisalmer": {
@@ -2219,48 +2059,30 @@
       "country": "India",
       "state": "Rajasthan",
       "landmarks": [
-        "Jaisalmer Fort (Golden Fort)",
-        "Sam Sand Dunes",
+        "Sonar Quila",
         "Patwon Ki Haveli",
-        "Nathmal Ki Haveli",
-        "Salim Singh Ki Haveli",
-        "Gadisar Lake",
-        "Kuldhara Abandoned Village",
-        "Tanot Mata Temple (nearby)",
-        "Bada Bagh cenotaphs"
+        "Sam Sand Dunes"
       ],
       "neighborhoods": [
-        "Fort Walled Area",
-        "Manak Chowk",
-        "Sam Desert Area",
-        "Gadisar Lake area",
-        "Kotsa road"
+        "Jaisalmer Fort interior",
+        "Sam Dunes desert camps"
       ],
       "food": [
-        "Rajasthani Ker Sangri vegetable dish",
-        "Dal Baati Churma",
-        "Spicy mutton curry",
-        "Local sweets like Ghotua laddu",
-        "Bhang Lassi (authorized local shop)"
+        "Desert camp dinners with folk music",
+        "Trio Restaurant"
       ],
       "activities": [
-        "Walking inside the living sandcastle streets of Jaisalmer Fort",
-        "Riding a camel through the Sam Sand Dunes at sunset",
-        "Camping overnight in desert tents with folk music and dancing",
-        "Boating on the historic Gadisar Lake surrounded by shrines",
-        "Exploring the haunted ruins of Kuldhara village",
-        "Photographing the yellow sandstone cenotaphs at Bada Bagh"
+        "Exploring the living Jaisalmer Fort",
+        "Trekking Sam Sand Dunes",
+        "Desert camping under the stars",
+        "Desert camp evenings with Rajasthani folk music and dance"
       ],
       "shopping": [
-        "Sadar Bazar inside fort for leather goods and rugs",
-        "Pansari Bazar for local fabrics and blankets",
-        "Manak Chowk handicraft stalls"
+        "Fort-interior shops leather goods and mirror-work textiles"
       ],
       "culture": [
-        "Jaisalmer Fort living heritage complex",
-        "Jain Temples inside the fort with intricate carvings",
-        "Patwon Ki Haveli architecture museum",
-        "Bada Bagh royal cenotaphs"
+        "Living Golden Fort heritage",
+        "Thar desert folk traditions"
       ]
     },
     "pushkar": {
@@ -2268,45 +2090,29 @@
       "country": "India",
       "state": "Rajasthan",
       "landmarks": [
-        "Brahma Temple",
-        "Pushkar Lake and Ghats",
-        "Savitri Temple (hilltop)",
-        "Varaha Temple",
-        "Rangji Temple",
-        "Pap Mochini Temple",
-        "Pushkar Camel Fair Grounds"
+        "Pushkar Lake",
+        "Brahma Temple"
       ],
       "neighborhoods": [
-        "Lake Ghats Area",
-        "Main Bazaar",
-        "Chhoti Basti",
-        "Bari Basti",
-        "Desert camps area"
+        "Pushkar Bazaar",
+        "Lake Ghats"
       ],
       "food": [
-        "Famous Pushkar Rabdi and Malpua sweet at Halwai Lane",
-        "Falafel wraps at local street stalls (Ganga Falafel)",
-        "Traditional Rajasthani vegetarian thali",
-        "Lassi in clay cups",
-        "Kachori and samosas"
+        "Sixth Sense Cafe",
+        "Honey & Spice organic food"
       ],
       "activities": [
-        "Watching the morning prayers and taking a walk around Pushkar Lake ghats",
-        "Riding the cable car or hiking up Ratnagiri Hill to Savitri Temple for sunrise views",
-        "Visiting the rare Lord Brahma Temple (14th century)",
-        "Watching the evening aarti prayer ceremony at Varaha Ghat",
-        "Taking a camel cart ride into the surrounding desert dunes"
+        "Walking the 52 bathing ghats of Pushkar Lake",
+        "Paying respects at Brahma Temple",
+        "Attending lake-side evening aartis",
+        "Pushkar Camel Fair Camel trading and cultural fair (November)"
       ],
       "shopping": [
-        "Pushkar Main Bazaar for silver jewelry, leather bags, and colorful skirts",
-        "Sarafa Bazar for local paintings and fabrics",
-        "Local incense and rosewater shops"
+        "Pushkar Bazaar silver jewelry and hippie-style clothing"
       ],
       "culture": [
-        "Brahma Temple (one of the world's few active Brahma shrines)",
-        "Pushkar Lake sacred pilgrimage site with 52 bathing ghats",
-        "Varaha Temple ancient stone structure",
-        "Savitri Temple hilltop shrine"
+        "One of the world few Brahma temples",
+        "Spiritual lake culture"
       ]
     },
     "panaji": {
@@ -2314,46 +2120,30 @@
       "country": "India",
       "state": "Goa",
       "landmarks": [
-        "Our Lady of the Immaculate Conception Church",
-        "Fontainhas Latin Quarter",
-        "Mandovi River Promenade",
-        "Basilic of Bom Jesus (nearby in Old Goa)",
-        "Se Cathedral (Old Goa)",
-        "Goa State Museum",
-        "Miramar Beach"
+        "Basilica of Bom Jesus",
+        "Se Cathedral",
+        "Fontainhas Latin Quarter"
       ],
       "neighborhoods": [
         "Fontainhas",
-        "Campal",
-        "Altinho",
-        "Miramar",
-        "Panjim Market area"
+        "Panjim waterfront",
+        "Mapusa"
       ],
       "food": [
-        "Goan Fish Thali at Mum's Kitchen or Ritz Classic",
-        "Pork Vindaloo",
-        "Chicken Xacuti",
-        "Bebinca dessert",
-        "Local cashew Feni",
-        "Seafood rissois"
+        "Viva Panjim Goan fish curry",
+        "Mum's Kitchen"
       ],
       "activities": [
-        "Walking through the colorful Portuguese houses of Fontainhas Latin Quarter",
-        "Taking a sunset river cruise on the Mandovi River",
-        "Visiting the white baroque church on the hill in central Panaji",
-        "Taking a day trip to the historic churches of Old Goa",
-        "Watching the sunset at Miramar Beach esplanade"
+        "Walking the colorful lanes of Fontainhas Latin Quarter",
+        "Touring UNESCO Basilica of Bom Jesus and Se Cathedral",
+        "Mandovi River cruise and casino boat lounges"
       ],
       "shopping": [
-        "Panjim Municipal Market for local spices and cashews",
-        "18th June Road shopping street",
-        "Fontainhas art galleries for glazed tiles (azulejos)"
+        "Mapusa Friday Market local crafts and spices"
       ],
       "culture": [
-        "Basilica of Bom Jesus holding St. Francis Xavier's remains",
-        "Se Cathedral (largest church in Asia)",
-        "Immaculate Conception Church baroque facade",
-        "Fontainhas heritage area"
+        "UNESCO Bom Jesus holds St. Francis Xavier relics",
+        "Fontainhas Portuguese-era houses heritage conservation zone"
       ]
     },
     "calangute": {
@@ -2537,49 +2327,35 @@
       "country": "India",
       "state": "Kerala",
       "landmarks": [
-        "Fort Kochi",
-        "Chinese Fishing Nets",
-        "Mattancherry Palace (Dutch Palace)",
-        "Paradesi Synagogue (Jew Town)",
+        "Chinese Fishing Nets Fort Kochi",
+        "Mattancherry Palace",
         "Santa Cruz Basilica",
-        "St. Francis Church",
-        "Hill Palace Museum (Thripunithura)",
-        "Marine Drive Kochi"
+        "Jewish Synagogue Jew Town"
       ],
       "neighborhoods": [
         "Fort Kochi",
-        "Mattancherry (Jew Town)",
-        "Ernakulam City Centre",
-        "Marine Drive",
-        "Edappally",
-        "Willingdon Island"
+        "Mattancherry",
+        "Jew Town"
       ],
       "food": [
-        "Kerala Parotta and Beef Fry/Chicken Stew",
-        "Karimeen Pollichathu (pearl spot fish in banana leaf)",
-        "Kochi seafood biryani",
-        "Banana chips fried in coconut oil",
-        "Dining at historic Jew Town warehouse cafes"
+        "Dhe Puttu",
+        "Kayees Rahmathulla Cafe Malabar biryani",
+        "Fort House Restaurant"
       ],
       "activities": [
-        "Watching fishermen operate the giant Chinese Fishing Nets at Fort Kochi beach",
-        "Strolling Jew Town to see antiques and spice warehouses",
-        "Watching a Kathakali classical dance at the Kerala Kathakali Centre",
-        "Viewing the Dutch murals at Mattancherry Palace",
-        "Visiting the tomb of Vasco da Gama at St. Francis Church"
+        "Watching Chinese Fishing Nets operate",
+        "Exploring Mattancherry Palace murals",
+        "Visiting Jewish Synagogue",
+        "Watching nightly Kathakali dance performances",
+        "Exploring relaxed Fort Kochi art galleries and beachfront bars"
       ],
       "shopping": [
-        "Jew Town antique shops",
-        "Lulu Mall in Edappally (one of India's largest)",
-        "Broadway Ernakulam for spices and local goods",
-        "Devaraja market styled saree shops"
+        "Mattancherry Spice Market spice trade hub",
+        "Jew Town antiques shops"
       ],
       "culture": [
-        "Mattancherry Dutch Palace",
-        "Paradesi Synagogue (oldest active synagogue in Commonwealth)",
-        "St. Francis Church (first European church in India)",
-        "Santa Cruz Cathedral Basilica",
-        "Kerala Kathakali Centre performances"
+        "3,000-year-old spice trade hub history",
+        "Indo-European colonial heritage"
       ]
     },
     "munnar": {
@@ -2587,48 +2363,30 @@
       "country": "India",
       "state": "Kerala",
       "landmarks": [
-        "Tata Tea Museum",
-        "Eravikulam National Park (Rajamala)",
-        "Anamudi Peak",
+        "Eravikulam National Park Nilgiri Tahr",
         "Mattupetty Dam",
-        "Echo Point",
-        "Top Station",
-        "Kundala Lake",
-        "Attukad Waterfalls",
-        "Lockhart Tea Museum"
+        "Top Station viewpoint"
       ],
       "neighborhoods": [
-        "Munnar Town",
-        "Old Munnar",
-        "Mattupetty road",
-        "Devikulam",
-        "Pallivasal"
+        "Munnar town",
+        "Tea estates"
       ],
       "food": [
-        "Traditional Kerala Meals on banana leaf",
-        "Hot cardamom tea from tea gardens",
-        "Kappa and Meen Curry (tapioca and spicy fish curry)",
-        "Siddu styled appam and stew",
-        "Kerala banana fritters (Pazham Pori)"
+        "Saravana Bhavan Munnar",
+        "Rapsy Restaurant"
       ],
       "activities": [
-        "Walking through the misty emerald tea gardens",
-        "Spotting the endangered Nilgiri Tahr mountain goat in Eravikulam Park",
-        "Boating on Mattupetty Dam and Kundala Lake",
-        "Shouting out your name at the Echo Point mountain valley",
-        "Hike up towards Top Station for views over Tamil Nadu border",
-        "Visiting the Tata Tea Museum to see tea processing"
+        "Spotting Nilgiri Tahr at Eravikulam National Park",
+        "Boating at Mattupetty Dam",
+        "Viewing mountains from Top Station",
+        "Walking tea estates and relaxing by resort campfires"
       ],
       "shopping": [
-        "Munnar Town market for local spices (cardamom/cloves)",
-        "Tata Tea factory outlets for fresh tea powder",
-        "Homemade chocolates shops",
-        "Aromatic oils stores"
+        "Local tea and spice shops along Munnar main road"
       ],
       "culture": [
-        "Lockhart Tea Estate history museum",
-        "Munnar local churches and temple festival events",
-        "Kathakali and Kalaripayattu shows at Punarjani Traditional Village"
+        "Western Ghats tea plantation landscapes",
+        "Spices cultivation heritage"
       ]
     },
     "alleppey": {
@@ -2636,45 +2394,30 @@
       "country": "India",
       "state": "Kerala",
       "landmarks": [
-        "Alleppey Backwaters",
-        "Alleppey Beach",
+        "St. Mary's Forane Church",
         "Alappuzha Lighthouse",
-        "Vembanad Lake",
-        "Pathiramanal Island",
-        "Marari Beach (nearby)",
-        "Ambalappuzha Sri Krishna Temple"
+        "Krishnapuram Palace nearby"
       ],
       "neighborhoods": [
-        "Punnamada Lake area",
-        "Lakeside",
-        "Alleppey Town",
-        "Mararikulam Beach area",
-        "Beach Road"
+        "Punnamada Lake backwaters",
+        "Alleppey Beach"
       ],
       "food": [
-        "Traditional houseboat lunch (Karimeen fish, red rice, cabbage thoran)",
-        "Toddy shop spicy duck curry (Tharavu Roast) and tapioca",
-        "Kerala appam with chicken curry",
-        "Tender coconut water",
-        "Kappa and fish curry"
+        "Houseboat-cooked Kerala Sadya meals",
+        "Halais Restaurant"
       ],
       "activities": [
-        "Boarding a traditional Kettuvallam wooden houseboat for an overnight cruise",
-        "Taking a budget-friendly canoe or shikara boat through narrow canals",
-        "Strolling the sandy Alleppey Beach and viewing the historic lighthouse",
-        "Taking a speed boat ride across Vembanad Lake",
-        "Birdwatching on the quiet Pathiramanal Island"
+        "Cruising on an overnight backwater houseboat",
+        "Visiting Alappuzha Lighthouse",
+        "Exploring Krishnapuram Palace",
+        "Watching Nehru Trophy Snake Boat Race (August)"
       ],
       "shopping": [
-        "Alleppey town market for coir mats and rugs",
-        "Spice shops for pepper and cardamom",
-        "Marari beach local handicraft stalls"
+        "Local boat-side markets coir products and spices"
       ],
       "culture": [
-        "Kettuvallam traditional houseboat building crafts",
-        "Ambalappuzha Temple famous for its sweet milk payasam",
-        "Mullakkal Rajarajeswari Temple festival setting",
-        "Coir Museum displaying coconut fiber crafts"
+        "Venice of the East backwater canals",
+        "Traditional houseboat lifestyle"
       ]
     },
     "varkala": {
@@ -2682,44 +2425,27 @@
       "country": "India",
       "state": "Kerala",
       "landmarks": [
-        "Varkala Cliff and North Cliff Beach",
-        "Janardhana Swamy Temple (2000-year-old)",
-        "Papanasam Beach (Black Sand)",
-        "Sivagiri Mutt",
-        "Kapil Lake and Beach",
-        "Anjengo Fort and Lighthouse (nearby)"
+        "Varkala Cliff",
+        "Janardhana Swamy Temple"
       ],
       "neighborhoods": [
-        "North Cliff",
-        "South Cliff",
-        "Papanasam Beach area",
-        "Temple Junction",
-        "Sivagiri"
+        "Varkala Cliff top",
+        "Varkala Beach"
       ],
       "food": [
-        "Freshly caught seafood (snapper, barracuda) at cliffside cafes",
-        "Tibetan momos and thukpa at refugee cafes",
-        "Healthy organic juices and fruit bowls",
-        "Traditional Kerala Sadhya",
-        "Filter coffee and local snacks"
+        "Clafouti Cafe",
+        "Cafe Del Mar clifftop dining"
       ],
       "activities": [
-        "Walking along the dramatic clifftop path overlooking the Arabian Sea",
-        "Swimming in the waters of Papanasam Beach (believed to wash away sins)",
-        "Kayaking in the nearby Kapil Lake where backwaters meet the sea",
-        "Visiting the Sivagiri Mutt ashram of Sree Narayana Guru",
-        "Day trip to the historic British-built Anjengo Fort and its lighthouse"
+        "Sunbathing on Varkala Beach",
+        "Visiting the 2,000-year-old Janardhana Swamy Temple",
+        "Enjoying clifftop bars and cafes with sunset views and live music"
       ],
       "shopping": [
-        "North Cliff bazaar for silver jewelry, harem pants, and incense",
-        "Temple Junction local flower and brassware stores",
-        "Tibetan handicraft shops"
+        "Cliff-top shops selling clothing, jewelry, and souvenirs"
       ],
       "culture": [
-        "Janardhana Swamy Temple historic Vaishnavite temple",
-        "Sivagiri Mutt spiritual center",
-        "Anjengo Fort colonial history",
-        "Traditional Kathakali performances at Varkala Culture Center"
+        "Dramatic red cliffs and Arabian Sea coastline landscape"
       ]
     },
     "trivandrum": {
@@ -2773,47 +2499,30 @@
       "country": "India",
       "state": "Karnataka",
       "landmarks": [
-        "Mysore Palace (Amba Vilas)",
-        "Chamundi Hill and Chamundeshwari Temple",
-        "Brindavan Gardens",
-        "Mysore Zoo",
-        "St. Philomena's Cathedral",
-        "Jaganmohan Palace and Art Gallery",
-        "Lalitha Mahal Palace",
-        "Karanji Lake"
+        "Mysore Palace",
+        "Chamundi Hills Temple",
+        "St. Philomena's Church"
       ],
       "neighborhoods": [
-        "City Centre",
-        "Gokulam yoga hub",
-        "Chamundi Hill area",
-        "Devaraja Market area",
-        "Siddhartha Layout"
+        "Mysore Palace area",
+        "Devaraja Market"
       ],
       "food": [
-        "Famous Mysore Masala Dosa at Mylari Restaurant",
-        "Mysore Pak sweet",
-        "Traditional Mysore Royal Thali",
-        "Spicy mutton pulimunchi",
-        "Local filter coffee"
+        "Vinayaka Mylari dosa",
+        "Mylari Dosa"
       ],
       "activities": [
-        "Touring the opulent Mysore Palace corridors",
-        "Climbing Chamundi Hill to see the giant Nandi Bull statue",
-        "Watching the musical fountain show at Brindavan Gardens",
-        "Strolling past yoga studios in Gokulam",
-        "Viewing paintings at Jaganmohan Palace art gallery",
-        "Walking along Karanji Lake paths"
+        "Touring Mysore Palace",
+        "Climbing Chamundi Hills Temple steps",
+        "Visiting St. Philomena's Church",
+        "Experiencing Mysore Dasara festival (October)"
       ],
       "shopping": [
-        "Devaraja Market for sandalwood oils, incense, and fresh flowers",
-        "Mysore Silk Factory outlet for authentic silk sarees",
-        "Sandalwood handicraft emporiums"
+        "Devaraja Market flowers, spices, and sandalwood products"
       ],
       "culture": [
-        "Mysore Palace royal heritage museum",
-        "St. Philomena's Cathedral Neo-Gothic architecture",
-        "Chamundeshwari Temple historic hilltop shrine",
-        "Jaganmohan Palace traditional paintings"
+        "Wodeyar dynasty royal history",
+        "Mysore Palace illumination heritage"
       ]
     },
     "hampi": {
@@ -2822,48 +2531,29 @@
       "state": "Karnataka",
       "landmarks": [
         "Virupaksha Temple",
-        "Stone Chariot at Vittala Temple",
+        "Vittala Temple stone chariot",
         "Lotus Mahal",
-        "Elephant Stables",
-        "Matanga Hill",
-        "Hemakuta Hill Temples",
-        "Hazara Rama Temple",
-        "Anegundi (Hippie Island across river)",
-        "Tungabhadra River",
-        "Queens Bath"
+        "Elephant Stables"
       ],
       "neighborhoods": [
-        "Hampi Bazaar (Temple area)",
-        "Kamalapura",
-        "Anegundi (Hippie Island)",
-        "Kadirampura",
-        "Sanapur Lake area"
+        "Hampi Bazaar",
+        "Virupapur Gaddi across river"
       ],
       "food": [
-        "Vegetarian meals at Mango Tree Restaurant",
-        "Traditional Karnataka thali",
-        "Wood-fired pizzas at hippie island cafes",
-        "Fresh coconut water near ruins",
-        "Lassi and herbal teas"
+        "Mango Tree Restaurant",
+        "Laughing Buddha Cafe"
       ],
       "activities": [
-        "Walking through the Virupaksha Temple courtyard",
-        "Photographing the iconic Stone Chariot at Vittala Temple",
-        "Climbing Matanga Hill for a spectacular sunrise over the ruins",
-        "Crossing the Tungabhadra River in a circular coracle boat",
-        "Renting a moped to explore Sanapur Lake and Anegundi village",
-        "Watching sunset from Hemakuta Hill temples"
+        "Exploring UNESCO Hampi Group of Monuments",
+        "Crossing the river to Virupapur Gaddi backpacker cafes",
+        "Watching sunset from Matanga Hill"
       ],
       "shopping": [
-        "Hampi Bazaar local souvenir stalls",
-        "Hippie clothing shops in Anegundi",
-        "Stone carving workshops in Kamalapura"
+        "Hampi Bazaar street stalls handicrafts and beads"
       ],
       "culture": [
-        "Virupaksha Temple (active since 7th century)",
-        "Vittala Temple musical pillars and Stone Chariot",
-        "Lotus Mahal and Elephant Stables (Indo-Islamic royal structures)",
-        "Hazara Rama Temple stone bas-reliefs"
+        "Capital of Vijayanagara Empire ruins",
+        "Ancient Dravidian temple architecture"
       ]
     },
     "coorg": {
@@ -2872,45 +2562,28 @@
       "state": "Karnataka",
       "landmarks": [
         "Abbey Falls",
-        "Raja's Seat",
-        "Namdroling Monastery (Golden Temple Bylakuppe)",
-        "Talacauvery (Cauvery source)",
-        "Dubare Elephant Camp",
-        "Madikeri Fort",
-        "Nagarhole National Park",
-        "Chelavara Falls"
+        "Raja's Seat viewpoint",
+        "Madikeri Fort"
       ],
       "neighborhoods": [
-        "Madikeri town",
-        "Kushalnagar (Monastery area)",
-        "Gonikoppal",
-        "Virajpet",
-        "Somwarpet"
+        "Madikeri",
+        "Coffee estates"
       ],
       "food": [
-        "Famous Coorg Pandi Curry (spicy pork curry in Kachampuli vinegar)",
-        "Kadambuttu (steamed rice balls)",
-        "Freshly brewed local Robusta coffee",
-        "Bamboo shoot curry (Baimbale)",
-        "Coorg honey and homemade wines"
+        "Coorg home-style Pandi Pork Curry",
+        "Coorg Cuisine Restaurant"
       ],
       "activities": [
-        "Feeding and bathing elephants at Dubare Elephant Camp",
-        "Walking through misty paths to Abbey Falls inside coffee plantations",
-        "Watching the sunset over the hills from Raja's Seat garden",
-        "Viewing the golden statues at Namdroling Tibetan Monastery in Bylakuppe",
-        "Day trip to Talacauvery source of Cauvery River on Brahmagiri hills"
+        "Hiking to Abbey Falls",
+        "Relaxing at Raja's Seat viewpoint",
+        "Exploring Madikeri Fort",
+        "Resort campfire evenings amid coffee plantations"
       ],
       "shopping": [
-        "Madikeri markets for fresh spices (pepper, cardamom)",
-        "Coffee bean shops for Coorg coffee",
-        "Tibetan shops in Bylakuppe for rugs and bells"
+        "Local spice and coffee shops along Madikeri main road"
       ],
       "culture": [
-        "Namdroling Tibetan Monastery (largest Nyingma center in India)",
-        "Madikeri Fort historical palace structures",
-        "Talacauvery holy temple site",
-        "Traditional Kodava cultural festivals"
+        "Coffee Capital of India rolling plantation landscapes"
       ]
     },
     "gokarna": {
@@ -2919,45 +2592,26 @@
       "state": "Karnataka",
       "landmarks": [
         "Mahabaleshwar Temple",
-        "Om Beach",
-        "Half Moon Beach",
-        "Paradise Beach (Hippie beach)",
-        "Kudle Beach",
-        "Gokarna Cliff walk",
-        "Mirjan Fort (nearby)",
-        "Koti Teertha temple tank"
+        "Om Beach"
       ],
       "neighborhoods": [
-        "Gokarna Town (Temple area)",
-        "Kudle Beachfront",
-        "Om Beach coast",
-        "Paradise beach cove",
-        "Mirjan village"
+        "Kudle Beach",
+        "Gokarna town"
       ],
       "food": [
-        "Fresh seafood at Kudle beach shacks",
-        "Wood-fired pizzas at Namaste Cafe on Om Beach",
-        "Banana pancakes",
-        "Traditional South Indian vegetarian thali",
-        "Fresh tender coconut"
+        "Namaste Cafe on Om Beach",
+        "Prema Restaurant"
       ],
       "activities": [
-        "Doing the Gokarna beach trek (hiking over cliffs between Kudle, Om, Half Moon, and Paradise beaches)",
-        "Visiting the sacred Atmalinga at Mahabaleshwar Temple",
-        "Kayaking or banana boat riding on Om Beach",
-        "Sunbathing at the quiet Paradise Beach",
-        "Day trip exploring the ruins of Mirjan Fort",
-        "Watching sunset into the sea from Kudle beach shacks"
+        "Visiting sacred Mahabaleshwar Temple",
+        "Relaxing on Om Beach",
+        "Laid-back backpacker beach-bonfires and beach hopping"
       ],
       "shopping": [
-        "Gokarna town temple road for brass oil lamps and incense",
-        "Om beach shacks for beach shirts and beads",
-        "Handmade shell ornaments stalls"
+        "Small local stalls in Gokarna town selling beachwear and souvenirs"
       ],
       "culture": [
-        "Mahabaleshwar Temple (ancient Shiva temple housing Atmalinga)",
-        "Koti Teertha holy bathing tank",
-        "Mirjan Fort 16th-century architectural heritage site"
+        "Spiritual and quieter beach alternative to Goa"
       ]
     },
     "pune": {
@@ -2967,45 +2621,33 @@
       "landmarks": [
         "Shaniwar Wada",
         "Aga Khan Palace",
-        "Dagadusheth Halwai Ganapati Temple",
-        "Sinhagad Fort",
-        "Pataleshwar Cave Temple",
-        "Osho Teerth Park",
-        "Raja Dinkar Kelkar Museum",
-        "Saras Baug"
+        "Sinhagad Fort"
       ],
       "neighborhoods": [
         "Koregaon Park",
-        "Deccan Gymkhana",
-        "Camp (Pune Camp)",
-        "FC Road (Fergusson College Road)",
-        "Kothrud",
-        "Aundh"
+        "JM Road",
+        "FC Road",
+        "Kalyani Nagar",
+        "Tulshibaug"
       ],
       "food": [
-        "Famous Shrewsbury Biscuits from Kayani Bakery in Camp",
-        "Spicy Misal Pav at Katakirr",
-        "Traditional Maharashtrian Thali at Durvankur",
-        "Mastani mango milkshake at Sujata Mastani",
-        "Bakharwadi savory snack from Chitale Bandhu"
+        "Vaishali Restaurant South Indian",
+        "Goodluck Cafe Bun Maska",
+        "German Bakery"
       ],
       "activities": [
-        "Exploring the ruins of Shaniwar Wada fort",
-        "Visiting the serene Aga Khan Palace where Mahatma Gandhi was detained",
-        "Trekking up Sinhagad Fort for local pitla bhakri food",
-        "Exploring the 8th-century rock-cut Pataleshwar Cave Temple",
-        "Walking past cafes and shopping on FC Road in the evening"
+        "Exploring Shaniwar Wada fort palace",
+        "Touring Gandhi memorial at Aga Khan Palace",
+        "Trekking to Sinhagad Fort",
+        "Koregaon Park college-town nightlife (High Spirits, Malaka Spice)"
       ],
       "shopping": [
-        "Laxmi Road for traditional sarees and clothes",
-        "FC Road for budget accessories",
-        "Camp markets for bakeries and footwear"
+        "FC Road and JM Road student shopping",
+        "Tulshibaug traditional markets"
       ],
       "culture": [
-        "Aga Khan Palace Italian arch architecture museum",
-        "Dagadusheth Halwai Temple famous giant golden Ganesh idol",
-        "Pataleshwar Cave Temple rock-cut architecture",
-        "Raja Kelkar Museum private collection"
+        "Oxford of the East educational heritage",
+        "Peshwa Maratha history sites"
       ]
     },
     "lonavala": {
@@ -3013,46 +2655,29 @@
       "country": "India",
       "state": "Maharashtra",
       "landmarks": [
-        "Bhaja Caves",
-        "Karla Caves",
-        "Lohagad Fort",
-        "Tiger's Point (Tiger's Leap)",
-        "Bushi Dam",
-        "Lonavala Lake",
-        "Kune Falls",
-        "Duke's Nose viewpoint"
+        "Karla and Bhaja Caves",
+        "Tiger's Leap viewpoint",
+        "Bhushi Dam"
       ],
       "neighborhoods": [
-        "Lonavala Town",
-        "Khandala (adjacent)",
-        "Bhaja village",
-        "Lohagad foothills",
-        "Valvan area"
+        "Lonavala town",
+        "Khandala"
       ],
       "food": [
-        "Famous Lonavala Chikki (nut peanut brittle) from Cooper's or Maganlal",
-        "Hot onion pakoras and ginger tea at Tiger's Point",
-        "Spicy Maharashtrian misal pav",
-        "Traditional fudge",
-        "Roasted corn on the cob (bhutta)"
+        "Maganlal Chikki Wala peanut brittle",
+        "Grace Restaurant"
       ],
       "activities": [
-        "Climbing the rock stairs to Karla and Bhaja ancient Buddhist Caves",
-        "Trekking to the hilltop Lohagad Fort ruins",
-        "Watching the clouds and waterfalls from Tiger's Point cliff",
-        "Getting wet in the steps of Bushi Dam during monsoons",
-        "Hike to Duke's Nose cliff for valley views",
-        "Buying fresh chocolate fudge at Cooper's Bakery"
+        "Exploring Karla and Bhaja Buddhist rock-cut caves",
+        "Taking in views from Tiger's Leap",
+        "Visiting Bhushi Dam",
+        "Hanging out in resort lounges"
       ],
       "shopping": [
-        "Lonavala Bazaar for Maganlal Chikki and Cooper's fudge",
-        "Local wooden toy shops",
-        "Fruit markets for fresh plums and berries"
+        "Lonavala Chikki Market peanut/sesame brittle"
       ],
       "culture": [
-        "Karla Caves (largest Hinayana Buddhist rock-cut cave temples in India)",
-        "Bhaja Caves historic stupas",
-        "Lohagad Fort historical military gates and ramparts"
+        "Monsoon weekend nature getaway heritage"
       ]
     },
     "aurangabad": {
@@ -3060,47 +2685,31 @@
       "country": "India",
       "state": "Maharashtra",
       "landmarks": [
-        "Ajanta Caves (UNESCO)",
-        "Ellora Caves (UNESCO)",
-        "Kailash Temple (Ellora)",
-        "Daulatabad Fort",
-        "Bibi Ka Maqbara (Tomb of the Lady)",
-        "Panchakki (Water Mill)",
-        "Aurangabad Caves",
-        "Grishneshwar Jyotirlinga Temple"
+        "Ajanta Caves",
+        "Ellora Caves",
+        "Kailasa Temple",
+        "Bibi Ka Maqbara"
       ],
       "neighborhoods": [
-        "Cidco",
-        "Kranti Chowk",
-        "Ellora village",
-        "Ajanta valley road",
-        "Begumpura"
+        "Ellora complex",
+        "Ajanta complex",
+        "Himayat Bagh"
       ],
       "food": [
-        "Naan Qalia (traditional spicy meat and bread dish)",
-        "Aurangabadi Mughlai biryani",
-        "Traditional Maharashtrian meals",
-        "Local sweet imarti",
-        "Shrikhand dessert"
+        "Naivedyam",
+        "Bhoj Restaurant Rajasthani/Gujarati thali"
       ],
       "activities": [
-        "Gazing in awe at the monolithic Kailash Temple hewn from a single rock at Ellora",
-        "Viewing the ancient Buddhist fresco paintings inside Ajanta Caves",
-        "Climbing the steep stone steps of the invincible Daulatabad Fort",
-        "Taking photos of Bibi Ka Maqbara (the Taj of the Deccan)",
-        "Visiting the 17th-century water mill of Panchakki"
+        "Exploring UNESCO Ajanta Buddhist cave paintings",
+        "Exploring UNESCO Ellora Caves and Kailasa Temple",
+        "Visiting Bibi Ka Maqbara tomb"
       ],
       "shopping": [
-        "Connaught Place Aurangabad for shopping",
-        "Local shops for Himroo and Paithani silk sarees",
-        "Bidriware silver inlay metal crafts shops"
+        "Himayat Bagh area Paithani sarees and Himroo shawls"
       ],
       "culture": [
-        "Ellora Caves (rock-cut temples of Hindu, Buddhist, and Jain faiths)",
-        "Ajanta Caves (famous ancient Buddhist cave murals)",
-        "Daulatabad Fort medieval military engineering marvel",
-        "Bibi Ka Maqbara Mughal architecture",
-        "Grishneshwar Temple historic jyotirlinga shrine"
+        "Ellora Kailasa Temple single rock-cut marvel",
+        "Heritage day-trip destination"
       ]
     },
     "nashik": {
@@ -5563,36 +5172,46 @@
     "new delhi": {
       "name": "New Delhi",
       "country": "India",
-      "state": null,
+      "state": "Delhi",
       "landmarks": [
-        "India Gate",
-        "Humayun's Tomb",
         "Qutub Minar",
-        "Red Fort"
+        "Humayun's Tomb",
+        "India Gate",
+        "Lotus Temple",
+        "Akshardham Temple",
+        "Rashtrapati Bhavan"
       ],
       "neighborhoods": [
+        "Khan Market",
+        "Sarojini Nagar",
         "Connaught Place",
-        "Karol Bagh"
+        "Hauz Khas Village",
+        "Aerocity",
+        "Janpath",
+        "Dilli Haat"
       ],
       "food": [
-        "Butter Chicken",
-        "Chole Bhature",
-        "Aloo Tikki",
-        "Parathe Wali Gali"
+        "Bukhara ITC Maurya world-famous dal",
+        "Indian Coffee House Connaught Place",
+        "Haldiram's sweets"
       ],
       "activities": [
-        "Explore historical sites",
-        "Visit Chandni Chowk",
-        "Experience street food"
+        "Touring UNESCO Qutub Minar and Humayun's Tomb",
+        "Evening walk at India Gate lawns",
+        "Viewing Lotus Temple architecture",
+        "Hauz Khas Village lake view rooftop bars",
+        "Connaught Place pubs (Pegasus, Q'BA)",
+        "Aerocity clubs (Kitty Su)"
       ],
       "shopping": [
-        "Chandni Chowk",
-        "Sarojini Nagar Market",
-        "Select Citywalk"
+        "Khan Market luxury boutiques",
+        "Sarojini Nagar budget fashion market",
+        "Dilli Haat state-wise crafts",
+        "Janpath Market"
       ],
       "culture": [
-        "National Museum",
-        "Gandhi Smriti"
+        "Lutyens' Delhi colonial architecture heritage",
+        "Modern cosmopolitan capital culture"
       ]
     },
     "tehran": {
@@ -10162,6 +9781,3007 @@
         "Great Mosque of Sana'a",
         "National Museum of Yemen"
       ]
+    },
+    "mcleod ganj": {
+      "name": "McLeod Ganj",
+      "country": "India",
+      "state": "Himachal Pradesh",
+      "landmarks": [
+        "Tsuglagkhang Complex",
+        "Bhagsunath Temple",
+        "Bhagsu Waterfall",
+        "Namgyal Monastery"
+      ],
+      "neighborhoods": [
+        "Temple Road",
+        "Bhagsu",
+        "Dharamkot",
+        "Naddi"
+      ],
+      "food": [
+        "Tibet Kitchen",
+        "Common Ground Cafe",
+        "Jimmy's Italian Kitchen",
+        "Lung Ta Japanese Restaurant"
+      ],
+      "activities": [
+        "Exploring Tsuglagkhang Dalai Lama temple",
+        "Hiking to Bhagsu Waterfall",
+        "Visiting Bhagsunath Temple",
+        "Meditating at Namgyal Monastery"
+      ],
+      "shopping": [
+        "Tibetan Market handicrafts",
+        "Temple Road prayer flags",
+        "McLeod Ganj local craft stalls"
+      ],
+      "culture": [
+        "Tibetan government-in-exile heritage",
+        "Dalai Lama residence tour",
+        "Dharamkot cafe live music scene"
+      ]
+    },
+    "jibhi": {
+      "name": "Jibhi",
+      "country": "India",
+      "state": "Himachal Pradesh",
+      "landmarks": [
+        "Jibhi Waterfall",
+        "Chehni Kothi",
+        "Shringa Rishi Temple"
+      ],
+      "neighborhoods": [
+        "Jibhi village",
+        "Chehni",
+        "Tirthan valley road"
+      ],
+      "food": [
+        "Cafe Sherni",
+        "The Marwa Cafe",
+        "Local homestay-cooked Himachali meals",
+        "Freshly cooked trout fish"
+      ],
+      "activities": [
+        "Hiking to Jibhi Waterfall",
+        "Trekking to the 1500-year-old Chehni Kothi tower",
+        "Visiting Shringa Rishi Temple",
+        "Relaxing by bonfires in homestays"
+      ],
+      "shopping": [
+        "Small general stores on main lane",
+        "Local woolens stalls"
+      ],
+      "culture": [
+        "Untouched wooden houses architecture",
+        "Himachali traditional lifestyle",
+        "Forest walks"
+      ]
+    },
+    "tirthan valley": {
+      "name": "Tirthan Valley",
+      "country": "India",
+      "state": "Himachal Pradesh",
+      "landmarks": [
+        "Great Himalayan National Park",
+        "Chhoie Waterfall"
+      ],
+      "neighborhoods": [
+        "Banjar",
+        "Gushaini",
+        "Tirthan River bank"
+      ],
+      "food": [
+        "Fresh-caught trout from local trout farms",
+        "Homestay-cooked local Himachali food"
+      ],
+      "activities": [
+        "Trekking in Great Himalayan National Park",
+        "Hiking to Chhoie Waterfall",
+        "Trout fishing in Tirthan River",
+        "Riverside camping"
+      ],
+      "shopping": [
+        "Basic general stores in Banjar and Gushaini villages"
+      ],
+      "culture": [
+        "UNESCO World Heritage Site exploration",
+        "Early-to-bed homestay culture",
+        "Nature and birdwatching walks"
+      ]
+    },
+    "spiti valley": {
+      "name": "Spiti Valley",
+      "country": "India",
+      "state": "Himachal Pradesh",
+      "landmarks": [
+        "Key Monastery",
+        "Chandratal Lake",
+        "Dhankar Monastery",
+        "Pin Valley National Park"
+      ],
+      "neighborhoods": [
+        "Kaza",
+        "Dhankar",
+        "Kibber",
+        "Langza"
+      ],
+      "food": [
+        "Sol Cafe",
+        "Kunzum Cafe Kaza",
+        "Homestay-cooked Spitian food",
+        "Thukpa and momos"
+      ],
+      "activities": [
+        "Visiting Key Monastery ancient chambers",
+        "Trekking around Chandratal Lake",
+        "Exploring Dhankar Monastery cliffside ruins",
+        "Spotting wildlife in Pin Valley National Park",
+        "Night stargazing in cold desert"
+      ],
+      "shopping": [
+        "Kaza local market",
+        "Tibetan handicrafts shopping"
+      ],
+      "culture": [
+        "Little Tibet high-altitude Buddhist culture",
+        "Ancient mud-brick monastery visits"
+      ]
+    },
+    "bir billing": {
+      "name": "Bir Billing",
+      "country": "India",
+      "state": "Himachal Pradesh",
+      "landmarks": [
+        "Bir Tibetan Colony",
+        "Billing Paragliding site"
+      ],
+      "neighborhoods": [
+        "Tibetan Colony",
+        "Bir road",
+        "Billing takeoff"
+      ],
+      "food": [
+        "Café Prem",
+        "Garden Cafe",
+        "Tibetan eateries in colony"
+      ],
+      "activities": [
+        "Paragliding takeoff from Billing and landing in Bir",
+        "Visiting Bir Tibetan Colony monasteries",
+        "Strolling through Bir village quiet fields"
+      ],
+      "shopping": [
+        "Bir Tibetan Colony handicraft shops",
+        "Local cafe shopping"
+      ],
+      "culture": [
+        "Paragliding capital of India",
+        "Tibetan monastic architecture and prayer wheels"
+      ]
+    },
+    "chitkul": {
+      "name": "Chitkul",
+      "country": "India",
+      "state": "Himachal Pradesh",
+      "landmarks": [
+        "Mathi Temple",
+        "Kamru Fort",
+        "Baspa River views"
+      ],
+      "neighborhoods": [
+        "Chitkul village",
+        "Sangla",
+        "Baspa riverbank"
+      ],
+      "food": [
+        "Basic local dhabas",
+        "Homestay traditional Himachali meals"
+      ],
+      "activities": [
+        "Visiting Mathi Temple in Chitkul",
+        "Exploring Kamru Fort in Sangla",
+        "Strolling by Baspa River",
+        "Hiking near Indo-Tibet border"
+      ],
+      "shopping": [
+        "Local stalls selling Kinnauri woolens",
+        "Dry fruits shopping"
+      ],
+      "culture": [
+        "Last inhabited village before Indo-Tibet border",
+        "Kinnauri traditional wooden architecture"
+      ]
+    },
+    "amritsar": {
+      "name": "Amritsar",
+      "country": "India",
+      "state": "Punjab",
+      "landmarks": [
+        "Golden Temple",
+        "Harmandir Sahib",
+        "Jallianwala Bagh",
+        "Wagah Border",
+        "Gobindgarh Fort",
+        "Durgiana Temple"
+      ],
+      "neighborhoods": [
+        "Hall Bazaar",
+        "Guru Bazaar",
+        "Ranjit Avenue",
+        "Town Hall"
+      ],
+      "food": [
+        "Kesar Da Dhaba",
+        "Bharawan Da Dhaba",
+        "Beera Chicken House",
+        "Golden Temple Langar free kitchen",
+        "Kulcha Land amritsari kulcha"
+      ],
+      "activities": [
+        "Visiting Golden Temple at night",
+        "Attending Wagah Border flag ceremony",
+        "Walking through Jallianwala Bagh memorial",
+        "Exploring Gobindgarh Fort light show"
+      ],
+      "shopping": [
+        "Hall Bazaar textiles",
+        "Guru Bazaar jewelry",
+        "Katra Jaimal Singh Market phulkari"
+      ],
+      "culture": [
+        "Sikhism holiest shrine heritage",
+        "Independence struggle history at Jallianwala Bagh"
+      ]
+    },
+    "chandigarh": {
+      "name": "Chandigarh",
+      "country": "India",
+      "state": "Punjab",
+      "landmarks": [
+        "Rock Garden",
+        "Capitol Complex",
+        "Sukhna Lake",
+        "Rose Garden"
+      ],
+      "neighborhoods": [
+        "Sector 17",
+        "Sector 22",
+        "Sector 26",
+        "Sector 35"
+      ],
+      "food": [
+        "Pal Dhaba Sector 28",
+        "Backpackers Cafe",
+        "Virgin Courtyard"
+      ],
+      "activities": [
+        "Walking in Rock Garden recycled structures",
+        "Boating on Sukhna Lake",
+        "Touring Le Corbusier Capitol Complex",
+        "Exploring Rose Garden",
+        "Sector 26 and 35 student-driven bar and club scene"
+      ],
+      "shopping": [
+        "Sector 17 Plaza",
+        "Sector 22 Market"
+      ],
+      "culture": [
+        "India first planned city architecture",
+        "UNESCO Le Corbusier heritage"
+      ]
+    },
+    "patiala": {
+      "name": "Patiala",
+      "country": "India",
+      "state": "Punjab",
+      "landmarks": [
+        "Qila Mubarak",
+        "Sheesh Mahal",
+        "Moti Bagh Palace"
+      ],
+      "neighborhoods": [
+        "Adalat Bazaar",
+        "City Centre",
+        "Moti Bagh"
+      ],
+      "food": [
+        "Local Punjabi dhabas Patiala peg hospitality",
+        "Rich Punjabi foods"
+      ],
+      "activities": [
+        "Exploring Qila Mubarak fort complex",
+        "Visiting Sheesh Mahal Mirror Palace",
+        "Strolling near Moti Bagh Palace"
+      ],
+      "shopping": [
+        "Adalat Bazaar Patiala juttis",
+        "Parandi hair tassels shopping"
+      ],
+      "culture": [
+        "Patiala royal heritage",
+        "Traditional Patiala peg and salwar culture"
+      ]
+    },
+    "anandpur sahib": {
+      "name": "Anandpur Sahib",
+      "country": "India",
+      "state": "Punjab",
+      "landmarks": [
+        "Takht Sri Kesgarh Sahib",
+        "Virasat-e-Khalsa museum"
+      ],
+      "neighborhoods": [
+        "Gurudwara complex",
+        "Anandpur town"
+      ],
+      "food": [
+        "Langar at the Gurudwara complex",
+        "Vegetarian Punjabi food"
+      ],
+      "activities": [
+        "Paying respects at Takht Sri Kesgarh Sahib",
+        "Touring Virasat-e-Khalsa museum",
+        "Learning about Khalsa Panth founding"
+      ],
+      "shopping": [
+        "Gurudwara complex religious souvenir stalls"
+      ],
+      "culture": [
+        "Sikh pilgrimage town history",
+        "Khalsa Panth founding site"
+      ]
+    },
+    "gurugram": {
+      "name": "Gurugram",
+      "country": "India",
+      "state": "Haryana",
+      "landmarks": [
+        "Sheetla Mata Mandir",
+        "Sultanpur National Park",
+        "Kingdom of Dreams"
+      ],
+      "neighborhoods": [
+        "Sector 29",
+        "Cyber Hub",
+        "DLF Phase IV",
+        "Sadar Bazaar"
+      ],
+      "food": [
+        "Sector 29 restaurant strip",
+        "Cyber Hub dining (Farzi Cafe, SodaBottleOpenerWala)",
+        "Karma Kitchen"
+      ],
+      "activities": [
+        "Visiting Sheetla Mata Mandir",
+        "Birdwatching in Sultanpur National Park",
+        "Cyber Hub and Sector 29 nightlife (Hard Rock Cafe, Tipsy Bull, Playboy Club)"
+      ],
+      "shopping": [
+        "Sadar Bazaar",
+        "Galleria Market DLF Phase IV",
+        "Sector 29 shops"
+      ],
+      "culture": [
+        "NCR Millennium City modern culture",
+        "Kingdom of Dreams theater history"
+      ]
+    },
+    "kurukshetra": {
+      "name": "Kurukshetra",
+      "country": "India",
+      "state": "Haryana",
+      "landmarks": [
+        "Brama Sarovar",
+        "Jyotisar",
+        "Kurukshetra Panorama Science Centre",
+        "Sannihit Sarovar"
+      ],
+      "neighborhoods": [
+        "Brama Sarovar area",
+        "Jyotisar town"
+      ],
+      "food": [
+        "Local Haryanvi dhabas",
+        "Bajra Khichdi",
+        "Fresh local lassi"
+      ],
+      "activities": [
+        "Visiting Brama Sarovar sacred tank",
+        "Seeing the holy Jyotisar banyan tree",
+        "Touring Kurukshetra Panorama Science Centre"
+      ],
+      "shopping": [
+        "Local bazaars near Brama Sarovar religious items and handicrafts"
+      ],
+      "culture": [
+        "Mahabharata battleground history",
+        "Bhagavad Gita narration site"
+      ]
+    },
+    "panchkula": {
+      "name": "Panchkula",
+      "country": "India",
+      "state": "Haryana",
+      "landmarks": [
+        "Pinjore Gardens",
+        "Yadavindra Gardens"
+      ],
+      "neighborhoods": [
+        "Sector 5",
+        "Pinjore"
+      ],
+      "food": [
+        "Local Punjabi-Haryanvi restaurants"
+      ],
+      "activities": [
+        "Strolling Pinjore Mughal terraced gardens",
+        "Exploring Yadavindra Gardens",
+        "Visiting Chandigarh tri-city bars"
+      ],
+      "shopping": [
+        "Sector 5 Market Panchkula"
+      ],
+      "culture": [
+        "Mughal garden architecture heritage"
+      ]
+    },
+    "surajkund": {
+      "name": "Surajkund",
+      "country": "India",
+      "state": "Haryana",
+      "landmarks": [
+        "Surajkund reservoir",
+        "Anangpur Dam"
+      ],
+      "neighborhoods": [
+        "Surajkund Mela ground",
+        "Anangpur"
+      ],
+      "food": [
+        "Mela food stalls representing cuisines from across India"
+      ],
+      "activities": [
+        "Visiting Surajkund ancient reservoir",
+        "Exploring Anangpur Dam",
+        "Attending Surajkund International Crafts Mela"
+      ],
+      "shopping": [
+        "Surajkund International Crafts Mela local crafts (February)"
+      ],
+      "culture": [
+        "Asia largest crafts fair heritage",
+        "Traditional artisans showcase"
+      ]
+    },
+    "ranthambore": {
+      "name": "Ranthambore",
+      "country": "India",
+      "state": "Rajasthan",
+      "landmarks": [
+        "Ranthambore Fort",
+        "Ranthambore National Park"
+      ],
+      "neighborhoods": [
+        "Sawai Madhopur",
+        "Park entrance road"
+      ],
+      "food": [
+        "Resort-run dining",
+        "Local Rajasthani dhabas"
+      ],
+      "activities": [
+        "Tiger tracking safaris in Ranthambore National Park",
+        "Climbing Ranthambore Fort ruins",
+        "Wildlife photography"
+      ],
+      "shopping": [
+        "Sawai Madhopur local handicraft stalls"
+      ],
+      "culture": [
+        "UNESCO fort nestled in tiger reserve",
+        "Wildlife conservation heritage"
+      ]
+    },
+    "agra": {
+      "name": "Agra",
+      "country": "India",
+      "state": "Uttar Pradesh",
+      "landmarks": [
+        "Taj Mahal",
+        "Agra Fort",
+        "Fatehpur Sikri",
+        "Itmad-ud-Daulah"
+      ],
+      "neighborhoods": [
+        "Sadar Bazaar",
+        "Taj Ganj",
+        "Kinari Bazaar"
+      ],
+      "food": [
+        "Pinch of Spice",
+        "Panchhi Petha sweets",
+        "Joney's Place"
+      ],
+      "activities": [
+        "Visiting Taj Mahal at sunrise",
+        "Exploring Agra Fort red sandstone walls",
+        "Touring Fatehpur Sikri complex",
+        "Hotel rooftop dining with Taj night views"
+      ],
+      "shopping": [
+        "Sadar Bazaar marble inlay work and leather goods",
+        "Kinari Bazaar crafts"
+      ],
+      "culture": [
+        "Mughal empire capital history",
+        "Taj Mahal architectural wonder"
+      ]
+    },
+    "varanasi": {
+      "name": "Varanasi",
+      "country": "India",
+      "state": "Uttar Pradesh",
+      "landmarks": [
+        "Kashi Vishwanath Temple",
+        "Dashashwamedh Ghat",
+        "Sarnath",
+        "Manikarnika Ghat"
+      ],
+      "neighborhoods": [
+        "Vishwanath Gali",
+        "Thatheri Bazaar",
+        "Assi Ghat",
+        "Gowdowlia"
+      ],
+      "food": [
+        "Kashi Chat Bhandar tamatar chaat",
+        "Blue Lassi Shop lassi",
+        "Banarasi Paan stalls"
+      ],
+      "activities": [
+        "Experiencing Dashashwamedh Ghat evening Ganga Aarti",
+        "Taking a dawn boat ride on the Ganges",
+        "Visiting Buddha first sermon site at Sarnath",
+        "Strolling ancient Ganges ghats"
+      ],
+      "shopping": [
+        "Vishwanath Gali Banarasi silk and religious items",
+        "Thatheri Bazaar brassware"
+      ],
+      "culture": [
+        "One of the oldest continuously inhabited cities",
+        "Sacred Hindu spiritual heritage"
+      ]
+    },
+    "lucknow": {
+      "name": "Lucknow",
+      "country": "India",
+      "state": "Uttar Pradesh",
+      "landmarks": [
+        "Bara Imambara",
+        "Chota Imambara",
+        "Rumi Darwaza",
+        "Residency ruins"
+      ],
+      "neighborhoods": [
+        "Aminabad",
+        "Hazratganj",
+        "Chowk"
+      ],
+      "food": [
+        "Tunday Kababi galouti kebabs",
+        "Idris Biryani",
+        "Rahim's Kulche Nahari"
+      ],
+      "activities": [
+        "Walking through Bara Imambara Bhool Bhulaiya maze",
+        "Viewing Rumi Darwaza",
+        "Exploring Hazratganj lounges and cafes after dark"
+      ],
+      "shopping": [
+        "Aminabad Chikankari embroidery and street food",
+        "Hazratganj boutiques"
+      ],
+      "culture": [
+        "Nawabi tehzeeb culture",
+        "Traditional Chikankari handloom heritage"
+      ]
+    },
+    "mathura-vrindavan": {
+      "name": "Mathura-Vrindavan",
+      "country": "India",
+      "state": "Uttar Pradesh",
+      "landmarks": [
+        "Krishna Janmabhoomi Temple",
+        "Banke Bihari Temple",
+        "ISKCON Temple"
+      ],
+      "neighborhoods": [
+        "Mathura town",
+        "Vrindavan lanes"
+      ],
+      "food": [
+        "Brijwasi Mishthan Bhandar peda sweets",
+        "Local street sweets"
+      ],
+      "activities": [
+        "Visiting Krishna Janmabhoomi Temple in Mathura",
+        "Paying respects at Banke Bihari Temple",
+        "Attending Vrindavan ISKCON Temple aarti",
+        "Experiencing Lath Mar Holi in Barsana"
+      ],
+      "shopping": [
+        "Local stalls Krishna idols and peda sweets"
+      ],
+      "culture": [
+        "Birthplace of Lord Krishna",
+        "Braj Holi celebrations"
+      ]
+    },
+    "ayodhya": {
+      "name": "Ayodhya",
+      "country": "India",
+      "state": "Uttar Pradesh",
+      "landmarks": [
+        "Ram Janmabhoomi Temple",
+        "Hanuman Garhi",
+        "Kanak Bhawan"
+      ],
+      "neighborhoods": [
+        "Ram Janmabhoomi complex",
+        "Ayodhya ghats"
+      ],
+      "food": [
+        "Local prasad sweets",
+        "Vegetarian temple foods"
+      ],
+      "activities": [
+        "Visiting Ram Janmabhoomi Temple (Ram Mandir)",
+        "Climbing Hanuman Garhi temple steps",
+        "Exploring Kanak Bhawan"
+      ],
+      "shopping": [
+        "Small religious souvenir markets near temple complex"
+      ],
+      "culture": [
+        "Birthplace of Lord Rama",
+        "Sarayu River spiritual heritage"
+      ]
+    },
+    "rishikesh": {
+      "name": "Rishikesh",
+      "country": "India",
+      "state": "Uttarakhand",
+      "landmarks": [
+        "Laxman Jhula & Ram Jhula",
+        "Triveni Ghat",
+        "Neelkanth Mahadev Temple",
+        "Beatles Ashram"
+      ],
+      "neighborhoods": [
+        "Laxman Jhula",
+        "Triveni Ghat area",
+        "Swarg Ashram",
+        "Tapovan"
+      ],
+      "food": [
+        "Chotiwala iconic thali",
+        "Ganga Beach Cafe",
+        "Rishikesh German Bakery"
+      ],
+      "activities": [
+        "Crossing Laxman Jhula and Ram Jhula bridges",
+        "Experiencing Triveni Ghat evening aarti",
+        "Touring the historic Beatles Ashram",
+        "Riverside bonfires at camps and cafe hangouts"
+      ],
+      "shopping": [
+        "Laxman Jhula market yoga wear and silver jewelry",
+        "Tibetan Market"
+      ],
+      "culture": [
+        "Yoga Capital of the World",
+        "The Beatles White Album composition heritage"
+      ]
+    },
+    "haridwar": {
+      "name": "Haridwar",
+      "country": "India",
+      "state": "Uttarakhand",
+      "landmarks": [
+        "Har Ki Pauri",
+        "Mansa Devi Temple",
+        "Chandi Devi Temple"
+      ],
+      "neighborhoods": [
+        "Bara Bazaar",
+        "Har Ki Pauri ghats"
+      ],
+      "food": [
+        "Chotiwala",
+        "Mohan Puri Wala"
+      ],
+      "activities": [
+        "Witnessing Har Ki Pauri evening Ganga Aarti",
+        "Riding ropeway to Mansa Devi Temple",
+        "Kumbh Mela pilgrimage gather (every 12 years)"
+      ],
+      "shopping": [
+        "Bara Bazaar religious items and brassware"
+      ],
+      "culture": [
+        "One of the holiest Hindu pilgrimage sites",
+        "Sacred Ganges river culture"
+      ]
+    },
+    "nainital": {
+      "name": "Nainital",
+      "country": "India",
+      "state": "Uttarakhand",
+      "landmarks": [
+        "Naini Lake",
+        "Naina Devi Temple",
+        "Snow View Point",
+        "Tiffin Top"
+      ],
+      "neighborhoods": [
+        "Mall Road",
+        "Tallital",
+        "Mallital"
+      ],
+      "food": [
+        "Sakley's Restaurant",
+        "Embassy Restaurant",
+        "Sonam's Kitchen momos"
+      ],
+      "activities": [
+        "Boating on Naini Lake",
+        "Visiting Naina Devi Temple",
+        "Riding cable car to Snow View Point",
+        "Quiet hill-station evenings on Mall Road"
+      ],
+      "shopping": [
+        "Mall Road Nainital woolens, Tibetan handicrafts, local jams"
+      ],
+      "culture": [
+        "British-era lake hill station heritage"
+      ]
+    },
+    "mussoorie": {
+      "name": "Mussoorie",
+      "country": "India",
+      "state": "Uttarakhand",
+      "landmarks": [
+        "Gun Hill",
+        "Kempty Falls",
+        "Camel's Back Road"
+      ],
+      "neighborhoods": [
+        "Mall Road",
+        "Landour",
+        "Kempty"
+      ],
+      "food": [
+        "Lovely Omelette Centre",
+        "Cafe Ivy in Landour"
+      ],
+      "activities": [
+        "Riding cable car to Gun Hill viewpoint",
+        "Bathing in Kempty Falls",
+        "Walking along Camel's Back Road",
+        "Unwinding in hotel lounges"
+      ],
+      "shopping": [
+        "Mall Road Mussoorie woolens and local crafts"
+      ],
+      "culture": [
+        "Queen of the Hills colonial retreat",
+        "Landour peaceful cantonment heritage"
+      ]
+    },
+    "auli": {
+      "name": "Auli",
+      "country": "India",
+      "state": "Uttarakhand",
+      "landmarks": [
+        "Auli ski slopes",
+        "Gurso Bugyal meadow",
+        "Auli ropeway"
+      ],
+      "neighborhoods": [
+        "Auli ski resort",
+        "Joshimath base"
+      ],
+      "food": [
+        "Resort-run ski restaurants"
+      ],
+      "activities": [
+        "Skiing on Auli slopes",
+        "Trekking Gurso Bugyal meadow",
+        "Riding the long Auli ropeway",
+        "Enjoying views of Nanda Devi"
+      ],
+      "shopping": [
+        "Ski-gear rental shops"
+      ],
+      "culture": [
+        "India premier skiing destination",
+        "High-altitude Himalayan meadow culture"
+      ]
+    },
+    "indore": {
+      "name": "Indore",
+      "country": "India",
+      "state": "Madhya Pradesh",
+      "landmarks": [
+        "Rajwada Palace",
+        "Lal Bagh Palace",
+        "Kanch Mandir"
+      ],
+      "neighborhoods": [
+        "Sarafa Bazaar",
+        "Chappan Dukan"
+      ],
+      "food": [
+        "Sarafa Bazaar poha-jalebi, bhutte ka kees, garadu",
+        "Vijay Chaat House",
+        "Johnny Hot Dog"
+      ],
+      "activities": [
+        "Exploring Rajwada Palace",
+        "Visiting Lal Bagh Palace",
+        "Seeing glass architecture at Kanch Mandir",
+        "Indulging in Sarafa night food market till 3am"
+      ],
+      "shopping": [
+        "Sarafa jewelry by day, night market by night",
+        "Chappan Dukan 56-shop food street"
+      ],
+      "culture": [
+        "Cleanest city in India",
+        "Indore night-market food culture"
+      ]
+    },
+    "khajuraho": {
+      "name": "Khajuraho",
+      "country": "India",
+      "state": "Madhya Pradesh",
+      "landmarks": [
+        "Khajuraho Western Group of Monuments",
+        "Eastern Group",
+        "Southern Group"
+      ],
+      "neighborhoods": [
+        "Temple complex area",
+        "Khajuraho town"
+      ],
+      "food": [
+        "Raja's Cafe",
+        "Mediterraneo Restaurant"
+      ],
+      "activities": [
+        "Exploring UNESCO Khajuraho temples",
+        "Watching the Evening Sound and Light show",
+        "Touring erotic and mythological stone carvings"
+      ],
+      "shopping": [
+        "Local handicraft stalls near temple complex"
+      ],
+      "culture": [
+        "Chandela dynasty architectural heritage (950-1050 AD)"
+      ]
+    },
+    "bhopal": {
+      "name": "Bhopal",
+      "country": "India",
+      "state": "Madhya Pradesh",
+      "landmarks": [
+        "Taj-ul-Masajid",
+        "Upper & Lower Lake",
+        "Bhimbetka rock shelters"
+      ],
+      "neighborhoods": [
+        "Chowk Bazaar",
+        "New Market",
+        "Arera Colony"
+      ],
+      "food": [
+        "Bapu Ki Kutia vegetarian thali",
+        "Manohar Dairy & Restaurant rabri"
+      ],
+      "activities": [
+        "Boating on Upper Lake",
+        "Touring Taj-ul-Masajid mosque",
+        "Visiting UNESCO Bhimbetka rock paintings nearby",
+        "Hanging out in New Market lounges"
+      ],
+      "shopping": [
+        "Chowk Bazaar old-city bangles and perfumes",
+        "New Market"
+      ],
+      "culture": [
+        "City of Lakes history",
+        "Prehistoric art heritage at Bhimbetka"
+      ]
+    },
+    "bandhavgarh": {
+      "name": "Bandhavgarh",
+      "country": "India",
+      "state": "Madhya Pradesh",
+      "landmarks": [
+        "Bandhavgarh Fort",
+        "Bandhavgarh National Park"
+      ],
+      "neighborhoods": [
+        "Tala village",
+        "Park resort area"
+      ],
+      "food": [
+        "Resort-run safari dining"
+      ],
+      "activities": [
+        "Tiger tracking safaris in Bandhavgarh",
+        "Visiting the ancient hilltop Bandhavgarh Fort"
+      ],
+      "shopping": [
+        "Small local stalls near Tala village"
+      ],
+      "culture": [
+        "High tiger density forest heritage",
+        "Ancient fort within national park"
+      ]
+    },
+    "pachmarhi": {
+      "name": "Pachmarhi",
+      "country": "India",
+      "state": "Madhya Pradesh",
+      "landmarks": [
+        "Pandav Caves",
+        "Bee Falls",
+        "Dhupgarh point"
+      ],
+      "neighborhoods": [
+        "Pachmarhi town",
+        "Satpura forest"
+      ],
+      "food": [
+        "Local Madhya Pradesh-style restaurants"
+      ],
+      "activities": [
+        "Exploring Pandav Caves",
+        "Hiking to Bee Falls",
+        "Watching sunset from Dhupgarh (highest Satpura point)"
+      ],
+      "shopping": [
+        "Small local market in main town"
+      ],
+      "culture": [
+        "Satpura Tiger Reserve hill station heritage"
+      ]
+    },
+    "ahmedabad": {
+      "name": "Ahmedabad",
+      "country": "India",
+      "state": "Gujarat",
+      "landmarks": [
+        "Sabarmati Ashram",
+        "Jama Masjid Ahmedabad",
+        "Adalaj Stepwell",
+        "Sidi Saiyyed Mosque"
+      ],
+      "neighborhoods": [
+        "Law Garden",
+        "Manek Chowk",
+        "Sabarmati",
+        "Adalaj"
+      ],
+      "food": [
+        "Agashiye rooftop Gujarati thali",
+        "Honest Restaurant pav bhaji",
+        "Manek Chowk street food stalls"
+      ],
+      "activities": [
+        "Touring Sabarmati Ashram",
+        "Photographing Sidi Saiyyed stone lattice",
+        "Exploring Adalaj Stepwell",
+        "Manek Chowk street food night market, legally dry state cafe/dessert culture"
+      ],
+      "shopping": [
+        "Law Garden Night Market mirror work and bandhani sarees",
+        "Manek Chowk jewelry markets"
+      ],
+      "culture": [
+        "First UNESCO World Heritage City in India",
+        "Gandhian heritage sites"
+      ]
+    },
+    "rann of kutch": {
+      "name": "Rann of Kutch",
+      "country": "India",
+      "state": "Gujarat",
+      "landmarks": [
+        "Statue of Unity at Kevadia",
+        "White Rann salt desert",
+        "Kalo Dungar"
+      ],
+      "neighborhoods": [
+        "Rann Utsav tent city",
+        "Kevadia",
+        "Bhujodi"
+      ],
+      "food": [
+        "Rann Utsav tent-city dining Kutchi thali",
+        "Dabeli stalls"
+      ],
+      "activities": [
+        "Walking the White Rann salt desert under full moon",
+        "Visiting the world tallest Statue of Unity",
+        "Exploring Kalo Dungar views",
+        "Attending Rann Utsav festival camp dance and folk music"
+      ],
+      "shopping": [
+        "Kutch handicraft villages Bhujodi weaving and Nirona Rogan art"
+      ],
+      "culture": [
+        "Great Rann of Kutch salt desert heritage",
+        "World tallest statue landmark"
+      ]
+    },
+    "gir national park": {
+      "name": "Gir National Park",
+      "country": "India",
+      "state": "Gujarat",
+      "landmarks": [
+        "Gir National Park wildlife sanctuary"
+      ],
+      "neighborhoods": [
+        "Sasan Gir village",
+        "Park resort area"
+      ],
+      "food": [
+        "Resort-run Gujarati thali joints"
+      ],
+      "activities": [
+        "Spotting Asiatic lions on Gir safari",
+        "Birdwatching in Gir forest"
+      ],
+      "shopping": [
+        "Small local stalls near Sasan Gir village"
+      ],
+      "culture": [
+        "Only wild Asiatic lion habitat in the world"
+      ]
+    },
+    "somnath": {
+      "name": "Somnath",
+      "country": "India",
+      "state": "Gujarat",
+      "landmarks": [
+        "Somnath Temple first Jyotirlinga"
+      ],
+      "neighborhoods": [
+        "Veraval",
+        "Somnath temple road"
+      ],
+      "food": [
+        "Local Gujarati thali joints in Veraval and Somnath"
+      ],
+      "activities": [
+        "Paying respects at Somnath Temple",
+        "Walking Somnath beach",
+        "Watching temple light and sound show"
+      ],
+      "shopping": [
+        "Small stalls near temple selling religious souvenirs"
+      ],
+      "culture": [
+        "Highly significant Shiva pilgrimage heritage"
+      ]
+    },
+    "dwarka": {
+      "name": "Dwarka",
+      "country": "India",
+      "state": "Gujarat",
+      "landmarks": [
+        "Dwarkadhish Temple",
+        "Bet Dwarka island"
+      ],
+      "neighborhoods": [
+        "Dwarka temple area",
+        "Bet Dwarka ferry"
+      ],
+      "food": [
+        "Simple vegetarian thali restaurants"
+      ],
+      "activities": [
+        "Visiting Dwarkadhish Temple",
+        "Taking ferry to Bet Dwarka island",
+        "Walking Dwarka ghats"
+      ],
+      "shopping": [
+        "Local stalls near Dwarkadhish Temple"
+      ],
+      "culture": [
+        "One of the Char Dham pilgrimage sites",
+        "Krishna ancient sunken kingdom legend"
+      ]
+    },
+    "mahabaleshwar": {
+      "name": "Mahabaleshwar",
+      "country": "India",
+      "state": "Maharashtra",
+      "landmarks": [
+        "Mahabaleshwar Temple",
+        "Arthur's Seat viewpoint",
+        "Elephant's Head Point"
+      ],
+      "neighborhoods": [
+        "Mahabaleshwar market",
+        "Mapro Garden area"
+      ],
+      "food": [
+        "Mapro Garden strawberry desserts",
+        "Grapevine Restaurant"
+      ],
+      "activities": [
+        "Visiting historic Mahabaleshwar Temple",
+        "Viewing valleys from Arthur's Seat and Elephant's Head",
+        "Eating fresh strawberries at Mapro Garden"
+      ],
+      "shopping": [
+        "Local stalls selling strawberries, homemade jams, and chikki"
+      ],
+      "culture": [
+        "Strawberry capital of India hill station heritage"
+      ]
+    },
+    "baga & calangute": {
+      "name": "Baga & Calangute",
+      "country": "India",
+      "state": "Goa",
+      "landmarks": [
+        "Fort Aguada",
+        "Chapora Fort"
+      ],
+      "neighborhoods": [
+        "Baga Beach",
+        "Calangute Beach",
+        "Arpora"
+      ],
+      "food": [
+        "Fisherman's Wharf",
+        "Britto's on Baga Beach"
+      ],
+      "activities": [
+        "Sunbathing on Baga and Calangute Beach",
+        "Touring historic Fort Aguada",
+        "Partying along Tito's Lane in Baga (Tito's, Mambo's clubs)"
+      ],
+      "shopping": [
+        "Saturday Night Market Arpora live music, shopping, food"
+      ],
+      "culture": [
+        "Indo-Portuguese beach culture",
+        "High-energy coastal lifestyle"
+      ]
+    },
+    "anjuna & vagator": {
+      "name": "Anjuna & Vagator",
+      "country": "India",
+      "state": "Goa",
+      "landmarks": [
+        "Chapora Fort Dil Chahta Hai fame",
+        "Anjuna red cliffs"
+      ],
+      "neighborhoods": [
+        "Anjuna Beach",
+        "Vagator Beach",
+        "Assagao"
+      ],
+      "food": [
+        "Gunpowder in Assagao",
+        "Curlies Beach Shack"
+      ],
+      "activities": [
+        "Climbing Chapora Fort",
+        "Walking Anjuna red cliffs",
+        "Dancing at Curlies and Shiva Valley beach clubs",
+        "Trance parties at Hilltop Anjuna",
+        "Silent Noise headphone party"
+      ],
+      "shopping": [
+        "Anjuna Flea Market Wednesday hippie market"
+      ],
+      "culture": [
+        "Birthplace of Goa trance music culture (1960s-70s)"
+      ]
+    },
+    "palolem & agonda": {
+      "name": "Palolem & Agonda",
+      "country": "India",
+      "state": "Goa",
+      "landmarks": [
+        "Cabo de Rama Fort"
+      ],
+      "neighborhoods": [
+        "Palolem Beach",
+        "Agonda Beach",
+        "Margao"
+      ],
+      "food": [
+        "Martin's Corner legendary seafood",
+        "Zeebop By The Sea"
+      ],
+      "activities": [
+        "Sunbathing on Palolem Beach",
+        "Exploring Cabo de Rama Fort ruins",
+        "Silent beach bonfires and acoustic music at small shacks"
+      ],
+      "shopping": [
+        "Margao Municipal Market spices and cashews"
+      ],
+      "culture": [
+        "Laid-back South Goa beach vibe",
+        "Calmer alternative to North Goa"
+      ]
+    },
+    "wayanad": {
+      "name": "Wayanad",
+      "country": "India",
+      "state": "Kerala",
+      "landmarks": [
+        "Edakkal Caves ancient petroglyphs",
+        "Chembra Peak",
+        "Banasura Sagar Dam"
+      ],
+      "neighborhoods": [
+        "Kalpetta",
+        "Sulthan Bathery"
+      ],
+      "food": [
+        "Homestay-cooked Kerala meals",
+        "Pepper Trail specialty dining"
+      ],
+      "activities": [
+        "Trekking to Edakkal Caves petroglyphs",
+        "Hiking to Chembra Peak heart-shaped lake",
+        "Boating at Banasura Sagar Dam (largest earth dam in India)"
+      ],
+      "shopping": [
+        "Small local spice markets in Kalpetta"
+      ],
+      "culture": [
+        "Tribal heritage and wildlife sanctuaries conservation"
+      ]
+    },
+    "madurai": {
+      "name": "Madurai",
+      "country": "India",
+      "state": "Tamil Nadu",
+      "landmarks": [
+        "Meenakshi Amman Temple",
+        "Thirumalai Nayakkar Palace"
+      ],
+      "neighborhoods": [
+        "Temple area",
+        "Puthu Mandapam"
+      ],
+      "food": [
+        "Murugan Idli Shop original branch",
+        "Jigarthanda street food stalls"
+      ],
+      "activities": [
+        "Exploring Meenakshi Amman Temple painted gopurams",
+        "Touring Thirumalai Nayakkar Palace",
+        "Tasting local Jigarthanda drink"
+      ],
+      "shopping": [
+        "Puthu Mandapam traditional textiles and handicrafts near temple"
+      ],
+      "culture": [
+        "Ancient temple city Dravidian architecture icon"
+      ]
+    },
+    "mahabalipuram": {
+      "name": "Mahabalipuram",
+      "country": "India",
+      "state": "Tamil Nadu",
+      "landmarks": [
+        "Shore Temple",
+        "Five Rathas",
+        "Arjuna's Penance rock relief"
+      ],
+      "neighborhoods": [
+        "Mahabalipuram beach area",
+        "Stone carving street"
+      ],
+      "food": [
+        "Le Yogi Cafe",
+        "Moonrakers seafood restaurant"
+      ],
+      "activities": [
+        "Exploring UNESCO Shore Temple",
+        "Visiting Five Rathas rock temples",
+        "Hanging out at beachside cafes with chilled evening vibes"
+      ],
+      "shopping": [
+        "Local stone-carving workshops and souvenir shops"
+      ],
+      "culture": [
+        "7th-8th century Pallava dynasty rock-cut sculptures"
+      ]
+    },
+    "ooty": {
+      "name": "Ooty",
+      "country": "India",
+      "state": "Tamil Nadu",
+      "landmarks": [
+        "Ooty Lake",
+        "Botanical Gardens",
+        "Doddabetta Peak"
+      ],
+      "neighborhoods": [
+        "Charing Cross",
+        "Ooty Lake area"
+      ],
+      "food": [
+        "Earl's Secret",
+        "Hot Breads"
+      ],
+      "activities": [
+        "Boating on Ooty Lake",
+        "Walking through Botanical Gardens",
+        "Hiking Doddabetta Peak (highest peak in Nilgiris)",
+        "Riding UNESCO Nilgiri Mountain Railway Toy Train"
+      ],
+      "shopping": [
+        "Charing Cross Market chocolates, eucalyptus oil, and tea"
+      ],
+      "culture": [
+        "British-era hill station Nilgiris tea estates landscape"
+      ]
+    },
+    "rameswaram": {
+      "name": "Rameswaram",
+      "country": "India",
+      "state": "Tamil Nadu",
+      "landmarks": [
+        "Ramanathaswamy Temple long corridor",
+        "Dhanushkodi ghost town"
+      ],
+      "neighborhoods": [
+        "Temple area",
+        "Dhanushkodi beach"
+      ],
+      "food": [
+        "Local Tamil vegetarian thali joints near temple"
+      ],
+      "activities": [
+        "Walking the long pillared corridors of Ramanathaswamy Temple",
+        "Excursion to Dhanushkodi ghost town beach ruins",
+        "Bathing in 22 sacred temple wells"
+      ],
+      "shopping": [
+        "Local stalls selling shell crafts and religious items"
+      ],
+      "culture": [
+        "Char Dham pilgrimage site",
+        "Evocative abandoned coastal settlement of Dhanushkodi"
+      ]
+    },
+    "warangal": {
+      "name": "Warangal",
+      "country": "India",
+      "state": "Telangana",
+      "landmarks": [
+        "Warangal Fort",
+        "Thousand Pillar Temple",
+        "Ramappa Temple"
+      ],
+      "neighborhoods": [
+        "Fort road",
+        "Temple area"
+      ],
+      "food": [
+        "Local Telangana-style restaurants in main town"
+      ],
+      "activities": [
+        "Exploring Warangal Fort stone arches",
+        "Visiting Thousand Pillar Temple",
+        "Touring UNESCO Ramappa Temple floating bricks"
+      ],
+      "shopping": [
+        "Local handicraft stalls near fort complex"
+      ],
+      "culture": [
+        "Kakatiya dynasty architecture heritage",
+        "UNESCO Ramappa Temple engineering"
+      ]
+    },
+    "tirupati": {
+      "name": "Tirupati",
+      "country": "India",
+      "state": "Andhra Pradesh",
+      "landmarks": [
+        "Sri Venkateswara Temple Tirumala",
+        "Sri Padmavathi Temple"
+      ],
+      "neighborhoods": [
+        "Tirumala hills",
+        "Tirupati town"
+      ],
+      "food": [
+        "Tirumala temple dining halls free meals",
+        "Local 'mess' eateries serving Andhra meals"
+      ],
+      "activities": [
+        "Paying respects at Sri Venkateswara Temple (richest Hindu temple)",
+        "Climbing Tirumala pathway",
+        "Tasting GI-tagged Tirupati Laddu prasadam"
+      ],
+      "shopping": [
+        "Tirupati local bazaars temple souvenirs, brass items, prasadam laddus"
+      ],
+      "culture": [
+        "World most-visited Hindu pilgrimage site heritage"
+      ]
+    },
+    "visakhapatnam": {
+      "name": "Visakhapatnam",
+      "country": "India",
+      "state": "Andhra Pradesh",
+      "landmarks": [
+        "RK Beach",
+        "Kailasagiri Hill Park",
+        "Araku Valley",
+        "Borra Caves"
+      ],
+      "neighborhoods": [
+        "MVP Colony",
+        "Jagadamba Junction",
+        "RK Beach road"
+      ],
+      "food": [
+        "Mommy's Kitchen",
+        "Local Andhra seafood joints along RK Beach"
+      ],
+      "activities": [
+        "Walking along RK Beach",
+        "Riding ropeway to Kailasagiri Hill Park",
+        "Scenic train ride to Araku Valley coffee plantations",
+        "Exploring ancient Borra Caves",
+        "Hanging out at beachside lounges and hotel bars"
+      ],
+      "shopping": [
+        "MVP Colony Market",
+        "Jagadamba Junction shopping"
+      ],
+      "culture": [
+        "Port city heritage",
+        "Eastern Ghats Araku coffee plantations landscape"
+      ]
+    },
+    "vijayawada": {
+      "name": "Vijayawada",
+      "country": "India",
+      "state": "Andhra Pradesh",
+      "landmarks": [
+        "Kanaka Durga Temple",
+        "Undavalli Caves",
+        "Prakasam Barrage"
+      ],
+      "neighborhoods": [
+        "MG Road",
+        "Temple hill"
+      ],
+      "food": [
+        "Hotel Minerva",
+        "Local Andhra 'mess' eateries"
+      ],
+      "activities": [
+        "Visiting Kanaka Durga Temple on hilltop",
+        "Exploring Undavalli Caves monolithic rock-cut chambers",
+        "Viewing Prakasam Barrage across Krishna River"
+      ],
+      "shopping": [
+        "MG Road Vijayawada textiles market"
+      ],
+      "culture": [
+        "Krishna River commercial and cultural hub heritage"
+      ]
+    },
+    "darjeeling": {
+      "name": "Darjeeling",
+      "country": "India",
+      "state": "West Bengal",
+      "landmarks": [
+        "Darjeeling Himalayan Railway Toy Train",
+        "Tiger Hill",
+        "Peace Pagoda",
+        "Batasia Loop"
+      ],
+      "neighborhoods": [
+        "Chowrasta Mall",
+        "Nehru Road"
+      ],
+      "food": [
+        "Glenary's bakery since 1900s",
+        "Kunga Restaurant Tibetan food"
+      ],
+      "activities": [
+        "Riding UNESCO Toy Train",
+        "Watching sunrise over Kanchenjunga from Tiger Hill",
+        "Walking Chowrasta Mall",
+        "Quiet hill-station evenings with live acoustic cafe music"
+      ],
+      "shopping": [
+        "Chowrasta Mall tea, handicrafts, woolens",
+        "Nehru Road local shops"
+      ],
+      "culture": [
+        "Darjeeling tea estates heritage",
+        "Kanchenjunga Himalayan panoramas"
+      ]
+    },
+    "sundarbans": {
+      "name": "Sundarbans",
+      "country": "India",
+      "state": "West Bengal",
+      "landmarks": [
+        "Sundarbans National Park mangrove forest"
+      ],
+      "neighborhoods": [
+        "Gosaba",
+        "Godkhali"
+      ],
+      "food": [
+        "Boat-cruise-run traditional Bengali fish meals"
+      ],
+      "activities": [
+        "Wildlife boat safari to spot Royal Bengal tigers in Sundarbans",
+        "Exploring mangrove forest waterways"
+      ],
+      "shopping": [
+        "Small local stalls in Gosaba and Godkhali selling forest honey and local crafts"
+      ],
+      "culture": [
+        "UNESCO World Heritage site",
+        "World largest mangrove forest ecosystem"
+      ]
+    },
+    "digha": {
+      "name": "Digha",
+      "country": "India",
+      "state": "West Bengal",
+      "landmarks": [
+        "Digha Beach",
+        "Marine Aquarium and Research Centre"
+      ],
+      "neighborhoods": [
+        "New Digha beach",
+        "Old Digha beach"
+      ],
+      "food": [
+        "Beachside seafood shacks",
+        "Freshly prepared fish fry"
+      ],
+      "activities": [
+        "Relaxing on Digha Beach",
+        "Visiting Marine Aquarium",
+        "Beachside seafood dining and walking in quiet beach town"
+      ],
+      "shopping": [
+        "Beachside stalls selling shell crafts and local souvenirs"
+      ],
+      "culture": [
+        "West Bengal popular beach weekend retreat"
+      ]
+    },
+    "puri": {
+      "name": "Puri",
+      "country": "India",
+      "state": "Odisha",
+      "landmarks": [
+        "Jagannath Temple",
+        "Puri Beach"
+      ],
+      "neighborhoods": [
+        "Grand Road",
+        "Puri Beach road"
+      ],
+      "food": [
+        "Jagannath Temple Mahaprasad temple kitchen",
+        "Local Odia thali joints"
+      ],
+      "activities": [
+        "Visiting Jagannath Temple (Char Dham site)",
+        "Walking Puri Beach",
+        "Puri Rath Yatra festival chariot festival (June/July)"
+      ],
+      "shopping": [
+        "Grand Road market applique work, conch shells, palm-leaf paintings"
+      ],
+      "culture": [
+        "Major Hindu spiritual center heritage",
+        "Odia traditional temple art"
+      ]
+    },
+    "konark": {
+      "name": "Konark",
+      "country": "India",
+      "state": "Odisha",
+      "landmarks": [
+        "Konark Sun Temple stone chariot"
+      ],
+      "neighborhoods": [
+        "Temple complex area",
+        "Konark town"
+      ],
+      "food": [
+        "Local Odia eateries in Konark town"
+      ],
+      "activities": [
+        "Exploring UNESCO Konark Sun Temple chariot structure",
+        "Visiting Konark Museum"
+      ],
+      "shopping": [
+        "Small craft stalls near the temple complex"
+      ],
+      "culture": [
+        "Architecturally significant Sun Temple heritage (13th century)"
+      ]
+    },
+    "bhubaneswar": {
+      "name": "Bhubaneswar",
+      "country": "India",
+      "state": "Odisha",
+      "landmarks": [
+        "Lingaraj Temple",
+        "Mukteshwar Temple",
+        "Udayagiri-Khandagiri Caves"
+      ],
+      "neighborhoods": [
+        "Saheed Nagar",
+        "Jaydev Vihar",
+        "Ekamra Haat"
+      ],
+      "food": [
+        "Dalma Restaurant traditional Odia food",
+        "Hare Krishna Restaurant"
+      ],
+      "activities": [
+        "Visiting 11th-century Lingaraj Temple",
+        "Exploring Mukteshwar Temple carvings",
+        "Walking Udayagiri-Khandagiri rock-cut caves",
+        "Hanging out in Saheed Nagar lounges"
+      ],
+      "shopping": [
+        "Ekamra Haat handicrafts and Odia textiles",
+        "Saheed Nagar market"
+      ],
+      "culture": [
+        "Temple City of India",
+        "Kalinga style temple architecture"
+      ]
+    },
+    "chilika lake": {
+      "name": "Chilika Lake",
+      "country": "India",
+      "state": "Odisha",
+      "landmarks": [
+        "Chilika Lake lagoon",
+        "Satapada dolphin spotting"
+      ],
+      "neighborhoods": [
+        "Satapada",
+        "Mangalajodi"
+      ],
+      "food": [
+        "Boat-tour-run fresh seafood meals crabs and prawns"
+      ],
+      "activities": [
+        "Boating on Chilika Lake",
+        "Spotting Irrawaddy dolphins at Satapada",
+        "Birdwatching at Mangalajodi (winter migratory birds)"
+      ],
+      "shopping": [
+        "Small local fishing-village stalls selling shells and fish"
+      ],
+      "culture": [
+        "Asia largest brackish-water lagoon heritage"
+      ]
+    },
+    "bodh gaya": {
+      "name": "Bodh Gaya",
+      "country": "India",
+      "state": "Bihar",
+      "landmarks": [
+        "Mahabodhi Temple",
+        "Great Buddha Statue",
+        "International monasteries"
+      ],
+      "neighborhoods": [
+        "Mahabodhi temple area",
+        "Monastery road"
+      ],
+      "food": [
+        "Local Bihari thali joints",
+        "Tibetan momos at monastery-run cafes"
+      ],
+      "activities": [
+        "Meditating under the sacred Bodhi Tree at Mahabodhi Temple",
+        "Viewing the giant 80-foot Great Buddha Statue",
+        "Touring Thai, Japanese, Bhutanese monasteries"
+      ],
+      "shopping": [
+        "Stalls near Mahabodhi Temple selling Buddhist artifacts and prayer flags"
+      ],
+      "culture": [
+        "UNESCO site where Buddha attained enlightenment",
+        "Global Buddhist pilgrimage center"
+      ]
+    },
+    "nalanda & rajgir": {
+      "name": "Nalanda & Rajgir",
+      "country": "India",
+      "state": "Bihar",
+      "landmarks": [
+        "Nalanda University ruins",
+        "Vishwa Shanti Stupa Rajgir",
+        "Rajgir hot springs"
+      ],
+      "neighborhoods": [
+        "Nalanda ruins",
+        "Rajgir town"
+      ],
+      "food": [
+        "Local eateries in Rajgir town",
+        "Traditional Bihari sweets"
+      ],
+      "activities": [
+        "Exploring UNESCO Nalanda University ruins",
+        "Riding ropeway to Vishwa Shanti Stupa",
+        "Bathing in Rajgir hot springs"
+      ],
+      "shopping": [
+        "Small local stalls near Nalanda ruins selling souvenirs"
+      ],
+      "culture": [
+        "World first residential university history (5th century CE)",
+        "Ancient peace pagoda monument"
+      ]
+    },
+    "ranchi": {
+      "name": "Ranchi",
+      "country": "India",
+      "state": "Jharkhand",
+      "landmarks": [
+        "Hundru Falls",
+        "Ranchi Rock Garden",
+        "Tagore Hill",
+        "Pahari Mandir"
+      ],
+      "neighborhoods": [
+        "Main Road",
+        "Harmu Road",
+        "Firayalal"
+      ],
+      "food": [
+        "Local eateries around Main Road (Litti Chokha, Dhuska)"
+      ],
+      "activities": [
+        "Hiking to Hundru Falls",
+        "Strolling in Ranchi Rock Garden",
+        "Climbing Tagore Hill",
+        "Visiting Harmu Road bars and lounges"
+      ],
+      "shopping": [
+        "Firayalal Market Main Road shopping",
+        "Tribal craft haats on outskirts"
+      ],
+      "culture": [
+        "City of Waterfalls",
+        "Jharkhand tribal craft heritage"
+      ]
+    },
+    "deoghar": {
+      "name": "Deoghar",
+      "country": "India",
+      "state": "Jharkhand",
+      "landmarks": [
+        "Baidyanath Temple Jyotirlinga"
+      ],
+      "neighborhoods": [
+        "Temple complex road",
+        "Deoghar bazaar"
+      ],
+      "food": [
+        "Local prasad sweets peda",
+        "Vegetarian eateries near temple"
+      ],
+      "activities": [
+        "Visiting Baidyanath Temple",
+        "Participating in Shravani Mela pilgrimage (July/August)"
+      ],
+      "shopping": [
+        "Temple-adjacent stalls selling religious items and peda sweets"
+      ],
+      "culture": [
+        "Highly significant Shiva pilgrimage heritage"
+      ]
+    },
+    "netarhat": {
+      "name": "Netarhat",
+      "country": "India",
+      "state": "Jharkhand",
+      "landmarks": [
+        "Netarhat sunset and sunrise points"
+      ],
+      "neighborhoods": [
+        "Netarhat plateau",
+        "Pine forest area"
+      ],
+      "food": [
+        "Local guesthouse-run meals traditional tribal touch"
+      ],
+      "activities": [
+        "Watching panoramic sunrise and sunset over plateau",
+        "Walking through pine forest",
+        "Stargazing at night"
+      ],
+      "shopping": [
+        "Very limited small local stalls"
+      ],
+      "culture": [
+        "Queen of Chotanagpur hill station heritage"
+      ]
+    },
+    "jagdalpur": {
+      "name": "Jagdalpur",
+      "country": "India",
+      "state": "Chhattisgarh",
+      "landmarks": [
+        "Chitrakote Falls Niagara of India",
+        "Kanger Valley National Park"
+      ],
+      "neighborhoods": [
+        "Jagdalpur town",
+        "Bastar tribal area"
+      ],
+      "food": [
+        "Local tribal cuisine (Chila, Faraa, red ant chutney)"
+      ],
+      "activities": [
+        "Viewing Chitrakote Falls (widest waterfall in India)",
+        "Exploring Kanger Valley National Park caves",
+        "Attending Bastar Dussehra (75-day long festival)"
+      ],
+      "shopping": [
+        "Jagdalpur Haat weekly tribal market bell metal craft, Dhokra art"
+      ],
+      "culture": [
+        "Bastar tribal craft and Dussehra festival heritage"
+      ]
+    },
+    "raipur": {
+      "name": "Raipur",
+      "country": "India",
+      "state": "Chhattisgarh",
+      "landmarks": [
+        "Mahant Ghasidas Memorial Museum",
+        "Vivekananda Sarovar"
+      ],
+      "neighborhoods": [
+        "Pandri",
+        "Gol Bazaar",
+        "New Raipur"
+      ],
+      "food": [
+        "Local 'Bhaji Pat' style eateries",
+        "Chila",
+        "Bafauri"
+      ],
+      "activities": [
+        "Visiting Mahant Ghasidas Museum",
+        "Strolling around Vivekananda Sarovar",
+        "Visiting lounges in newer parts of city"
+      ],
+      "shopping": [
+        "Pandri Market handlooms",
+        "Gol Bazaar local items"
+      ],
+      "culture": [
+        "State capital history",
+        "Gateway to Bastar forest regions"
+      ]
+    },
+    "guwahati": {
+      "name": "Guwahati",
+      "country": "India",
+      "state": "Assam",
+      "landmarks": [
+        "Kamakhya Temple",
+        "Umananda Temple river island",
+        "Assam State Museum"
+      ],
+      "neighborhoods": [
+        "Fancy Bazaar",
+        "GS Road",
+        "Sualkuchi"
+      ],
+      "food": [
+        "Paradise Restaurant Assamese thali",
+        "Khorikaa ethnic restaurant"
+      ],
+      "activities": [
+        "Paying respects at Kamakhya Temple hilltop",
+        "Taking ferry to Umananda Temple",
+        "Exploring Assam State Museum",
+        "Guwahati nightlife bar/lounge scene around GS Road"
+      ],
+      "shopping": [
+        "Fancy Bazaar silk and handicrafts",
+        "Sualkuchi village silk weaving (Muga silk)"
+      ],
+      "culture": [
+        "Gateway to Northeast",
+        "Kamakhya Shakti Peeth spiritual heritage"
+      ]
+    },
+    "kaziranga": {
+      "name": "Kaziranga",
+      "country": "India",
+      "state": "Assam",
+      "landmarks": [
+        "Kaziranga National Park wildlife sanctuary"
+      ],
+      "neighborhoods": [
+        "Kohora",
+        "Bagori",
+        "Park entrance area"
+      ],
+      "food": [
+        "Resort-run traditional Assamese thali restaurants"
+      ],
+      "activities": [
+        "One-horned rhino tracking safari in Kaziranga",
+        "Elephant safari",
+        "Visiting orchid park"
+      ],
+      "shopping": [
+        "Small local handicraft stalls near park entrance selling cane items"
+      ],
+      "culture": [
+        "UNESCO site home to two-thirds of world one-horned rhinos"
+      ]
+    },
+    "majuli island": {
+      "name": "Majuli Island",
+      "country": "India",
+      "state": "Assam",
+      "landmarks": [
+        "Kamalabari Satra",
+        "Auniati Satra Vaishnavite monasteries"
+      ],
+      "neighborhoods": [
+        "Kamalabari",
+        "Garamur"
+      ],
+      "food": [
+        "Local Assamese homestay-cooked fish meals and rice beer"
+      ],
+      "activities": [
+        "Exploring Kamalabari and Auniati Satra monasteries",
+        "Watching traditional mask-making and pottery",
+        "Cycling around Majuli river island"
+      ],
+      "shopping": [
+        "Small local craft markets selling handwoven masks and clay pottery"
+      ],
+      "culture": [
+        "World largest river island",
+        "Neo-Vaishnavite monastic culture heritage"
+      ]
+    },
+    "shillong": {
+      "name": "Shillong",
+      "country": "India",
+      "state": "Meghalaya",
+      "landmarks": [
+        "Ward's Lake",
+        "Don Bosco Museum",
+        "Elephant Falls"
+      ],
+      "neighborhoods": [
+        "Police Bazaar",
+        "Laitumkhrah"
+      ],
+      "food": [
+        "Trattoria Restaurant traditional Khasi Jadoh",
+        "City Hut Family Dhaba"
+      ],
+      "activities": [
+        "Boating on Ward's Lake",
+        "Exploring Don Bosco Museum indigenous exhibits",
+        "Viewing Elephant Falls",
+        "Rock Capital of India live music scene in Police Bazaar pubs"
+      ],
+      "shopping": [
+        "Police Bazaar handicrafts and local winter clothing"
+      ],
+      "culture": [
+        "Khasi matrilineal society heritage",
+        "Northeast rock music culture"
+      ]
+    },
+    "cherrapunji": {
+      "name": "Cherrapunji",
+      "country": "India",
+      "state": "Meghalaya",
+      "landmarks": [
+        "Nohkalikai Falls",
+        "Mawsmai Caves",
+        "Seven Sisters Falls"
+      ],
+      "neighborhoods": [
+        "Sohra town",
+        "Nongriat track"
+      ],
+      "food": [
+        "Local home-stay run traditional Khasi meals"
+      ],
+      "activities": [
+        "Viewing Nohkalikai Falls (highest plunge waterfall in India)",
+        "Exploring dark limestone Mawsmai Caves",
+        "Hiking around Cherrapunji valleys"
+      ],
+      "shopping": [
+        "Small local stalls selling forest honey and Khasi handicrafts"
+      ],
+      "culture": [
+        "Sohra wettest place on Earth heritage"
+      ]
+    },
+    "living root bridges": {
+      "name": "Living Root Bridges",
+      "country": "India",
+      "state": "Meghalaya",
+      "landmarks": [
+        "Double-Decker Living Root Bridge Nongriat"
+      ],
+      "neighborhoods": [
+        "Nongriat village",
+        "Tyrna village base"
+      ],
+      "food": [
+        "Simple homestay-run Khasi meals in Nongriat village"
+      ],
+      "activities": [
+        "Trekking down 3,000 steps from Tyrna to Nongriat",
+        "Walking across the Double-Decker Living Root Bridge",
+        "Swimming in natural pools"
+      ],
+      "shopping": [
+        "None commercial market reached via steep trek only"
+      ],
+      "culture": [
+        "Rubber tree root bio-engineering marvel grown over generations"
+      ]
+    },
+    "mawlynnong": {
+      "name": "Mawlynnong",
+      "country": "India",
+      "state": "Meghalaya",
+      "landmarks": [
+        "Living root bridge smaller version",
+        "Sky View bamboo tower"
+      ],
+      "neighborhoods": [
+        "Mawlynnong village"
+      ],
+      "food": [
+        "Homestay-cooked simple Khasi meals"
+      ],
+      "activities": [
+        "Climbing Sky View bamboo tower for Bangladesh views",
+        "Walking through the manicured flower paths of the village",
+        "Crossing local root bridge"
+      ],
+      "shopping": [
+        "Small local handicraft stalls selling bamboo items"
+      ],
+      "culture": [
+        "Cleanest village in Asia heritage"
+      ]
+    },
+    "tawang": {
+      "name": "Tawang",
+      "country": "India",
+      "state": "Arunachal Pradesh",
+      "landmarks": [
+        "Tawang Monastery",
+        "Sela Pass",
+        "Madhuri Lake"
+      ],
+      "neighborhoods": [
+        "Tawang town",
+        "Monastery area"
+      ],
+      "food": [
+        "Local Monpa-tribe eateries",
+        "Thukpa and momos"
+      ],
+      "activities": [
+        "Exploring Tawang Monastery (second-largest in the world)",
+        "Crossing the high-altitude Sela Pass",
+        "Walking around Madhuri Lake (Shungetser Lake)"
+      ],
+      "shopping": [
+        "Small local market for Tibetan-style handicrafts and woolens"
+      ],
+      "culture": [
+        "Monpa Buddhist heritage",
+        "Dalai Lama historic escape route landmark"
+      ]
+    },
+    "ziro valley": {
+      "name": "Ziro Valley",
+      "country": "India",
+      "state": "Arunachal Pradesh",
+      "landmarks": [
+        "Ziro Valley landscape",
+        "Apatani tribal villages"
+      ],
+      "neighborhoods": [
+        "Ziro town",
+        "Hong village"
+      ],
+      "food": [
+        "Apatani tribal cuisine smoked meats",
+        "Apong local rice beer at homestays"
+      ],
+      "activities": [
+        "Walking through Hong Apatani village to see facial tattoos",
+        "Attending Ziro Music Festival (September outdoor festival)"
+      ],
+      "shopping": [
+        "Local Apatani weekly markets traditional bamboo and cane baskets"
+      ],
+      "culture": [
+        "UNESCO tentative site",
+        "Apatani tribe sustainable wet-rice cultivation heritage"
+      ]
+    },
+    "kohima": {
+      "name": "Kohima",
+      "country": "India",
+      "state": "Nagaland",
+      "landmarks": [
+        "Kohima War Cemetery",
+        "Dzukou Valley wildflowers",
+        "Kohima Cathedral"
+      ],
+      "neighborhoods": [
+        "Kohima town",
+        "Kisama heritage village"
+      ],
+      "food": [
+        "Local Naga eateries smoked pork with bamboo shoot",
+        "Axone traditional dish"
+      ],
+      "activities": [
+        "Visiting WWII Kohima War Cemetery",
+        "Trekking Dzukou Valley",
+        "Attending Hornbill Festival Kisama (December 1-10 concerts/wrestling)"
+      ],
+      "shopping": [
+        "Kohima Local Market tribal textiles, woodcrafts, Naga shawls"
+      ],
+      "culture": [
+        "Hornbill Festival showcasing 17 major Naga tribes heritage"
+      ]
+    },
+    "mon district": {
+      "name": "Mon District",
+      "country": "India",
+      "state": "Nagaland",
+      "landmarks": [
+        "Traditional Konyak tribal villages",
+        "Longwa village border"
+      ],
+      "neighborhoods": [
+        "Longwa village",
+        "Mon town"
+      ],
+      "food": [
+        "Local Konyak tribal cuisine in village homestays"
+      ],
+      "activities": [
+        "Visiting Longwa village chief house (straddling India-Myanmar border)",
+        "Meeting Konyak tattooed former headhunters",
+        "Exploring village metalwork workshops"
+      ],
+      "shopping": [
+        "Small local craft markets selling beaded necklaces and metal work"
+      ],
+      "culture": [
+        "Konyak headhunting clan history and woodcarving heritage"
+      ]
+    },
+    "imphal": {
+      "name": "Imphal",
+      "country": "India",
+      "state": "Manipur",
+      "landmarks": [
+        "Kangla Fort",
+        "Loktak Lake floating islands",
+        "Keibul Lamjao National Park"
+      ],
+      "neighborhoods": [
+        "Ima Keithel",
+        "Kangla area",
+        "Moirang"
+      ],
+      "food": [
+        "Local Manipuri eateries near market",
+        "Eromba",
+        "Chak-hao black rice Kheer"
+      ],
+      "activities": [
+        "Exploring historic Kangla Fort royal seat",
+        "Boating on Loktak Lake among floating phumdis",
+        "Spotting Sangai deer in Keibul Lamjao (world only floating national park)"
+      ],
+      "shopping": [
+        "Ima Keithel (Mother's Market - run entirely by women for centuries, one of Asia largest)"
+      ],
+      "culture": [
+        "Birthplace of modern Polo",
+        "Loktak Lake unique floating ecosystem"
+      ]
+    },
+    "aizawl": {
+      "name": "Aizawl",
+      "country": "India",
+      "state": "Mizoram",
+      "landmarks": [
+        "Solomon's Temple",
+        "Durtlang Hills viewpoint",
+        "Reiek Mountain nearby"
+      ],
+      "neighborhoods": [
+        "Bara Bazaar",
+        "Durtlang"
+      ],
+      "food": [
+        "Local Mizo restaurants around Bara Bazaar",
+        "Bai vegetarian stew",
+        "Sawhchiar rice meat dish"
+      ],
+      "activities": [
+        "Visiting the white marble Solomon's Temple",
+        "Viewing Aizawl from Durtlang Hills",
+        "Hiking Reiek Mountain",
+        "Cafe and church-community evening culture hangouts"
+      ],
+      "shopping": [
+        "Bara Bazaar local bamboo crafts and handwoven Mizo textiles"
+      ],
+      "culture": [
+        "Mizo traditional bamboo weaving and Christian choral music heritage"
+      ]
+    },
+    "agartala": {
+      "name": "Agartala",
+      "country": "India",
+      "state": "Tripura",
+      "landmarks": [
+        "Ujjayanta Palace museum",
+        "Neermahal water palace"
+      ],
+      "neighborhoods": [
+        "MBB College area",
+        "Agartala centre",
+        "Melaghar water palace"
+      ],
+      "food": [
+        "Local eateries",
+        "Mui Borok traditional Tripuri tribal cuisine",
+        "bamboo shoot dishes"
+      ],
+      "activities": [
+        "Touring royal Ujjayanta Palace",
+        "Boating on Rudrasagar Lake to Neermahal palace",
+        "Hanging out in Agartala city center lounges"
+      ],
+      "shopping": [
+        "Local handicraft stalls near MBB College area"
+      ],
+      "culture": [
+        "Neermahal India largest lake water palace heritage"
+      ]
+    },
+    "unakoti": {
+      "name": "Unakoti",
+      "country": "India",
+      "state": "Tripura",
+      "landmarks": [
+        "Unakoti rock carvings ancient sculptures"
+      ],
+      "neighborhoods": [
+        "Kailashahar",
+        "Unakoti hills"
+      ],
+      "food": [
+        "Local Tripuri food in nearby village homestays"
+      ],
+      "activities": [
+        "Hiking Unakoti hills to see massive rock-cut Shiva carvings",
+        "Exploring ancient stone relief carvings"
+      ],
+      "shopping": [
+        "Very limited small local stalls selling clay items"
+      ],
+      "culture": [
+        "8th-9th century ancient rock-cut Shiva carvings pilgrimage heritage"
+      ]
+    },
+    "gangtok": {
+      "name": "Gangtok",
+      "country": "India",
+      "state": "Sikkim",
+      "landmarks": [
+        "Rumtek Monastery",
+        "Enchey Monastery",
+        "Tsomgo Lake",
+        "Nathula Pass"
+      ],
+      "neighborhoods": [
+        "MG Marg",
+        "Deorali"
+      ],
+      "food": [
+        "Local Gangtok eateries momos and Thukpa",
+        "Gundruk local spinach",
+        "Tongba millet beer"
+      ],
+      "activities": [
+        "Visiting Rumtek Monastery chambers",
+        "Boating on high-altitude Tsomgo Lake",
+        "Driving through Nathula Pass India-China border",
+        "MG Marg pedestrian-only street cafe and bar scene"
+      ],
+      "shopping": [
+        "MG Marg pedestrian-only shopping street"
+      ],
+      "culture": [
+        "India first fully organic state",
+        "Tibetan Buddhist monastery heritage"
+      ]
+    },
+    "pelling": {
+      "name": "Pelling",
+      "country": "India",
+      "state": "Sikkim",
+      "landmarks": [
+        "Pemayangtse Monastery",
+        "Khecheopalri Lake wish-fulfilling",
+        "Yuksom coronation site"
+      ],
+      "neighborhoods": [
+        "Pelling bazaar",
+        "Yuksom village"
+      ],
+      "food": [
+        "Local homestay-cooked Sikkimese meals",
+        "Sikkimese noodle soup"
+      ],
+      "activities": [
+        "Visiting the historic Pemayangtse Monastery",
+        "Paying respects at sacred Khecheopalri Lake",
+        "Walking through Yuksom forest (Sikkim first capital)"
+      ],
+      "shopping": [
+        "Small local handicraft shops in Pelling"
+      ],
+      "culture": [
+        "Yuksom starting point for Kanchenjunga trek",
+        "Nyingma Buddhist historical legacy"
+      ]
+    },
+    "north sikkim": {
+      "name": "North Sikkim",
+      "country": "India",
+      "state": "Sikkim",
+      "landmarks": [
+        "Gurudongmar Lake high-altitude",
+        "Yumthang Valley of Flowers"
+      ],
+      "neighborhoods": [
+        "Lachen village",
+        "Lachung village",
+        "Yumthang"
+      ],
+      "food": [
+        "Homestay-run local hot meals (soups, rice)"
+      ],
+      "activities": [
+        "Trekking around high-altitude Gurudongmar Lake (5,430m)",
+        "Walking the flower paths of Yumthang Valley",
+        "Relaxing in remote alpine Lachen/Lachung villages"
+      ],
+      "shopping": [
+        "None basic supply shops only in remote villages"
+      ],
+      "culture": [
+        "High-altitude alpine valley landscape",
+        "Yumthang Valley rhododendron blooms (spring)"
+      ]
+    },
+    "old delhi": {
+      "name": "Old Delhi",
+      "country": "India",
+      "state": "Delhi",
+      "landmarks": [
+        "Red Fort",
+        "Jama Masjid Delhi",
+        "Fatehpuri Masjid"
+      ],
+      "neighborhoods": [
+        "Chandni Chowk",
+        "Dariba Kalan",
+        "Khari Baoli",
+        "Kinari Bazaar"
+      ],
+      "food": [
+        "Karim's Mughlai kebabs",
+        "Paranthe Wali Gali",
+        "Al Jawahar",
+        "Jalebi Wala sweet shop"
+      ],
+      "activities": [
+        "Exploring UNESCO Red Fort",
+        "Visiting Jama Masjid (India largest mosque)",
+        "Rickshaw ride in busy Chandni Chowk lanes",
+        "Late-night Mughlai street food dining in lanes"
+      ],
+      "shopping": [
+        "Chandni Chowk 350-year-old spice and textile market",
+        "Dariba Kalan silver market",
+        "Khari Baoli spice market",
+        "Kinari Bazaar wedding wear"
+      ],
+      "culture": [
+        "Mughal empire capital Shahjahanabad heritage"
+      ]
+    },
+    "srinagar": {
+      "name": "Srinagar",
+      "country": "India",
+      "state": "Jammu and Kashmir",
+      "landmarks": [
+        "Shankaracharya Temple",
+        "Hazratbal Shrine",
+        "Jama Masjid Srinagar",
+        "Shalimar Bagh",
+        "Nishat Bagh Mughal Gardens"
+      ],
+      "neighborhoods": [
+        "Dal Lake",
+        "Lal Chowk",
+        "Polo View",
+        "Zaina Kadal"
+      ],
+      "food": [
+        "Ahdoos traditional Wazwan feast",
+        "Mughal Darbar",
+        "Houseboat-hosted Kahwa tea sessions"
+      ],
+      "activities": [
+        "Taking a peaceful Shikara ride on Dal Lake",
+        "Staying in an iconic Dal Lake houseboat",
+        "Walking through Shalimar and Nishat Mughal Gardens",
+        "Quiet evenings on houseboats"
+      ],
+      "shopping": [
+        "Lal Chowk Pashmina shawls and carpets",
+        "Polo View Market woodcrafts",
+        "Zaina Kadal papier-mache crafts"
+      ],
+      "culture": [
+        "Mughal Gardens heritage",
+        "Dal Lake aquatic lifestyle history"
+      ]
+    },
+    "gulmarg": {
+      "name": "Gulmarg",
+      "country": "India",
+      "state": "Jammu and Kashmir",
+      "landmarks": [
+        "Gulmarg Gondola cable car",
+        "St. Mary's Church"
+      ],
+      "neighborhoods": [
+        "Gulmarg ski resort",
+        "Ski slopes area"
+      ],
+      "food": [
+        "Hotel-run restaurants serving Kashmiri and continental food",
+        "Kahwa tea"
+      ],
+      "activities": [
+        "Riding Asia highest cable car (Gulmarg Gondola)",
+        "Skiing on Gulmarg slopes (winter)",
+        "Visiting historic St. Mary's Church",
+        "Hotel bar hangouts during ski season"
+      ],
+      "shopping": [
+        "Small local stalls winter wear and papier-mache souvenirs"
+      ],
+      "culture": [
+        "India premier winter sports skiing destination"
+      ]
+    },
+    "pahalgam": {
+      "name": "Pahalgam",
+      "country": "India",
+      "state": "Jammu and Kashmir",
+      "landmarks": [
+        "Betaab Valley",
+        "Aru Valley",
+        "Chandanwari"
+      ],
+      "neighborhoods": [
+        "Pahalgam market",
+        "Lidder riverbank"
+      ],
+      "food": [
+        "Local Kashmiri restaurants along the main market",
+        "Fresh trout"
+      ],
+      "activities": [
+        "Horseback riding in Betaab Valley",
+        "Walking Lidder River banks",
+        "Trekking Aru Valley scenic trails",
+        "Camping by river"
+      ],
+      "shopping": [
+        "Small local handicraft and shawl stalls in main market"
+      ],
+      "culture": [
+        "Amarnath Yatra pilgrimage base camp",
+        "Kashmiri alpine meadow landscape"
+      ]
+    },
+    "jammu": {
+      "name": "Jammu",
+      "country": "India",
+      "state": "Jammu and Kashmir",
+      "landmarks": [
+        "Vaishno Devi Temple cave shrine",
+        "Raghunath Temple",
+        "Bahu Fort"
+      ],
+      "neighborhoods": [
+        "Raghunath Bazaar",
+        "Residency Road"
+      ],
+      "food": [
+        "Krishna Dhaba vegetarian",
+        "Local rajma-chawal food stalls"
+      ],
+      "activities": [
+        "Trekking to Katra Vaishno Devi Temple cave",
+        "Paying respects at Raghunath Temple",
+        "Exploring Bahu Fort gardens"
+      ],
+      "shopping": [
+        "Raghunath Bazaar dry fruits and textiles",
+        "Residency Road"
+      ],
+      "culture": [
+        "Dogra dynasty history",
+        "Major Hindu Vaishno Devi pilgrimage hub"
+      ]
+    },
+    "leh": {
+      "name": "Leh",
+      "country": "India",
+      "state": "Ladakh",
+      "landmarks": [
+        "Leh Palace",
+        "Thiksey Monastery",
+        "Shanti Stupa",
+        "Magnetic Hill",
+        "Hall of Fame war memorial"
+      ],
+      "neighborhoods": [
+        "Leh Main Bazaar",
+        "Chanspa"
+      ],
+      "food": [
+        "Tibetan Kitchen",
+        "Gesmo Restaurant yak cheese pizza",
+        "Bon Appetit",
+        "Lamayuru Restaurant"
+      ],
+      "activities": [
+        "Touring Leh Palace",
+        "Paying respects at Shanti Stupa",
+        "Climbing Thiksey Monastery multi-story complex",
+        "Visiting Hall of Fame war museum",
+        "Hanging out in cafes with live acoustic music"
+      ],
+      "shopping": [
+        "Leh Main Bazaar Tibetan/Ladakhi handicrafts, pashmina, prayer wheels"
+      ],
+      "culture": [
+        "High-altitude cold desert Buddhist heritage",
+        "Tibetan-Ladakhi monastic architecture"
+      ]
+    },
+    "pangong lake": {
+      "name": "Pangong Lake",
+      "country": "India",
+      "state": "Ladakh",
+      "landmarks": [
+        "Pangong Tso high-altitude lake"
+      ],
+      "neighborhoods": [
+        "Spangmik camping sites",
+        "Lukung"
+      ],
+      "food": [
+        "Camp-run simple Ladakhi and Indian meals"
+      ],
+      "activities": [
+        "Watching Pangong Lake change colors through the day",
+        "Camping and stargazing by the lakeside"
+      ],
+      "shopping": [
+        "Makeshift stalls selling local snacks and winter souvenirs"
+      ],
+      "culture": [
+        "High-altitude endorheic lake (4,200m) extending into Tibet"
+      ]
+    },
+    "nubra valley": {
+      "name": "Nubra Valley",
+      "country": "India",
+      "state": "Ladakh",
+      "landmarks": [
+        "Diskit Monastery Maitreya Buddha",
+        "Hunder sand dunes"
+      ],
+      "neighborhoods": [
+        "Diskit village",
+        "Hunder sand dunes camp"
+      ],
+      "food": [
+        "Local Ladakhi guesthouse meals",
+        "Butter tea"
+      ],
+      "activities": [
+        "Visiting Diskit Monastery giant Buddha statue",
+        "Riding double-humped Bactrian camels on Hunder sand dunes",
+        "Crossing Khardung La pass (highest motorable pass)"
+      ],
+      "shopping": [
+        "Small local stalls in Diskit village selling woolens"
+      ],
+      "culture": [
+        "Silk Route historical valley heritage",
+        "Bactrian camel desert walks"
+      ]
+    },
+    "port blair": {
+      "name": "Port Blair",
+      "country": "India",
+      "state": "Andaman and Nicobar Islands",
+      "landmarks": [
+        "Cellular Jail national memorial",
+        "Ross Island ruins"
+      ],
+      "neighborhoods": [
+        "Aberdeen Bazaar",
+        "Phoenix Bay"
+      ],
+      "food": [
+        "New Lighthouse Restaurant seafood",
+        "Annapurna Cafe South Indian"
+      ],
+      "activities": [
+        "Touring historic Cellular Jail prison cells",
+        "Watching Cellular Jail Light & Sound show",
+        "Taking boat to Ross Island reclaimed ruins"
+      ],
+      "shopping": [
+        "Aberdeen Bazaar shell crafts and local wooden souvenirs"
+      ],
+      "culture": [
+        "Indian freedom struggle heritage",
+        "Ross Island British colonial ruins"
+      ]
+    },
+    "havelock island": {
+      "name": "Havelock Island",
+      "country": "India",
+      "state": "Andaman and Nicobar Islands",
+      "landmarks": [
+        "Radhanagar Beach Beach No. 7",
+        "Elephant Beach"
+      ],
+      "neighborhoods": [
+        "Havelock Jetty area",
+        "Radhanagar beach road"
+      ],
+      "food": [
+        "Beachside shacks fresh seafood and Andaman lobster",
+        "Local resort restaurants"
+      ],
+      "activities": [
+        "Swimming at Radhanagar Beach (rated among Asia best)",
+        "Snorkeling and scuba diving at Elephant Beach",
+        "Resort bar beach bonfire nights"
+      ],
+      "shopping": [
+        "Small local craft stalls near Havelock Jetty"
+      ],
+      "culture": [
+        "World-class scuba diving and coral reef ecosystem"
+      ]
+    },
+    "neil island": {
+      "name": "Neil Island",
+      "country": "India",
+      "state": "Andaman and Nicobar Islands",
+      "landmarks": [
+        "Natural Bridge rock formation",
+        "Bharatpur Beach"
+      ],
+      "neighborhoods": [
+        "Neil Jetty area",
+        "Laxmanpur beach"
+      ],
+      "food": [
+        "Beachside seafood shacks",
+        "Fresh coconut water"
+      ],
+      "activities": [
+        "Walking across the natural coral bridge formation",
+        "Relaxing on quiet Bharatpur Beach",
+        "Cycling around the small agricultural island"
+      ],
+      "shopping": [
+        "Small local stalls selling shell crafts"
+      ],
+      "culture": [
+        "Laid-back, quiet island alternative to Havelock"
+      ]
+    },
+    "diu": {
+      "name": "Diu",
+      "country": "India",
+      "state": "Dadra and Nagar Haveli and Daman and Diu",
+      "landmarks": [
+        "Diu Fort Portuguese fortress",
+        "St. Paul's Church",
+        "Naida Caves"
+      ],
+      "neighborhoods": [
+        "Diu town",
+        "Nagoa beach"
+      ],
+      "food": [
+        "Coastal shacks Diu fish curry",
+        "Goan-Portuguese influenced seafood"
+      ],
+      "activities": [
+        "Exploring historic Diu Fort",
+        "Touring St. Paul's Church",
+        "Exploring Naida Caves light beams",
+        "Hanging out in beach shacks and bars (Diu is duty-free)"
+      ],
+      "shopping": [
+        "Diu town bazaar local handicrafts and seafood"
+      ],
+      "culture": [
+        "Portuguese colonial architecture enclave heritage"
+      ]
+    },
+    "daman": {
+      "name": "Daman",
+      "country": "India",
+      "state": "Dadra and Nagar Haveli and Daman and Diu",
+      "landmarks": [
+        "Moti Daman Fort",
+        "Jampore Beach"
+      ],
+      "neighborhoods": [
+        "Moti Daman",
+        "Nani Daman",
+        "Jampore Beach road"
+      ],
+      "food": [
+        "Coastal seafood restaurants along Jampore Beach",
+        "Local fish fry"
+      ],
+      "activities": [
+        "Exploring old Moti Daman Fort",
+        "Walking along black sand Jampore Beach",
+        "Relaxing in beach shacks and bars"
+      ],
+      "shopping": [
+        "Local seafood and produce markets near the fort"
+      ],
+      "culture": [
+        "Portuguese enclave history until 1961"
+      ]
+    },
+    "silvassa": {
+      "name": "Silvassa",
+      "country": "India",
+      "state": "Dadra and Nagar Haveli and Daman and Diu",
+      "landmarks": [
+        "Vasona Lion Safari Park",
+        "Silvassa tribal museum"
+      ],
+      "neighborhoods": [
+        "Silvassa town",
+        "Vasona"
+      ],
+      "food": [
+        "Local Gujarati-influenced restaurants"
+      ],
+      "activities": [
+        "Taking lion safari in Vasona Park",
+        "Exploring Silvassa tribal museum detailing Warli culture"
+      ],
+      "shopping": [
+        "Local tribal handicraft stalls Warli paintings and wood carvings"
+      ],
+      "culture": [
+        "Warli tribal heritage",
+        "Quiet inland wooded town scenery"
+      ]
+    },
+    "agatti island": {
+      "name": "Agatti Island",
+      "country": "India",
+      "state": "Lakshadweep",
+      "landmarks": [
+        "Agatti coral lagoon"
+      ],
+      "neighborhoods": [
+        "Agatti airport area",
+        "Agatti beach"
+      ],
+      "food": [
+        "Local island eateries coconut-based seafood curries, Tuna dishes"
+      ],
+      "activities": [
+        "Snorkeling in Agatti coral lagoon",
+        "Kayaking and beach volleyball",
+        "Bicycling around the narrow coral island"
+      ],
+      "shopping": [
+        "Very limited local markets coconut shell crafts"
+      ],
+      "culture": [
+        "Eco-sensitive Islamic island culture heritage"
+      ]
+    },
+    "bangaram island": {
+      "name": "Bangaram Island",
+      "country": "India",
+      "state": "Lakshadweep",
+      "landmarks": [
+        "Bangaram uninhabited lagoon"
+      ],
+      "neighborhoods": [
+        "Bangaram resort area"
+      ],
+      "food": [
+        "Resort-run seafood dining buffet style"
+      ],
+      "activities": [
+        "Scuba diving and deep sea snorkeling in crystal clear lagoon",
+        "Kayaking around uninhabited sandbanks"
+      ],
+      "shopping": [
+        "None uninhabited resort island"
+      ],
+      "culture": [
+        "Pristine coral atoll ecosystem conservation"
+      ]
+    },
+    "kavaratti": {
+      "name": "Kavaratti",
+      "country": "India",
+      "state": "Lakshadweep",
+      "landmarks": [
+        "Kavaratti coral reefs",
+        "Ujra Mosque"
+      ],
+      "neighborhoods": [
+        "Kavaratti town",
+        "Marine aquarium area"
+      ],
+      "food": [
+        "Local island eateries Mus Kavab, coconut-based curries"
+      ],
+      "activities": [
+        "Glass-bottom boat rides over coral reefs",
+        "Visiting Ujra Mosque (famous for driftwood carvings)",
+        "Exploring Marine Aquarium"
+      ],
+      "shopping": [
+        "Small local markets for daily essentials"
+      ],
+      "culture": [
+        "Capital of Lakshadweep Union Territory"
+      ]
+    },
+    "puducherry": {
+      "name": "Puducherry",
+      "country": "India",
+      "state": "Puducherry",
+      "landmarks": [
+        "Promenade Beach Rock Beach",
+        "French Quarter White Town",
+        "Sri Aurobindo Ashram"
+      ],
+      "neighborhoods": [
+        "French Quarter",
+        "Tamil Quarter",
+        "Mission Street",
+        "Jawaharlal Nehru Street"
+      ],
+      "food": [
+        "Cafe des Arts French quarter",
+        "Surguru South Indian vegetarian",
+        "Le Cafe beachfront",
+        "Baker Street French pastries"
+      ],
+      "activities": [
+        "Walking the French Quarter White Town lanes",
+        "Visiting Sri Aurobindo Ashram",
+        "Strolling Promenade Beach at sunset",
+        "Hanging out at relaxed French-Quarter cafes and beachfront bars"
+      ],
+      "shopping": [
+        "Mission Street and JN Street boutiques perfumes, handmade paper"
+      ],
+      "culture": [
+        "Former French colony layout",
+        "French-Tamil fusion gastronomy"
+      ]
+    },
+    "auroville": {
+      "name": "Auroville",
+      "country": "India",
+      "state": "Puducherry",
+      "landmarks": [
+        "Matrimandir golden geodesic dome"
+      ],
+      "neighborhoods": [
+        "Auroville visitor center",
+        "Auroville cafes"
+      ],
+      "food": [
+        "Auroville cafes serving organic, internationally-influenced food"
+      ],
+      "activities": [
+        "Viewing the golden Matrimandir dome",
+        "Learning about the international township concept",
+        "Walking the peaceful forested paths"
+      ],
+      "shopping": [
+        "Auroville boutique shops organic perfumes, handmade soaps, clothing"
+      ],
+      "culture": [
+        "International experimental township founded on human unity principles"
+      ]
     }
   },
   "regions": {
@@ -10182,21 +12802,18 @@
       "cities": [
         "Chennai",
         "Madurai",
-        "Coimbatore",
+        "Mahabalipuram",
         "Ooty",
-        "Kanyakumari",
-        "Rameshwaram"
+        "Rameswaram"
       ]
     },
     "bihar": {
       "name": "Bihar",
       "country": "India",
       "cities": [
-        "Patna",
-        "Gaya",
-        "Nalanda",
-        "Rajgir",
-        "Bodhgaya"
+        "Bodh Gaya",
+        "Nalanda & Rajgir",
+        "Patna"
       ]
     },
     "himachal pradesh": {
@@ -10205,9 +12822,14 @@
       "cities": [
         "Shimla",
         "Manali",
-        "Dharamshala",
-        "Dalhousie",
-        "Kasol"
+        "McLeod Ganj",
+        "Jibhi",
+        "Tirthan Valley",
+        "Kasol",
+        "Spiti Valley",
+        "Bir Billing",
+        "Chitkul",
+        "Dalhousie"
       ]
     },
     "rajasthan": {
@@ -10216,20 +12838,20 @@
       "cities": [
         "Jaipur",
         "Udaipur",
-        "Jodhpur",
         "Jaisalmer",
-        "Pushkar"
+        "Jodhpur",
+        "Pushkar",
+        "Ranthambore"
       ]
     },
     "goa": {
       "name": "Goa",
       "country": "India",
       "cities": [
+        "Baga & Calangute",
+        "Anjuna & Vagator",
         "Panaji",
-        "Calangute",
-        "Margao",
-        "Vagator",
-        "Palolem"
+        "Palolem & Agonda"
       ]
     },
     "kerala": {
@@ -10237,10 +12859,10 @@
       "country": "India",
       "cities": [
         "Kochi",
-        "Munnar",
         "Alleppey",
-        "Varkala",
-        "Trivandrum"
+        "Munnar",
+        "Wayanad",
+        "Varkala"
       ]
     },
     "karnataka": {
@@ -10248,8 +12870,8 @@
       "country": "India",
       "cities": [
         "Bengaluru",
-        "Mysuru",
         "Hampi",
+        "Mysuru",
         "Coorg",
         "Gokarna"
       ]
@@ -10259,10 +12881,10 @@
       "country": "India",
       "cities": [
         "Mumbai",
-        "Pune",
         "Lonavala",
         "Aurangabad",
-        "Nashik"
+        "Pune",
+        "Mahabaleshwar"
       ]
     },
     "west bengal": {
@@ -10271,8 +12893,7 @@
       "cities": [
         "Kolkata",
         "Darjeeling",
-        "Siliguri",
-        "Kalimpong",
+        "Sundarbans",
         "Digha"
       ]
     },
@@ -10280,11 +12901,9 @@
       "name": "Andhra Pradesh",
       "country": "India",
       "cities": [
-        "Visakhapatnam",
-        "Vijayawada",
         "Tirupati",
-        "Nellore",
-        "Kurnool"
+        "Visakhapatnam",
+        "Vijayawada"
       ]
     },
     "telangana": {
@@ -10292,10 +12911,7 @@
       "country": "India",
       "cities": [
         "Hyderabad",
-        "Warangal",
-        "Nizamabad",
-        "Khammam",
-        "Karimnagar"
+        "Warangal"
       ]
     },
     "bavaria": {
@@ -11016,7 +13632,14 @@
       "name": "India",
       "country": "India",
       "cities": [
-        "New Delhi"
+        "New Delhi",
+        "Mumbai",
+        "Bengaluru",
+        "Kolkata",
+        "Jaipur",
+        "Goa",
+        "Kochi",
+        "Chennai"
       ]
     },
     "iran": {
@@ -12210,6 +14833,225 @@
       "country": "Yemen",
       "cities": [
         "Sana'a"
+      ]
+    },
+    "punjab": {
+      "name": "Punjab",
+      "country": "India",
+      "cities": [
+        "Amritsar",
+        "Chandigarh",
+        "Patiala",
+        "Anandpur Sahib"
+      ]
+    },
+    "haryana": {
+      "name": "Haryana",
+      "country": "India",
+      "cities": [
+        "Gurugram",
+        "Kurukshetra",
+        "Panchkula",
+        "Surajkund"
+      ]
+    },
+    "uttar pradesh": {
+      "name": "Uttar Pradesh",
+      "country": "India",
+      "cities": [
+        "Agra",
+        "Varanasi",
+        "Lucknow",
+        "Mathura-Vrindavan",
+        "Ayodhya"
+      ]
+    },
+    "uttarakhand": {
+      "name": "Uttarakhand",
+      "country": "India",
+      "cities": [
+        "Rishikesh",
+        "Haridwar",
+        "Nainital",
+        "Mussoorie",
+        "Auli"
+      ]
+    },
+    "madhya pradesh": {
+      "name": "Madhya Pradesh",
+      "country": "India",
+      "cities": [
+        "Indore",
+        "Khajuraho",
+        "Bhopal",
+        "Bandhavgarh",
+        "Pachmarhi"
+      ]
+    },
+    "gujarat": {
+      "name": "Gujarat",
+      "country": "India",
+      "cities": [
+        "Ahmedabad",
+        "Rann of Kutch",
+        "Gir National Park",
+        "Somnath",
+        "Dwarka"
+      ]
+    },
+    "odisha": {
+      "name": "Odisha",
+      "country": "India",
+      "cities": [
+        "Puri",
+        "Konark",
+        "Bhubaneswar",
+        "Chilika Lake"
+      ]
+    },
+    "jharkhand": {
+      "name": "Jharkhand",
+      "country": "India",
+      "cities": [
+        "Ranchi",
+        "Deoghar",
+        "Netarhat"
+      ]
+    },
+    "chhattisgarh": {
+      "name": "Chhattisgarh",
+      "country": "India",
+      "cities": [
+        "Jagdalpur",
+        "Raipur"
+      ]
+    },
+    "assam": {
+      "name": "Assam",
+      "country": "India",
+      "cities": [
+        "Guwahati",
+        "Kaziranga",
+        "Majuli Island"
+      ]
+    },
+    "meghalaya": {
+      "name": "Meghalaya",
+      "country": "India",
+      "cities": [
+        "Shillong",
+        "Cherrapunji",
+        "Living Root Bridges",
+        "Mawlynnong"
+      ]
+    },
+    "arunachal pradesh": {
+      "name": "Arunachal Pradesh",
+      "country": "India",
+      "cities": [
+        "Tawang",
+        "Ziro Valley"
+      ]
+    },
+    "nagaland": {
+      "name": "Nagaland",
+      "country": "India",
+      "cities": [
+        "Kohima",
+        "Mon District"
+      ]
+    },
+    "manipur": {
+      "name": "Manipur",
+      "country": "India",
+      "cities": [
+        "Imphal"
+      ]
+    },
+    "mizoram": {
+      "name": "Mizoram",
+      "country": "India",
+      "cities": [
+        "Aizawl"
+      ]
+    },
+    "tripura": {
+      "name": "Tripura",
+      "country": "India",
+      "cities": [
+        "Agartala",
+        "Unakoti"
+      ]
+    },
+    "sikkim": {
+      "name": "Sikkim",
+      "country": "India",
+      "cities": [
+        "Gangtok",
+        "Pelling",
+        "North Sikkim"
+      ]
+    },
+    "delhi": {
+      "name": "Delhi",
+      "country": "India",
+      "cities": [
+        "Old Delhi",
+        "New Delhi"
+      ]
+    },
+    "jammu and kashmir": {
+      "name": "Jammu and Kashmir",
+      "country": "India",
+      "cities": [
+        "Srinagar",
+        "Gulmarg",
+        "Pahalgam",
+        "Jammu"
+      ]
+    },
+    "ladakh": {
+      "name": "Ladakh",
+      "country": "India",
+      "cities": [
+        "Leh",
+        "Pangong Lake",
+        "Nubra Valley"
+      ]
+    },
+    "andaman and nicobar islands": {
+      "name": "Andaman and Nicobar Islands",
+      "country": "India",
+      "cities": [
+        "Port Blair",
+        "Havelock Island",
+        "Neil Island"
+      ]
+    },
+    "dadra and nagar haveli and daman and diu": {
+      "name": "Dadra and Nagar Haveli and Daman and Diu",
+      "country": "India",
+      "cities": [
+        "Diu",
+        "Daman",
+        "Silvassa"
+      ]
+    },
+    "lakshadweep": {
+      "name": "Lakshadweep",
+      "country": "India",
+      "cities": [
+        "Agatti Island",
+        "Bangaram Island",
+        "Kavaratti"
+      ]
+    },
+    "puducherry": {
+      "name": "Puducherry",
+      "country": "India",
+      "cities": [
+        "Puducherry",
+        "Auroville"
       ]
     }
   }
