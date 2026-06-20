@@ -144,6 +144,78 @@ export default function App() {
     return isNaN(diffDays) ? 1 : diffDays;
   };
 
+  const levenshteinDistance = (s1, s2) => {
+    const m = s1.length;
+    const n = s2.length;
+    const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= n; j++) {
+        if (s1[i - 1] === s2[j - 1]) {
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + 1);
+        }
+      }
+    }
+    return dp[m][n];
+  };
+
+  const isFuzzyMatch = (s1, s2) => {
+    const len = Math.max(s1.length, s2.length);
+    if (len < 4) return s1 === s2;
+    const dist = levenshteinDistance(s1, s2);
+    const threshold = len > 8 ? 2 : 1;
+    return dist <= threshold;
+  };
+
+  const matchDestinationInDb = (destName) => {
+    const cities = knownCitiesDb.cities || {};
+    const regions = knownCitiesDb.regions || {};
+
+    const cleanDest = destName.toLowerCase().trim();
+    const primaryToken = cleanDest.split(',')[0].trim();
+
+    function destinationMatches(key, dest) {
+      if (key === dest) return true;
+      if (key.length < 4) return false;
+      const keyEscaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const fwdTest = new RegExp(`(^|[\\s,])${keyEscaped}([\\s,]|$)`).test(dest);
+      if (fwdTest) return true;
+      if (primaryToken.length >= 4) {
+        const primEscaped = primaryToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const revTest = new RegExp(`(^|[\\s,])${primEscaped}([\\s,]|$)`).test(key);
+        if (revTest) return true;
+      }
+      // Fuzzy match for minor typos
+      if (isFuzzyMatch(key, dest)) return true;
+      return false;
+    }
+
+    // Try to find matching city FIRST (more specific)
+    let matchedCity = null;
+    for (const [key, ct] of Object.entries(cities)) {
+      if (destinationMatches(key, primaryToken)) {
+        matchedCity = ct;
+        break;
+      }
+    }
+
+    // Try to find matching region only if no city was matched
+    let matchedRegion = null;
+    if (!matchedCity) {
+      for (const [key, reg] of Object.entries(regions)) {
+        if (destinationMatches(key, primaryToken)) {
+          matchedRegion = reg;
+          break;
+        }
+      }
+    }
+
+    return { matchedCity, matchedRegion };
+  };
+
   // Helper to generate a basic fallback template itinerary on the client
   const generateClientItineraryTemplate = (details) => {
     const destName = details.destination || 'Selected Destination';
@@ -159,54 +231,15 @@ export default function App() {
       interests = ['landmarks', 'culture', 'nature', 'shopping', 'food', 'nightlife'];
     }
 
-    const cleanDest = destName.toLowerCase().trim();
-    const primaryToken = cleanDest.split(',')[0].trim();
-
-    /**
-     * Smart destination matcher - word-boundary safe.
-     * Skips keys < 4 chars to avoid false positives (e.g. "uk" matching "Kyiv").
-     */
-    function destinationMatches(key, dest) {
-      if (key === dest) return true;
-      if (key.length < 4) return false;
-      const keyEscaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const fwdTest = new RegExp(`(^|[\\s,])${keyEscaped}([\\s,]|$)`).test(dest);
-      if (fwdTest) return true;
-      if (primaryToken.length >= 4) {
-        const primEscaped = primaryToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        return new RegExp(`(^|[\\s,])${primEscaped}([\\s,]|$)`).test(key);
-      }
-      return false;
-    }
-
-    // Try to find matching city FIRST (more specific)
-    let matchedCity = null;
-    if (knownCitiesDb && knownCitiesDb.cities) {
-      for (const [key, ct] of Object.entries(knownCitiesDb.cities)) {
-        if (destinationMatches(key, primaryToken)) {
-          matchedCity = ct;
-          break;
-        }
-      }
-    }
-
-    // Try to find matching region only if no city was matched
-    let matchedRegion = null;
-    if (!matchedCity && knownCitiesDb && knownCitiesDb.regions) {
-      for (const [key, reg] of Object.entries(knownCitiesDb.regions)) {
-        if (destinationMatches(key, primaryToken)) {
-          matchedRegion = reg;
-          break;
-        }
-      }
-    }
+    const { matchedCity, matchedRegion } = matchDestinationInDb(destName);
+    const cities = knownCitiesDb.cities || {};
 
     // Resolve cities
     let resolvedCities = [];
     if (matchedRegion) {
       resolvedCities = matchedRegion.cities.map(name => {
         const key = name.toLowerCase().trim();
-        return knownCitiesDb.cities[key] || { name, country: matchedRegion.country, landmarks: [], neighborhoods: [], food: [], activities: [], shopping: [], culture: [] };
+        return cities[key] || { name, country: matchedRegion.country, landmarks: [], neighborhoods: [], food: [], activities: [], shopping: [], culture: [] };
       });
     } else if (matchedCity) {
       resolvedCities = [matchedCity];

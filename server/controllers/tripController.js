@@ -261,43 +261,53 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
   };
 }
 
-function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate) {
-  const destName = destination || 'Selected Destination';
-  const totalDays = Number(daysCount) || 3;
-  const totalBudget = Number(budget) || 15000;
-  const curr = currency || 'INR';
-  const avgDaily = Math.round(totalBudget / totalDays);
-  const baseDate = startDate ? new Date(startDate) : new Date();
+function levenshteinDistance(s1, s2) {
+  const m = s1.length;
+  const n = s2.length;
+  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (s1[i - 1] === s2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + 1);
+      }
+    }
+  }
+  return dp[m][n];
+}
 
-  // Ensure DB is loaded
+function isFuzzyMatch(s1, s2) {
+  const len = Math.max(s1.length, s2.length);
+  if (len < 4) return s1 === s2;
+  const dist = levenshteinDistance(s1, s2);
+  const threshold = len > 8 ? 2 : 1;
+  return dist <= threshold;
+}
+
+function matchDestinationInDb(destName) {
   const dbInstance = getKnownCitiesDb();
   const cities = dbInstance.cities || {};
   const regions = dbInstance.regions || {};
 
   const cleanDest = destName.toLowerCase().trim();
-  // Extract the primary location token (before the first comma) for matching
   const primaryToken = cleanDest.split(',')[0].trim();
 
-  /**
-   * Smart destination matcher.
-   * Rules (in priority order):
-   *  1. Exact key match
-   *  2. Key is a full word/phrase contained in primaryToken (word-boundary safe)
-   *  3. primaryToken is a full word/phrase contained in key (word-boundary safe)
-   * We skip keys shorter than 4 chars to avoid false positives (e.g. "uk" matching "Kyiv").
-   */
   function destinationMatches(key, dest) {
     if (key === dest) return true;
-    if (key.length < 4) return false; // skip tiny keys like "uk", "in", "us"
-    // Check if key appears as a complete word sequence inside dest
+    if (key.length < 4) return false;
     const keyEscaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const fwdTest = new RegExp(`(^|[\\s,])${keyEscaped}([\\s,]|$)`).test(dest);
     if (fwdTest) return true;
-    // Check if dest primaryToken appears as complete word sequence inside key
     if (primaryToken.length >= 4) {
       const primEscaped = primaryToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      return new RegExp(`(^|[\\s,])${primEscaped}([\\s,]|$)`).test(key);
+      const revTest = new RegExp(`(^|[\\s,])${primEscaped}([\\s,]|$)`).test(key);
+      if (revTest) return true;
     }
+    // Fuzzy match for minor typos (e.g. "edinburg" -> "edinburgh")
+    if (isFuzzyMatch(key, dest)) return true;
     return false;
   }
 
@@ -320,6 +330,21 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
       }
     }
   }
+
+  return { matchedCity, matchedRegion };
+}
+
+function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate) {
+  const destName = destination || 'Selected Destination';
+  const totalDays = Number(daysCount) || 3;
+  const totalBudget = Number(budget) || 15000;
+  const curr = currency || 'INR';
+  const avgDaily = Math.round(totalBudget / totalDays);
+  const baseDate = startDate ? new Date(startDate) : new Date();
+
+  const { matchedCity, matchedRegion } = matchDestinationInDb(destName);
+  const dbInstance = getKnownCitiesDb();
+  const cities = dbInstance.cities || {};
 
   // If a region was matched, we resolve to 2-3 cities and structure the itinerary around them
   let resolvedCities = [];
@@ -655,35 +680,13 @@ async function generateTrip(req, res) {
     }
 
     // --- Resolve destination against known cities database for Gemini prompt augmentation ---
-    const dbInstance = getKnownCitiesDb();
-    const dbCities = dbInstance.cities || {};
-    const dbRegions = dbInstance.regions || {};
-    const cleanDestForLookup = (preprocessed.destination || '').toLowerCase().trim();
-
     let destinationDataBlock = '';
-    let matchedDbRegion = null;
-    let matchedDbCity = null;
-
-    // Check regions first
-    for (const [key, reg] of Object.entries(dbRegions)) {
-      if (cleanDestForLookup.includes(key) || key.includes(cleanDestForLookup.split(',')[0].trim())) {
-        matchedDbRegion = reg;
-        break;
-      }
-    }
-
-    // Check cities if no region match
-    if (!matchedDbRegion) {
-      for (const [key, ct] of Object.entries(dbCities)) {
-        if (cleanDestForLookup.includes(key) || key.includes(cleanDestForLookup.split(',')[0].trim())) {
-          matchedDbCity = ct;
-          break;
-        }
-      }
-    }
+    const { matchedCity: matchedDbCity, matchedRegion: matchedDbRegion } = matchDestinationInDb(preprocessed.destination);
 
     // Build destination data block for Gemini prompt
     if (matchedDbRegion) {
+      const dbInstance = getKnownCitiesDb();
+      const dbCities = dbInstance.cities || {};
       const regionCities = matchedDbRegion.cities.map(name => {
         const key = name.toLowerCase().trim();
         return dbCities[key] || null;
@@ -700,7 +703,7 @@ async function generateTrip(req, res) {
           destinationDataBlock += `Real Shopping: ${(ct.shopping || []).join(', ')}\n`;
           destinationDataBlock += `Real Culture: ${(ct.culture || []).join(', ')}\n`;
         }
-        destinationDataBlock += `\nCRITICAL: Use ONLY the real place names listed above. Do NOT invent fake landmark names like "Old <City> Fort" or "<City> Sun Temple" or "<City> Heights Old Bazaar". Stick to real, verifiable places.`;
+        destinationDataBlock += `\nCRITICAL: Use ONLY real-world, physically existing landmarks and places (like the ones listed above). Do not invent or make up any place names.`;
       }
     } else if (matchedDbCity) {
       destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (City: ${matchedDbCity.name}, ${matchedDbCity.country}):\n`;
@@ -710,7 +713,7 @@ async function generateTrip(req, res) {
       destinationDataBlock += `Real Activities: ${(matchedDbCity.activities || []).join(', ')}\n`;
       destinationDataBlock += `Real Shopping: ${(matchedDbCity.shopping || []).join(', ')}\n`;
       destinationDataBlock += `Real Culture: ${(matchedDbCity.culture || []).join(', ')}\n`;
-      destinationDataBlock += `\nCRITICAL: Use ONLY the real place names listed above. Do NOT invent fake landmark names like "Old <City> Fort" or "<City> Sun Temple" or "<City> Heights Old Bazaar". Stick to real, verifiable places. You may add other real places you know about this city beyond this list, but never fabricate place names.`;
+      destinationDataBlock += `\nCRITICAL: Use ONLY real-world, physically existing landmarks and places (like the ones listed above). Do not invent or make up any place names. You may add other real places you know about this city beyond this list, but never fabricate place names.`;
     }
 
     const systemPrompt = `You are an expert travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach telling the user exactly what to do each day.
@@ -776,7 +779,7 @@ JSON structure:
 }
 
 Style & Constraint Rules:
-- REAL PLACE NAMES ONLY: For any well-known city, country, or region in the world (e.g., Paris, New York, Tokyo, Edinburgh, Rome, London, Bangkok, Delhi, etc.), you MUST use REAL, verifiable place names — real landmarks, real neighborhoods, real restaurants, real markets, real museums, real parks, real cultural venues. NEVER fabricate or synthesize fake place names using patterns like "Old <City> Fort", "<City> Sun Temple", "<City> Valley", "<City> Waterfront Ridge", or "<City> Heights Old Bazaar". These are strictly prohibited.
+- REAL PLACE NAMES ONLY: For any well-known city, country, or region in the world (e.g., Paris, New York, Tokyo, Edinburgh, Rome, London, Bangkok, Delhi, etc.), you MUST use REAL, verifiable place names — real landmarks, real neighborhoods, real restaurants, real markets, real museums, real parks, real cultural venues. Do NOT invent, fabricate, or make up fake place names. Every place name you output must be a real place that exists in the real world. If you do not know real landmarks or restaurants for a destination, use generic descriptions of the activities (e.g., "visit a local museum", "dine at a traditional restaurant") instead of inventing specific place names.
 - DESTINATION AWARENESS: For any destination in the world, always use real local places (monuments, areas, markets, parks, beaches, museums, streets, local food spots, cafes, etc.) that actually exist there. Never use generic placeholders like "explore local markets", "visit attractions", "nearby cafe", or "eat regional cuisine". Always name specific places, markets, local food/eateries, and nightlife spots for each day.
   - State/Region/Country Query Rule: If the destination is a state, country, or large region (e.g., "Bihar", "Himachal Pradesh", "Rajasthan", "Japan", "Italy", "California", "Bavaria"), you MUST internally pick 1 to 3 key real cities/towns within that region (e.g., Patna, Bodh Gaya, and Nalanda for Bihar; Shimla, Manali, and Dharamshala for Himachal Pradesh; Tokyo, Kyoto, and Osaka for Japan) and structure the day-by-day plan around them.
   - Concrete Naming Rule: For EVERY single day and EVERY time block (morning, afternoon, evening), you MUST mention at least 2 to 3 concrete place names (cities, neighborhoods, monuments, temples, ghats, lakes, beaches, parks, markets, restaurants, cafes, clubs) that fit the destination.
