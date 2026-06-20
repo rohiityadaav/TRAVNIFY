@@ -22,7 +22,7 @@ import { safeFetch } from './lib/api';
 
 import { useAuth } from './context/AuthContext';
 import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
-import { getCurrencySymbol } from './lib/currency';
+import { getCurrencySymbol, INR_TO_CURRENCY } from './lib/currency';
 import knownCitiesDb from '../../server/data/known_cities.json';
 
 export default function App() {
@@ -240,6 +240,16 @@ export default function App() {
     const avgDaily = Math.round(budget / daysCount);
     const baseDate = details.startDate ? new Date(details.startDate) : new Date();
 
+    // Determine budget tier in INR
+    const rate = INR_TO_CURRENCY[currency] || 1.0;
+    const dailyBudgetInINR = avgDaily / rate;
+    let budgetTier = 'mid'; // default
+    if (dailyBudgetInINR < 3000) {
+      budgetTier = 'low';
+    } else if (dailyBudgetInINR > 8000) {
+      budgetTier = 'high';
+    }
+
     // Ensure interests defaults to all-round mix if empty
     let interests = details.interests && details.interests.length > 0 ? details.interests : [];
     if (interests.length === 0) {
@@ -295,9 +305,23 @@ export default function App() {
         const shopIdx = i % city.shopping.length;
         const cultIdx = i % city.culture.length;
 
-        const morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and taking a guided stroll around the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the nearby cultural site of ${city.culture[cultIdx]}.`;
-        const afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for shopping and sightseeing. Have a delicious local lunch tasting ${city.food[foodIdx]} at a well-rated local diner.`;
-        const eveningDesc = `Enjoy the evening activity of ${city.activities[actIdx]}. Afterwards, relax and dine at a cozy restaurant in the lively ${city.neighborhoods[nhIdx2]} district.`;
+        let morningDesc = '';
+        let afternoonDesc = '';
+        let eveningDesc = '';
+
+        if (budgetTier === 'low') {
+          morningDesc = `Begin the morning with a self-guided walking tour exploring ${city.landmarks[lmIdx1]} and wandering through the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the free-entry cultural site of ${city.culture[cultIdx]}.`;
+          afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for budget-friendly window shopping. For lunch, sample local street eats or taste ${city.food[foodIdx]} at an affordable neighborhood diner.`;
+          eveningDesc = `Enjoy a relaxed evening activity of ${city.activities[actIdx]} (utilizing cheap local transport). Afterwards, dine at a pocket-friendly cafe in the lively ${city.neighborhoods[nhIdx2]} district.`;
+        } else if (budgetTier === 'high') {
+          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} with a private guide, followed by a personalized tour of the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the premier cultural exhibition at ${city.culture[cultIdx]}.`;
+          afternoonDesc = `Head to the upscale boutiques in the ${city.shopping[shopIdx]} area for premium shopping. Enjoy a gourmet lunch featuring refined preparations of ${city.food[foodIdx]} at a highly-acclaimed signature restaurant.`;
+          eveningDesc = `Indulge in a premium evening experience of ${city.activities[actIdx]} via private transport. Afterwards, unwind with a multi-course dinner at a top-tier restaurant in the exclusive ${city.neighborhoods[nhIdx2]} district.`;
+        } else {
+          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and taking a guided stroll around the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the nearby cultural site of ${city.culture[cultIdx]}.`;
+          afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for shopping and sightseeing. Have a delicious local lunch tasting ${city.food[foodIdx]} at a well-rated local diner.`;
+          eveningDesc = `Enjoy the evening activity of ${city.activities[actIdx]}. Afterwards, relax and dine at a cozy restaurant in the lively ${city.neighborhoods[nhIdx2]} district.`;
+        }
 
         const notesPool = [
           `Use authorized local transport or walking to explore the unique corners of ${city.name}.`,
@@ -331,7 +355,45 @@ export default function App() {
         });
       } else {
         // Unknown destination: generic but realistic descriptions
-        const syntheticPlans = [
+        const lowBudgetPlans = [
+          {
+            morning: `Take a self-guided walking tour through the historic streets of ${destName}, exploring the main public plazas and taking photos from a free scenic city overlook.`,
+            afternoon: `Wander through the bustling central public market of ${destName} to browse budget-friendly local stalls. Enjoy a budget lunch at a popular street food joint or local eatery.`,
+            evening: `Take a relaxing evening stroll along the main waterfront promenade or central plaza of ${destName}, and enjoy a pocket-friendly dinner at a casual neighborhood restaurant.`
+          },
+          {
+            morning: `Join a free walking tour through ${destName}'s oldest residential neighborhood to see the historic architecture and learn about local heritage.`,
+            afternoon: `Browse the artisan workshops and local craft displays in the creative arts district of ${destName}. Have lunch at an affordable courtyard cafe or bakery.`,
+            evening: `Experience the local evening vibe at a lively community square or night market in ${destName}, tasting affordable street food snacks.`
+          },
+          {
+            morning: `Visit a peaceful scenic park, nature reserve, or iconic natural viewpoint just outside the central area of ${destName} (using low-cost public transit).`,
+            afternoon: `Explore a free cultural center, art gallery, or public history archive in ${destName}. Have a relaxing lunch at a budget-friendly local bistro.`,
+            evening: `Relax at a popular local sunset spot or public park in ${destName}. Enjoy a simple dinner featuring fresh regional ingredients at a cozy tavern.`
+          },
+          {
+            morning: `Explore the public areas around a historic fort, castle, or old stone heritage structure in or near ${destName}.`,
+            afternoon: `Head to a lively bazaar or flea market in ${destName} to browse unique local crafts. Enjoy lunch at a traditional family-owned diner.`,
+            evening: `Enjoy a peaceful evening riverfront walk or lakeside stroll in ${destName}, followed by dining at an affordable family-style eatery.`
+          },
+          {
+            morning: `Walk through a vibrant shopping district or local high street in ${destName}, stopping by historic architecture sites along the way.`,
+            afternoon: `Visit a public botanical garden, municipal glasshouse, or scenic green space in ${destName}. Have lunch at a garden cafe known for fresh local produce.`,
+            evening: `Attend a free cultural event or live street performance in ${destName}, followed by dinner at a cozy, budget-friendly tavern.`
+          },
+          {
+            morning: `Take a morning walk through a quiet residential neighborhood of ${destName} to see how locals live, visiting a popular local bakery.`,
+            afternoon: `Explore a local science museum, library, or historic archive in ${destName}. Have lunch at a popular cafe nearby.`,
+            evening: `Discover the local nightlife scene in a lively district of ${destName}, visiting a popular pub or music lounge for drinks and snacks.`
+          },
+          {
+            morning: `Visit a beautiful local monument, historic bridge, or ancient architectural tower in ${destName}.`,
+            afternoon: `Spend the afternoon exploring local boutique shops and souvenir markets in ${destName}. Enjoy a farewell lunch at a highly-rated local diner.`,
+            evening: `Gather at the main central square of ${destName} to see the city lights, and enjoy a final celebratory dinner at a premium restaurant.`
+          }
+        ];
+
+        const midBudgetPlans = [
           {
             morning: `Explore the central historic quarter of ${destName}, walking down the main heritage streets, visiting the municipal museum, and stopping at a scenic city overlook.`,
             afternoon: `Visit the central market square of ${destName} to explore local stalls. Have a traditional local lunch at a popular family-run restaurant nearby.`,
@@ -368,6 +430,51 @@ export default function App() {
             evening: `Gather at the main central square of ${destName} to see the city lights, and enjoy a final celebratory dinner at a premium restaurant.`
           }
         ];
+
+        const highBudgetPlans = [
+          {
+            morning: `Embark on a private guided tour of the central historic quarter of ${destName}, gaining exclusive access to key heritage landmarks and a premium scenic overlook.`,
+            afternoon: `Browse the high-end specialty boutiques around the central district of ${destName}. Have a gourmet lunch featuring upscale local recipes at a highly-rated signature restaurant.`,
+            evening: `Take a private sunset cruise or guided evening tour of the waterfront in ${destName}, followed by a multi-course tasting dinner at an acclaimed fine dining restaurant.`
+          },
+          {
+            morning: `Join a private expert-led walking tour of ${destName}'s historic neighborhood, visiting exclusive historical sites and private archives.`,
+            afternoon: `Visit the fine art galleries, designer studios, and premium craft boutiques in ${destName}'s arts district. Have lunch at a highly-rated chef's bistro.`,
+            evening: `Experience the city's nightlife with a VIP reservation at a top-tier lounge or live music venue in ${destName}, enjoying custom cocktails and premium appetizers.`
+          },
+          {
+            morning: `Take a private chauffeured excursion to a pristine nature reserve, national park, or stunning panoramic viewpoint just outside ${destName}.`,
+            afternoon: `Explore a major private museum, prestigious art exhibition, or private collection in ${destName}. Have a gourmet lunch at a Michelin-rated garden pavilion restaurant.`,
+            evening: `Enjoy sunset cocktails at an exclusive rooftop bar with sweeping views of ${destName}, followed by an exquisite celebratory dinner at a top-ranked restaurant.`
+          },
+          {
+            morning: `Take a VIP guided tour of a historic palace, private castle, or prominent heritage estate in the ${destName} region.`,
+            afternoon: `Hire a personal shopping guide to browse the premium artisan boutiques and high-end markets in ${destName}. Enjoy lunch at a refined traditional restaurant.`,
+            evening: `Book a private boat charter, yacht cruise, or scenic helicopter ride over ${destName}, followed by a luxury dinner at a celebrated waterside establishment.`
+          },
+          {
+            morning: `Browse the luxury designer boutiques along the premier high street of ${destName}, accompanied by private transit.`,
+            afternoon: `Visit a prestigious botanical garden or private historic estate in ${destName}. Enjoy a catered gourmet lunch in a scenic reserved pavilion.`,
+            evening: `Attend a premier theatrical production, opera, or exclusive cultural show in ${destName}, followed by a late-night dinner at a high-end bistro.`
+          },
+          {
+            morning: `Take a private cooking class with a renowned chef in ${destName} to learn the secrets of local gastronomy, starting with a guided market tour.`,
+            afternoon: `Visit a luxury wellness spa or exclusive private library/gallery in ${destName}. Enjoy a light, high-end lunch at a premium wellness cafe.`,
+            evening: `Discover the upscale nightlife scene in the most exclusive district of ${destName}, visiting a renowned cocktail lounge or private club.`
+          },
+          {
+            morning: `Take a private helicopter tour or luxury scenic drive to view the iconic architectural landmarks of ${destName}.`,
+            afternoon: `Spend the afternoon collecting premium local art, jewelry, and specialty goods from ${destName}'s top boutiques. Enjoy a celebratory farewell lunch.`,
+            evening: `Gather for a private dinner event at a top-rated panoramic restaurant overlooking ${destName}, celebrating the completion of your luxury journey.`
+          }
+        ];
+
+        let syntheticPlans = midBudgetPlans;
+        if (budgetTier === 'low') {
+          syntheticPlans = lowBudgetPlans;
+        } else if (budgetTier === 'high') {
+          syntheticPlans = highBudgetPlans;
+        }
 
         const plan = syntheticPlans[i % syntheticPlans.length];
         const notesPool = [
@@ -517,7 +624,11 @@ export default function App() {
       // First attempt
       const data = await makeRequest(false);
       setIsLoading(false);
-      setActiveItinerary(data.itinerary);
+      const itineraryWithSource = {
+        ...data.itinerary,
+        generationSource: 'backend'
+      };
+      setActiveItinerary(itineraryWithSource);
       
       // Track plan generation success
       trackEvent('plan_created', {
@@ -554,7 +665,11 @@ export default function App() {
       try {
         const data = await makeRequest(true);
         setIsLoading(false);
-        setActiveItinerary(data.itinerary);
+        const itineraryWithSource = {
+          ...data.itinerary,
+          generationSource: 'backend_retry'
+        };
+        setActiveItinerary(itineraryWithSource);
 
         // Track plan generation success
         trackEvent('plan_created', {
@@ -574,6 +689,7 @@ export default function App() {
         // Final fallback: show a basic template itinerary generated on the client
         setIsLoading(false);
         const fallbackItinerary = generateClientItineraryTemplate(details);
+        fallbackItinerary.generationSource = 'client_fallback';
         setActiveItinerary(fallbackItinerary);
         
         // Track fallback generation
