@@ -202,7 +202,22 @@ export default function App() {
       }
     }
 
-    // Try to find matching region only if no city was matched
+    // If no city matches directly, check if the input matches any landmark of a city!
+    if (!matchedCity) {
+      for (const [key, ct] of Object.entries(cities)) {
+        const landmarks = ct.landmarks || [];
+        const matchedLandmark = landmarks.find(lm => {
+          const cleanLm = lm.toLowerCase().trim();
+          return cleanLm.includes(primaryToken) || primaryToken.includes(cleanLm) || isFuzzyMatch(cleanLm, primaryToken);
+        });
+        if (matchedLandmark) {
+          matchedCity = ct;
+          break;
+        }
+      }
+    }
+
+    // Try to find matching region only if no city (direct or landmark) was matched
     let matchedRegion = null;
     if (!matchedCity) {
       for (const [key, reg] of Object.entries(regions)) {
