@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import { ShieldCheck, Info, FileText, Heart, Shield, RefreshCw, X } from 'lucide-react';
 
@@ -27,6 +27,7 @@ import knownCitiesDb from '../../server/data/known_cities.json';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plan' | 'explore' | 'near-me' | 'my-trips'
+  const skeletonTimerRef = useRef(null);
   
   const {
     user,
@@ -48,24 +49,11 @@ export default function App() {
   const [activeItinerary, setActiveItinerary] = useState(null);
   const [activeTripDetails, setActiveTripDetails] = useState(null);
   const [savedTrips, setSavedTrips] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showSkeleton, setShowSkeleton] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
-  const [loadingTime, setLoadingTime] = useState(0);
   const [tripError, setTripError] = useState(null);
   const [fallbackWarning, setFallbackWarning] = useState(null);
-
-  useEffect(() => {
-    let interval;
-    if (isLoading) {
-      setLoadingTime(0);
-      interval = setInterval(() => {
-        setLoadingTime((prev) => prev + 1);
-      }, 1000);
-    } else {
-      setLoadingTime(0);
-    }
-    return () => clearInterval(interval);
-  }, [isLoading]);
 
   // Initialize GA4 Analytics once on mount
   useEffect(() => {
@@ -762,9 +750,9 @@ export default function App() {
 
   // 2. AI Travel Plan Generation Trigger
   const handleGenerateTrip = async (details) => {
-    setIsLoading(true);
+    setIsGenerating(true);
+    setShowSkeleton(false);
     setTripError(null);
-    setFallbackWarning(null);
     setActiveTripDetails(details);
 
     // Compute trip length in days
@@ -772,10 +760,21 @@ export default function App() {
     
     // Check if user is Premium for long trips (> 92 days)
     if (lengthInDays > 92 && (!user || !user.isPremium)) {
-      setIsLoading(false);
+      setIsGenerating(false);
       openPricingModal();
       return;
     }
+
+    // Clear any existing skeleton timer
+    if (skeletonTimerRef.current) {
+      clearTimeout(skeletonTimerRef.current);
+    }
+
+    // Start 3-second timer for Stage 2 (skeleton screen)
+    skeletonTimerRef.current = setTimeout(() => {
+      setShowSkeleton(true);
+      setActiveItinerary(null);
+    }, 3000);
 
     const token = localStorage.getItem('token');
     const headers = { 'Content-Type': 'application/json' };
@@ -822,7 +821,15 @@ export default function App() {
     try {
       // First attempt
       const data = await makeRequest(false);
-      setIsLoading(false);
+      
+      if (skeletonTimerRef.current) {
+        clearTimeout(skeletonTimerRef.current);
+        skeletonTimerRef.current = null;
+      }
+      setIsGenerating(false);
+      setShowSkeleton(false);
+      setFallbackWarning(null);
+
       const itineraryWithSource = {
         ...data.itinerary,
         generationSource: 'backend'
@@ -846,14 +853,24 @@ export default function App() {
       
       // If it's a premium gate error from the server, handle immediately without retrying or fallback
       if (err.code === 'NEED_PREMIUM_FOR_LONG_TRIP' || err.message?.includes('NEED_PREMIUM_FOR_LONG_TRIP')) {
-        setIsLoading(false);
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+        setIsGenerating(false);
+        setShowSkeleton(false);
         openPricingModal();
         return;
       }
 
       // If it's normal credit limit error, handle immediately
       if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
-        setIsLoading(false);
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+        setIsGenerating(false);
+        setShowSkeleton(false);
         openPricingModal();
         syncUserCredits();
         return;
@@ -863,7 +880,15 @@ export default function App() {
       console.log('[AI Trip Generation] Retrying once with simplified flag...');
       try {
         const data = await makeRequest(true);
-        setIsLoading(false);
+        
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+        setIsGenerating(false);
+        setShowSkeleton(false);
+        setFallbackWarning(null);
+
         const itineraryWithSource = {
           ...data.itinerary,
           generationSource: 'backend_retry'
@@ -885,8 +910,14 @@ export default function App() {
       } catch (retryErr) {
         console.error('[AI Trip Generation] Retry attempt also failed. Error:', retryErr.message);
         
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+        setIsGenerating(false);
+        setShowSkeleton(false);
+
         // Final fallback: show a basic template itinerary generated on the client
-        setIsLoading(false);
         const fallbackItinerary = generateClientItineraryTemplate(details);
         fallbackItinerary.generationSource = 'client_fallback';
         setActiveItinerary(fallbackItinerary);
@@ -1231,8 +1262,8 @@ export default function App() {
                       </div>
                       <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                         <button
+                          disabled={isGenerating}
                           onClick={() => {
-                            setFallbackWarning(null);
                             handleGenerateTrip(activeTripDetails);
                           }}
                           style={{
@@ -1244,12 +1275,18 @@ export default function App() {
                             cursor: 'pointer',
                             fontWeight: 'bold',
                             fontSize: '0.85rem',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            opacity: isGenerating ? 0.7 : 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem'
                           }}
                         >
-                          Retry AI Plan
+                          {isGenerating && <RefreshCw size={14} className="animate-spin" />}
+                          {isGenerating ? 'Retrying...' : 'Retry AI Plan'}
                         </button>
                         <button
+                          disabled={isGenerating}
                           onClick={() => setFallbackWarning(null)}
                           style={{
                             background: 'none',
@@ -1257,7 +1294,8 @@ export default function App() {
                             color: '#B45309',
                             cursor: 'pointer',
                             fontSize: '0.85rem',
-                            fontWeight: '600'
+                            fontWeight: '600',
+                            opacity: isGenerating ? 0.5 : 1
                           }}
                         >
                           Dismiss
@@ -1287,7 +1325,7 @@ export default function App() {
                   
                   {activeTab === 'plan' && (
                     <ProtectedRoute fallbackTab="home" setActiveTab={setActiveTab} message="Create a free TRAVNIFY account to start planning trips.">
-                      {isLoading ? (
+                      {showSkeleton ? (
                         <ItinerarySkeleton />
                       ) : (
                         <>
@@ -1317,7 +1355,7 @@ export default function App() {
                               </button>
                             </div>
                           )}
-                          <PlanTrip onGenerate={handleGenerateTrip} isLoading={isLoading} user={user} />
+                          <PlanTrip onGenerate={handleGenerateTrip} isLoading={isGenerating} user={user} />
                         </>
                       )}
                     </ProtectedRoute>
