@@ -97,34 +97,6 @@ export default function App() {
     askGeo();
   }, []);
 
-  // Silent session check on app load
-  useEffect(() => {
-    const checkRefreshSession = async () => {
-      const localRefreshToken = localStorage.getItem('refreshToken');
-      if (!localRefreshToken) {
-        console.log("Session check on app load: no active refresh token.");
-        return;
-      }
-      try {
-        const res = await safeFetch('/api/auth/refresh', { 
-          method: 'POST',
-          body: JSON.stringify({ refreshToken: localRefreshToken }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.token) {
-            loginSuccess(data.user, data.token);
-            console.log("Session restored via refresh token successfully.");
-          }
-        }
-      } catch (err) {
-        // Silently ignore if no cookie/expired
-        console.log("Session check on app load: no active refresh session.");
-      }
-    };
-    checkRefreshSession();
-  }, []);
 
   // Silent refresh loop every 12 minutes
   useEffect(() => {

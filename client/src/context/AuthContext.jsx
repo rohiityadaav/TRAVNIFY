@@ -20,61 +20,79 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       let token = localStorage.getItem('token');
       const localRefreshToken = localStorage.getItem('refreshToken');
+      
       console.log("[DEBUG Auth] onAuthStateChanged - firebaseUser:", firebaseUser ? firebaseUser.email : 'null', "token exists:", !!token, "refreshToken exists:", !!localRefreshToken);
+      
       if (token === 'undefined' || token === 'null') {
         token = null;
         localStorage.removeItem('token');
       }
-      
-      if (firebaseUser && token) {
-        try {
-          const res = await safeFetch('/api/auth/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`
+
+      if (firebaseUser) {
+        let verified = false;
+        
+        if (token) {
+          try {
+            console.log("[DEBUG Auth] Verifying current access token...");
+            const res = await safeFetch('/api/auth/me', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const contentType = res.headers.get("content-type");
+            if (res.ok && contentType && contentType.includes("application/json")) {
+              const userData = await res.json();
+              console.log("[DEBUG Auth] Token verification succeeded. Credits:", userData?.dailyCreditsUsed);
+              setUser(userData);
+              setIsAuthenticated(true);
+              verified = true;
             }
-          });
-          const contentType = res.headers.get("content-type");
-          if (res.ok && contentType && contentType.includes("application/json")) {
-            const userData = await res.json();
-            setUser(userData);
-            setIsAuthenticated(true);
-          } else {
-            const resText = await res.text().catch(() => '');
-            console.warn("Backend auth session check failed. Text:", resText);
-            
-            if (res.status === 401 || res.status === 403) {
-              localStorage.removeItem('token');
-              await signOut(auth);
-              setUser(null);
-              setIsAuthenticated(false);
-            } else {
-              // Server error (e.g. 503 / 502 bad gateway or database lock)
-              // Set user to null but keep token so they can retry on reload
-              setUser(null);
-              setIsAuthenticated(false);
-            }
-          }
-        } catch (err) {
-          console.error("Auth session verification failed:", err);
-          const isAuthError = err.status === 401 || err.status === 403;
-          
-          if (isAuthError) {
-            console.warn("Session expired or token invalid. Logging out.");
-            localStorage.removeItem('token');
-            await signOut(auth);
-            setUser(null);
-            setIsAuthenticated(false);
-          } else {
-            // Temporary network/connection error or server startup delay
-            // Set user to null but keep token so they can retry on reload
-            setUser(null);
-            setIsAuthenticated(false);
+          } catch (err) {
+            console.warn("[DEBUG Auth] Token verification or safeFetch auto-refresh failed:", err);
           }
         }
+
+        if (!verified) {
+          if (localRefreshToken) {
+            try {
+              console.log("[DEBUG Auth] Attempting silent refresh via refresh token...");
+              const res = await safeFetch('/api/auth/refresh', {
+                method: 'POST',
+                body: JSON.stringify({ refreshToken: localRefreshToken }),
+                headers: { 'Content-Type': 'application/json' }
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.token) {
+                  console.log("[DEBUG Auth] Silent refresh succeeded inside onAuthStateChanged. Credits:", data.user?.dailyCreditsUsed);
+                  loginSuccess(data.user, data.token);
+                  setLoading(false);
+                  return;
+                }
+              }
+            } catch (refreshErr) {
+              console.error("[DEBUG Auth] Silent refresh failed inside onAuthStateChanged:", refreshErr);
+            }
+          }
+          
+          // Both token verification and refresh failed. Cleanly log out.
+          console.warn("[DEBUG Auth] Both token verification and refresh failed. Logging out.");
+          localStorage.removeItem('token');
+          localStorage.removeItem('refreshToken');
+          try {
+            await signOut(auth);
+          } catch (signOutErr) {
+            console.error("Firebase signOut error:", signOutErr);
+          }
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } else {
+        // No firebase user
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         setUser(null);
         setIsAuthenticated(false);
       }
+      
       setLoading(false);
     });
 

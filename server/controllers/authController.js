@@ -12,13 +12,35 @@ function getRefreshTokenCookie(req) {
 }
 
 // Helper to set HTTP-only refresh token cookie
-function setRefreshTokenCookie(res, refreshToken) {
+function setRefreshTokenCookie(res, refreshToken, maxAge = 30 * 24 * 60 * 60 * 1000) {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: 'none',
-    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    maxAge: maxAge
   });
+}
+
+// Helper to check and reset rolling 24h credits window if expired
+function checkAndResetCreditsWindow(user) {
+  if (!user) return null;
+  if (user.isPremium) return user;
+  
+  if (user.creditsWindowStartedAt) {
+    const nowMs = Date.now();
+    const windowStartMs = new Date(user.creditsWindowStartedAt).getTime();
+    const expiryMs = windowStartMs + 24 * 60 * 60 * 1000;
+    const remainingMs = expiryMs - nowMs;
+    
+    if (remainingMs <= 0) {
+      console.log(`[DEBUG Auth] Rolling 24h credit window expired for user ${user.id}. Resetting dailyCreditsUsed to 0.`);
+      return db.users.update(user.id, {
+        dailyCreditsUsed: 0,
+        creditsWindowStartedAt: null
+      });
+    }
+  }
+  return user;
 }
 
 // Mock email service for verification
@@ -221,23 +243,11 @@ async function getMe(req, res) {
       updates.country = activeUser.country || 'IN';
       updates.currency = activeUser.currency || getCurrencyForCountry(updates.country);
     }
-    
-    // Check for rolling 24h window reset on getMe
-    if (!activeUser.isPremium && activeUser.creditsWindowStartedAt) {
-      const nowMs = Date.now();
-      const windowStartMs = new Date(activeUser.creditsWindowStartedAt).getTime();
-      const expiryMs = windowStartMs + 24 * 60 * 60 * 1000;
-      const remainingMs = expiryMs - nowMs;
-      
-      if (remainingMs <= 0) {
-        updates.dailyCreditsUsed = 0;
-        updates.creditsWindowStartedAt = null;
-      }
-    }
-    
     if (Object.keys(updates).length > 0) {
       activeUser = db.users.update(activeUser.id, updates);
     }
+    
+    activeUser = checkAndResetCreditsWindow(activeUser);
 
     return res.json(formatUserProfile(activeUser));
   } catch (error) {
@@ -333,6 +343,7 @@ async function firebaseSync(req, res) {
         sendVerificationEmail(user.email, verificationToken);
       }
     } else {
+      user = checkAndResetCreditsWindow(user);
       // Update country and currency if provided or if they are missing
       const updates = {};
       if (country && user.country !== country) {
@@ -600,7 +611,7 @@ async function refresh(req, res) {
     }
 
     // Find user with matching refresh token
-    const user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
+    let user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
     if (!user) {
       // Clear cookie on mismatch
       res.cookie('refreshToken', '', {
@@ -611,6 +622,8 @@ async function refresh(req, res) {
       });
       return res.status(401).json({ error: 'Invalid refresh token.' });
     }
+
+    user = checkAndResetCreditsWindow(user);
 
     // Check expiration
     if (user.refreshTokenExpiresAt && user.refreshTokenExpiresAt < Date.now()) {
@@ -628,7 +641,10 @@ async function refresh(req, res) {
     // Generate new tokens (rotation)
     const newAccessToken = jwt.sign({ userId: user.id }, config.JWT_SECRET, { expiresIn: '15m' });
     const newRefreshToken = crypto.randomBytes(40).toString('hex');
-    const newRefreshTokenExpiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    
+    // Maintain the original expiration time!
+    const newRefreshTokenExpiresAt = user.refreshTokenExpiresAt || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+    const remainingMaxAge = Math.max(0, newRefreshTokenExpiresAt - Date.now());
 
     // Update DB
     const updatedUser = db.users.update(user.id, {
@@ -636,8 +652,8 @@ async function refresh(req, res) {
       refreshTokenExpiresAt: newRefreshTokenExpiresAt
     });
 
-    // Set new cookie
-    setRefreshTokenCookie(res, newRefreshToken);
+    // Set new cookie with remaining maxAge
+    setRefreshTokenCookie(res, newRefreshToken, remainingMaxAge);
 
     return res.json({
       token: newAccessToken,
