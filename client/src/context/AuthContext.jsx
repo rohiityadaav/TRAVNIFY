@@ -105,6 +105,9 @@ export function AuthProvider({ children }) {
     } else {
       localStorage.removeItem('token');
     }
+    if (userData && userData.refreshToken) {
+      localStorage.setItem('refreshToken', userData.refreshToken);
+    }
     setUser(userData);
     setIsAuthenticated(true);
     
@@ -124,9 +127,15 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     setLoading(true);
     try {
+      const localRefreshToken = localStorage.getItem('refreshToken');
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       try {
-        await safeFetch('/api/auth/logout', { method: 'POST' });
+        await safeFetch('/api/auth/logout', { 
+          method: 'POST',
+          body: JSON.stringify({ refreshToken: localRefreshToken }),
+          headers: { 'Content-Type': 'application/json' }
+        });
       } catch (logoutErr) {
         console.warn("Backend logout failed or offline:", logoutErr);
       }

@@ -100,8 +100,17 @@ export default function App() {
   // Silent session check on app load
   useEffect(() => {
     const checkRefreshSession = async () => {
+      const localRefreshToken = localStorage.getItem('refreshToken');
+      if (!localRefreshToken) {
+        console.log("Session check on app load: no active refresh token.");
+        return;
+      }
       try {
-        const res = await safeFetch('/api/auth/refresh', { method: 'POST' });
+        const res = await safeFetch('/api/auth/refresh', { 
+          method: 'POST',
+          body: JSON.stringify({ refreshToken: localRefreshToken }),
+          headers: { 'Content-Type': 'application/json' }
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.token) {
@@ -123,7 +132,12 @@ export default function App() {
     if (isAuthenticated) {
       refreshInterval = setInterval(async () => {
         try {
-          const res = await safeFetch('/api/auth/refresh', { method: 'POST' });
+          const localRefreshToken = localStorage.getItem('refreshToken');
+          const res = await safeFetch('/api/auth/refresh', { 
+            method: 'POST',
+            body: JSON.stringify({ refreshToken: localRefreshToken }),
+            headers: { 'Content-Type': 'application/json' }
+          });
           if (res.ok) {
             const data = await res.json();
             if (data.token) {

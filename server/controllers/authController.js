@@ -590,7 +590,11 @@ async function updateProfile(req, res) {
 // Refresh Token Controller
 async function refresh(req, res) {
   try {
-    const tokenFromCookie = getRefreshTokenCookie(req);
+    let tokenFromCookie = getRefreshTokenCookie(req);
+    if (!tokenFromCookie && req.body && req.body.refreshToken) {
+      tokenFromCookie = req.body.refreshToken;
+    }
+    
     if (!tokenFromCookie) {
       return res.status(401).json({ error: 'Refresh token not found.' });
     }
@@ -648,7 +652,10 @@ async function refresh(req, res) {
 // Logout Controller
 async function logout(req, res) {
   try {
-    const tokenFromCookie = getRefreshTokenCookie(req);
+    let tokenFromCookie = getRefreshTokenCookie(req);
+    if (!tokenFromCookie && req.body && req.body.refreshToken) {
+      tokenFromCookie = req.body.refreshToken;
+    }
     
     if (tokenFromCookie) {
       const user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);

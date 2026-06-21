@@ -44,14 +44,20 @@ export async function safeFetch(path, options = {}) {
   if ((response.status === 401 || response.status === 403) && !path.includes('/api/auth/refresh')) {
     try {
       const refreshUrl = API_BASE_URL ? `${API_BASE_URL}/api/auth/refresh` : '/api/auth/refresh';
+      const localRefreshToken = localStorage.getItem('refreshToken');
       const refreshRes = await fetch(refreshUrl, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: localRefreshToken }),
         credentials: 'include'
       });
       if (refreshRes.ok) {
         const refreshData = await refreshRes.json();
         if (refreshData.token) {
           localStorage.setItem('token', refreshData.token);
+          if (refreshData.user && refreshData.user.refreshToken) {
+            localStorage.setItem('refreshToken', refreshData.user.refreshToken);
+          }
           
           // Re-sign options with new authorization header
           if (!options.headers) {
@@ -107,7 +113,7 @@ export async function safeFetch(path, options = {}) {
     if (status === 401 || status === 403) {
       const lowerMsg = errMessage.toLowerCase();
       if (lowerMsg.includes("token") || lowerMsg.includes("unauthorized") || lowerMsg.includes("expired")) {
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined' && !path.includes('/api/auth/refresh')) {
           window.dispatchEvent(new CustomEvent('travnify-unauthorized'));
         }
       }
