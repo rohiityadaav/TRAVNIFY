@@ -15,8 +15,8 @@ function getRefreshTokenCookie(req) {
 function setRefreshTokenCookie(res, refreshToken) {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
   });
 }
@@ -599,7 +599,12 @@ async function refresh(req, res) {
     const user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
     if (!user) {
       // Clear cookie on mismatch
-      res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
+      res.cookie('refreshToken', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        expires: new Date(0)
+      });
       return res.status(401).json({ error: 'Invalid refresh token.' });
     }
 
@@ -607,7 +612,12 @@ async function refresh(req, res) {
     if (user.refreshTokenExpiresAt && user.refreshTokenExpiresAt < Date.now()) {
       // Revoke token and clear cookie
       db.users.update(user.id, { refreshToken: null, refreshTokenExpiresAt: 0 });
-      res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
+      res.cookie('refreshToken', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        expires: new Date(0)
+      });
       return res.status(401).json({ error: 'Refresh token has expired.' });
     }
 
@@ -654,9 +664,9 @@ async function logout(req, res) {
     // Clear cookie
     res.cookie('refreshToken', '', {
       httpOnly: true,
-      expires: new Date(0),
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production'
+      secure: true,
+      sameSite: 'none',
+      expires: new Date(0)
     });
 
     return res.json({ success: true, message: 'Logged out successfully.' });
