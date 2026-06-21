@@ -391,3 +391,26 @@ export const Linkedin = createIcon('linkedin', [
   <rect key="2" width="4" height="12" x="2" y="9" />,
   <circle key="3" cx="4" cy="4" r="2" />
 ]);
+
+export const Plane = createIcon('plane', [
+  <path key="1" d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3.5s-2.5 0-4 1.5L13.5 8.5 5.3 6.7 3.5 8.5l7 4-3 3-3-1-1.5 1.5 3 2 2 3 1.5-1.5-1-3 3-3 4 7 1.8-1.8z" />
+]);
+
+export const Train = createIcon('train', [
+  <rect key="1" width="16" height="16" x="4" y="2" rx="2" />,
+  <path key="2" d="M4 14h16" />,
+  <path key="3" d="M8 10h.01" />,
+  <path key="4" d="M16 10h.01" />,
+  <path key="5" d="m6 22 2-3" />,
+  <path key="6" d="m18 22-2-3" />
+]);
+
+export const Bus = createIcon('bus', [
+  <path key="1" d="M8 6v6" />,
+  <path key="2" d="M16 6v6" />,
+  <path key="3" d="M4 18V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9" />,
+  <path key="4" d="M4 10h16" />,
+  <circle key="5" cx="6.5" cy="18.5" r="2.5" />,
+  <circle key="6" cx="17.5" cy="18.5" r="2.5" />
+]);
+

@@ -4,6 +4,23 @@ const jwt = require('jsonwebtoken');
 const db = require('../db');
 const config = require('../config');
 
+// Helper to parse refresh token from cookies
+function getRefreshTokenCookie(req) {
+  if (!req.headers.cookie) return null;
+  const match = req.headers.cookie.match(/refreshToken=([^;]+)/);
+  return match ? match[1] : null;
+}
+
+// Helper to set HTTP-only refresh token cookie
+function setRefreshTokenCookie(res, refreshToken) {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  });
+}
+
 // Mock email service for verification
 function sendVerificationEmail(email, token) {
   const backendPort = config.PORT || 5000;
@@ -133,12 +150,25 @@ async function signup(req, res) {
     // Send verification email
     sendVerificationEmail(savedUser.email, verificationToken);
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: savedUser.id }, config.JWT_SECRET, { expiresIn: '30d' });
+    // Generate short-lived JWT access token
+    const token = jwt.sign({ userId: savedUser.id }, config.JWT_SECRET, { expiresIn: '15m' });
+
+    // Generate long-lived refresh token
+    const refreshToken = crypto.randomBytes(40).toString('hex');
+    const refreshTokenExpiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+    // Save refresh token to user DB record
+    db.users.update(savedUser.id, {
+      refreshToken,
+      refreshTokenExpiresAt
+    });
+
+    // Set cookie
+    setRefreshTokenCookie(res, refreshToken);
 
     return res.status(201).json({
       token,
-      user: formatUserProfile(savedUser)
+      user: formatUserProfile({ ...savedUser, refreshToken, refreshTokenExpiresAt })
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -332,12 +362,25 @@ async function firebaseSync(req, res) {
       }
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, config.JWT_SECRET, { expiresIn: '30d' });
+    // Generate short-lived JWT access token
+    const token = jwt.sign({ userId: user.id }, config.JWT_SECRET, { expiresIn: '15m' });
+
+    // Generate long-lived refresh token
+    const refreshToken = crypto.randomBytes(40).toString('hex');
+    const refreshTokenExpiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+    // Save refresh token to user DB record
+    db.users.update(user.id, {
+      refreshToken,
+      refreshTokenExpiresAt
+    });
+
+    // Set cookie
+    setRefreshTokenCookie(res, refreshToken);
 
     return res.json({
       token,
-      user: formatUserProfile(user)
+      user: formatUserProfile({ ...user, refreshToken, refreshTokenExpiresAt })
     });
   } catch (error) {
     console.error('Firebase sync error:', error);
@@ -544,6 +587,85 @@ async function updateProfile(req, res) {
   }
 }
 
+// Refresh Token Controller
+async function refresh(req, res) {
+  try {
+    const tokenFromCookie = getRefreshTokenCookie(req);
+    if (!tokenFromCookie) {
+      return res.status(401).json({ error: 'Refresh token not found.' });
+    }
+
+    // Find user with matching refresh token
+    const user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
+    if (!user) {
+      // Clear cookie on mismatch
+      res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
+      return res.status(401).json({ error: 'Invalid refresh token.' });
+    }
+
+    // Check expiration
+    if (user.refreshTokenExpiresAt && user.refreshTokenExpiresAt < Date.now()) {
+      // Revoke token and clear cookie
+      db.users.update(user.id, { refreshToken: null, refreshTokenExpiresAt: 0 });
+      res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
+      return res.status(401).json({ error: 'Refresh token has expired.' });
+    }
+
+    // Generate new tokens (rotation)
+    const newAccessToken = jwt.sign({ userId: user.id }, config.JWT_SECRET, { expiresIn: '15m' });
+    const newRefreshToken = crypto.randomBytes(40).toString('hex');
+    const newRefreshTokenExpiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+    // Update DB
+    const updatedUser = db.users.update(user.id, {
+      refreshToken: newRefreshToken,
+      refreshTokenExpiresAt: newRefreshTokenExpiresAt
+    });
+
+    // Set new cookie
+    setRefreshTokenCookie(res, newRefreshToken);
+
+    return res.json({
+      token: newAccessToken,
+      user: formatUserProfile(updatedUser)
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    return res.status(500).json({ error: 'An error occurred during token refresh.' });
+  }
+}
+
+// Logout Controller
+async function logout(req, res) {
+  try {
+    const tokenFromCookie = getRefreshTokenCookie(req);
+    
+    if (tokenFromCookie) {
+      const user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
+      if (user) {
+        // Revoke token in DB
+        db.users.update(user.id, {
+          refreshToken: null,
+          refreshTokenExpiresAt: 0
+        });
+      }
+    }
+
+    // Clear cookie
+    res.cookie('refreshToken', '', {
+      httpOnly: true,
+      expires: new Date(0),
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production'
+    });
+
+    return res.json({ success: true, message: 'Logged out successfully.' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    return res.status(500).json({ error: 'An error occurred during logout.' });
+  }
+}
+
 module.exports = {
   signup,
   getMe,
@@ -553,5 +675,7 @@ module.exports = {
   firebaseSync,
   verifyEmail,
   resendVerification,
-  formatUserProfile
+  formatUserProfile,
+  refresh,
+  logout
 };

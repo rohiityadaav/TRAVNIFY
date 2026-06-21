@@ -71,6 +71,85 @@ export default function App() {
     initAnalytics();
   }, []);
 
+  // Geolocation Request on mount
+  useEffect(() => {
+    const askGeo = async () => {
+      if (!localStorage.getItem('geolocationAsked') && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            localStorage.setItem('geolocationAsked', 'true');
+            localStorage.setItem('userLat', latitude);
+            localStorage.setItem('userLng', longitude);
+            console.log("Geolocation obtained successfully:", latitude, longitude);
+
+            // Reverse geocode to get city name
+            try {
+              const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=12`);
+              if (res.ok) {
+                const data = await res.json();
+                const city = data.address.city || data.address.town || data.address.village || data.address.suburb || data.address.state || '';
+                const country = data.address.country || '';
+                if (city) localStorage.setItem('userCity', city);
+                if (country) localStorage.setItem('userCountry', country);
+                console.log("Resolved user starting city:", city, country);
+              }
+            } catch (err) {
+              console.warn("Failed to reverse geocode user location on mount:", err);
+            }
+          },
+          (error) => {
+            console.warn("Geolocation permission denied or failed:", error);
+            localStorage.setItem('geolocationAsked', 'true');
+          }
+        );
+      }
+    };
+    askGeo();
+  }, []);
+
+  // Silent session check on app load
+  useEffect(() => {
+    const checkRefreshSession = async () => {
+      try {
+        const res = await safeFetch('/api/auth/refresh', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.token) {
+            loginSuccess(data.user, data.token);
+            console.log("Session restored via refresh token successfully.");
+          }
+        }
+      } catch (err) {
+        // Silently ignore if no cookie/expired
+        console.log("Session check on app load: no active refresh session.");
+      }
+    };
+    checkRefreshSession();
+  }, []);
+
+  // Silent refresh loop every 12 minutes
+  useEffect(() => {
+    let refreshInterval;
+    if (isAuthenticated) {
+      refreshInterval = setInterval(async () => {
+        try {
+          const res = await safeFetch('/api/auth/refresh', { method: 'POST' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.token) {
+              loginSuccess(data.user, data.token);
+              console.log("Silent access token refresh complete.");
+            }
+          }
+        } catch (err) {
+          console.warn("Silent access token refresh failed:", err);
+        }
+      }, 12 * 60 * 1000); // 12 minutes
+    }
+    return () => clearInterval(refreshInterval);
+  }, [isAuthenticated]);
+
   // Track Page Views when active tab or active itinerary details change
   useEffect(() => {
     if (activeItinerary) {
@@ -536,6 +615,85 @@ export default function App() {
       }
     }
 
+    // Deduce howToReach for client fallback
+    const startCity = localStorage.getItem('userCity') || (currency === 'INR' ? 'Delhi' : 'London');
+    const getClientTerminals = (cityName) => {
+      const nameLower = cityName.toLowerCase().trim();
+      const terminalDb = {
+        "shimla": { airport: "Shimla Airport (Jubarhatti)", station: "Shimla Railway Station", bus: "Shimla ISBT (Tutikandi)" },
+        "manali": { airport: "Kullu-Manali Airport (Bhuntar)", station: "Joginder Nagar Narrow-Gauge Station", bus: "Manali Bus Stand" },
+        "amritsar": { airport: "Sri Guru Ram Dass Jee International Airport", station: "Amritsar Junction", bus: "Amritsar Bus Stand" },
+        "delhi": { airport: "Indira Gandhi International Airport (DEL)", station: "New Delhi Railway Station (NDLS)", bus: "Kashmere Gate ISBT" },
+        "mumbai": { airport: "Chhatrapati Shivaji Maharaj International Airport (BOM)", station: "Chhatrapati Shivaji Maharaj Terminus (CSMT)", bus: "Mumbai Central Bus Depot" },
+        "bengaluru": { airport: "Kempegowda International Airport (BLR)", station: "KSR Bengaluru City Station (SBC)", bus: "Kempegowda Bus Station (Majestic)" },
+        "kolkata": { airport: "Netaji Subhash Chandra Bose International Airport (CCU)", station: "Howrah Junction (HWH)", bus: "Babughat Bus Terminus" },
+        "paris": { airport: "Charles de Gaulle Airport (CDG)", station: "Gare du Nord", bus: "Bercy Seine Bus Station" },
+        "new york": { airport: "John F. Kennedy International Airport (JFK)", station: "Penn Station", bus: "Port Authority Bus Terminal" },
+        "london": { airport: "Heathrow Airport (LHR)", station: "King's Cross Station", bus: "Victoria Coach Station" },
+        "tokyo": { airport: "Haneda Airport (HND)", station: "Tokyo Station", bus: "Shinjuku Expressway Bus Terminal" },
+        "edinburgh": { airport: "Edinburgh Airport (EDI)", station: "Edinburgh Waverley Station", bus: "Edinburgh Bus Station" },
+        "dubai": { airport: "Dubai International Airport (DXB)", station: "Dubai Metro Union Station", bus: "Al Ghubaiba Bus Terminal" }
+      };
+      return terminalDb[nameLower] || {
+        airport: `${cityName} Airport`,
+        station: `${cityName} Railway Station`,
+        bus: `${cityName} Central Bus Terminal`
+      };
+    };
+
+    const startTerminals = getClientTerminals(startCity);
+    const destTerminals = getClientTerminals(destName);
+    
+    let clientHowToReach = null;
+    if (startCity.toLowerCase().trim() === destName.toLowerCase().trim()) {
+      clientHowToReach = {
+        recommendedMode: "local transit",
+        nearestStartTerminal: "Local transit stop",
+        nearestEndTerminal: "Local transit destination",
+        details: `Since you are already starting from ${destName}, utilize the local metro, public bus system, or local taxis for convenient and fast travel inside the city.`,
+        estimatedCost: { amount: 150, currency }
+      };
+    } else {
+      const isDifferentCountry = (currency === 'INR' && !['delhi', 'mumbai', 'bengaluru', 'kolkata', 'shimla', 'manali', 'amritsar', 'jaipur', 'udaipur', 'jaisalmer', 'jodhpur', 'pushkar', 'ranthambore', 'agra', 'varanasi', 'lucknow', 'mathura', 'vrindavan', 'ayodhya', 'rishikesh', 'haridwar', 'nainital', 'mussoorie', 'auli', 'indore', 'khajuraho', 'bhopal', 'ahmedabad', 'somnath', 'dwarka', 'pune', 'lonavala', 'goa', 'hampi', 'mysore', 'coorg', 'gokarna', 'kochi', 'alleppey', 'munnar', 'wayanad', 'varkala', 'chennai', 'madurai', 'mahabalipuram', 'ooty', 'rameswaram', 'hyderabad', 'warangal', 'tirupati', 'vizag', 'vijayawada', 'patna', 'ranchi', 'raipur', 'guwahati', 'shillong', 'tawang', 'kohima', 'imphal', 'aizawl', 'agartala', 'gangtok', 'port blair', 'havelock', 'diu', 'daman', 'silvassa', 'kavaratti', 'pondicherry', 'auroville'].includes(destName.toLowerCase().trim()));
+      
+      if (isDifferentCountry) {
+        const cost = budgetTier === 'low' ? 7000 : (budgetTier === 'high' ? 25000 : 12000);
+        clientHowToReach = {
+          recommendedMode: "flight",
+          nearestStartTerminal: startTerminals.airport,
+          nearestEndTerminal: destTerminals.airport,
+          details: `Board an international flight from ${startTerminals.airport} to ${destTerminals.airport}. We recommend checking airline rates early and comparing budget carriers for flight transfers.`,
+          estimatedCost: { amount: cost, currency }
+        };
+      } else {
+        if (budgetTier === 'low') {
+          clientHowToReach = {
+            recommendedMode: "bus",
+            nearestStartTerminal: startTerminals.bus,
+            nearestEndTerminal: destTerminals.bus,
+            details: `Board an intercity bus or take a sleeper-class train from ${startTerminals.bus} to ${destTerminals.bus} for a cost-effective overland journey.`,
+            estimatedCost: { amount: 650, currency }
+          };
+        } else if (budgetTier === 'high') {
+          clientHowToReach = {
+            recommendedMode: "flight",
+            nearestStartTerminal: startTerminals.airport,
+            nearestEndTerminal: destTerminals.airport,
+            details: `Take a direct flight from ${startTerminals.airport} to ${destTerminals.airport} for the fastest and most premium transit. Upon arrival, use private terminal transfers.`,
+            estimatedCost: { amount: 6000, currency }
+          };
+        } else {
+          clientHowToReach = {
+            recommendedMode: "train",
+            nearestStartTerminal: startTerminals.station,
+            nearestEndTerminal: destTerminals.station,
+            details: `Book an AC 3-Tier or 2-Tier train ticket from ${startTerminals.station} to ${destTerminals.station} for a comfortable and scenic mid-budget journey.`,
+            estimatedCost: { amount: 1800, currency }
+          };
+        }
+      }
+    }
+
     return {
       tripSummary: {
         destination: destName,
@@ -544,6 +702,7 @@ export default function App() {
         estimatedTotalCost: { amount: budget, currency },
         bestTimeAdvice: `Generally, visiting ${destName} during the dry season offers the best climate.`
       },
+      howToReach: clientHowToReach,
       dayByDayPlan,
       safetyAndLogistics: {
         localTransportTips: `Taxis, public transport, and walking are the best ways to get around ${destName}.`,
@@ -627,14 +786,27 @@ export default function App() {
       }, 30000); // 30s timeout per call
 
       try {
+        const userLat = localStorage.getItem('userLat');
+        const userLng = localStorage.getItem('userLng');
+        const startCity = localStorage.getItem('userCity');
+        const startCountry = localStorage.getItem('userCountry');
+
+        const bodyPayload = {
+          ...details,
+          preferredCurrency: user?.preferredCurrency || details.currency || 'INR',
+          simplified: isSimplified
+        };
+        if (userLat && userLng) {
+          bodyPayload.userLat = Number(userLat);
+          bodyPayload.userLng = Number(userLng);
+        }
+        if (startCity) bodyPayload.startCity = startCity;
+        if (startCountry) bodyPayload.startCountry = startCountry;
+
         const response = await safeFetch('/api/generateTrip', {
           method: 'POST',
           headers,
-          body: JSON.stringify({
-            ...details,
-            preferredCurrency: user?.preferredCurrency || details.currency || 'INR',
-            simplified: isSimplified
-          }),
+          body: JSON.stringify(bodyPayload),
           signal: controller.signal
         });
         clearTimeout(timeoutId);

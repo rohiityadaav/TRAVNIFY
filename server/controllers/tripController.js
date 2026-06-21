@@ -50,7 +50,91 @@ if (config.GEMINI_API_KEY && config.GEMINI_API_KEY.trim() !== '') {
 // ----------------------------------------------------
 // SMART MOCK TRIP GENERATION FALLBACK ENGINE
 // ----------------------------------------------------
-function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, daysCount) {
+function getCityTerminals(cityName) {
+  const nameLower = cityName.toLowerCase().trim();
+  const terminalDb = {
+    "shimla": { airport: "Shimla Airport (Jubarhatti)", station: "Shimla Railway Station", bus: "Shimla ISBT (Tutikandi)" },
+    "manali": { airport: "Kullu-Manali Airport (Bhuntar)", station: "Joginder Nagar Narrow-Gauge Station", bus: "Manali Bus Stand" },
+    "amritsar": { airport: "Sri Guru Ram Dass Jee International Airport", station: "Amritsar Junction", bus: "Amritsar Bus Stand" },
+    "delhi": { airport: "Indira Gandhi International Airport (DEL)", station: "New Delhi Railway Station (NDLS)", bus: "Kashmere Gate ISBT" },
+    "mumbai": { airport: "Chhatrapati Shivaji Maharaj International Airport (BOM)", station: "Chhatrapati Shivaji Maharaj Terminus (CSMT)", bus: "Mumbai Central Bus Depot" },
+    "bengaluru": { airport: "Kempegowda International Airport (BLR)", station: "KSR Bengaluru City Station (SBC)", bus: "Kempegowda Bus Station (Majestic)" },
+    "kolkata": { airport: "Netaji Subhash Chandra Bose International Airport (CCU)", station: "Howrah Junction (HWH)", bus: "Babughat Bus Terminus" },
+    "paris": { airport: "Charles de Gaulle Airport (CDG)", station: "Gare du Nord", bus: "Bercy Seine Bus Station" },
+    "new york": { airport: "John F. Kennedy International Airport (JFK)", station: "Penn Station", bus: "Port Authority Bus Terminal" },
+    "london": { airport: "Heathrow Airport (LHR)", station: "King's Cross Station", bus: "Victoria Coach Station" },
+    "tokyo": { airport: "Haneda Airport (HND)", station: "Tokyo Station", bus: "Shinjuku Expressway Bus Terminal" },
+    "edinburgh": { airport: "Edinburgh Airport (EDI)", station: "Edinburgh Waverley Station", bus: "Edinburgh Bus Station" },
+    "dubai": { airport: "Dubai International Airport (DXB)", station: "Dubai Metro Union Station", bus: "Al Ghubaiba Bus Terminal" }
+  };
+  return terminalDb[nameLower] || {
+    airport: `${cityName} Airport`,
+    station: `${cityName} Railway Station`,
+    bus: `${cityName} Central Bus Terminal`
+  };
+}
+
+function computeHowToReachFallback(startCity, destName, budgetTier, currency) {
+  const currencySymbol = currency || 'INR';
+  const start = startCity || (currency === 'INR' ? 'Delhi' : 'London');
+  const dest = destName || 'Destination';
+  
+  if (start.toLowerCase().trim() === dest.toLowerCase().trim()) {
+    return {
+      recommendedMode: "local transit",
+      nearestStartTerminal: "Local transit stop",
+      nearestEndTerminal: "Local transit destination",
+      details: `Since you are already starting from ${dest}, utilize the local metro, public bus system, or local taxis for convenient and fast travel inside the city.`,
+      estimatedCost: { amount: 150, currency: currencySymbol }
+    };
+  }
+
+  const startTerminals = getCityTerminals(start);
+  const destTerminals = getCityTerminals(dest);
+
+  // Heuristic: check if different country
+  const isDifferentCountry = (currency === 'INR' && !['delhi', 'mumbai', 'bengaluru', 'kolkata', 'shimla', 'manali', 'amritsar', 'jaipur', 'udaipur', 'jaisalmer', 'jodhpur', 'pushkar', 'ranthambore', 'agra', 'varanasi', 'lucknow', 'mathura', 'vrindavan', 'ayodhya', 'rishikesh', 'haridwar', 'nainital', 'mussoorie', 'auli', 'indore', 'khajuraho', 'bhopal', 'ahmedabad', 'somnath', 'dwarka', 'pune', 'lonavala', 'goa', 'hampi', 'mysore', 'coorg', 'gokarna', 'kochi', 'alleppey', 'munnar', 'wayanad', 'varkala', 'chennai', 'madurai', 'mahabalipuram', 'ooty', 'rameswaram', 'hyderabad', 'warangal', 'tirupati', 'vizag', 'vijayawada', 'patna', 'ranchi', 'raipur', 'guwahati', 'shillong', 'tawang', 'kohima', 'imphal', 'aizawl', 'agartala', 'gangtok', 'port blair', 'havelock', 'diu', 'daman', 'silvassa', 'kavaratti', 'pondicherry', 'auroville'].includes(dest.toLowerCase().trim()));
+
+  if (isDifferentCountry) {
+    const cost = budgetTier === 'low' ? 7000 : (budgetTier === 'high' ? 25000 : 12000);
+    return {
+      recommendedMode: "flight",
+      nearestStartTerminal: startTerminals.airport,
+      nearestEndTerminal: destTerminals.airport,
+      details: `Board an international flight from ${startTerminals.airport} to ${destTerminals.airport}. We recommend checking airline rates early and comparing budget carriers for flight transfers.`,
+      estimatedCost: { amount: cost, currency: currencySymbol }
+    };
+  }
+
+  // Domestic
+  if (budgetTier === 'low') {
+    return {
+      recommendedMode: "bus",
+      nearestStartTerminal: startTerminals.bus,
+      nearestEndTerminal: destTerminals.bus,
+      details: `Board an intercity bus or take a sleeper-class train from ${startTerminals.bus} to ${destTerminals.bus} for a cost-effective overland journey.`,
+      estimatedCost: { amount: 650, currency: currencySymbol }
+    };
+  } else if (budgetTier === 'high') {
+    return {
+      recommendedMode: "flight",
+      nearestStartTerminal: startTerminals.airport,
+      nearestEndTerminal: destTerminals.airport,
+      details: `Take a direct flight from ${startTerminals.airport} to ${destTerminals.airport} for the fastest and most premium transit. Upon arrival, use private terminal transfers.`,
+      estimatedCost: { amount: 6000, currency: currencySymbol }
+    };
+  } else {
+    return {
+      recommendedMode: "train",
+      nearestStartTerminal: startTerminals.station,
+      nearestEndTerminal: destTerminals.station,
+      details: `Book an AC 3-Tier or 2-Tier train ticket from ${startTerminals.station} to ${destTerminals.station} for a comfortable and scenic mid-budget journey.`,
+      estimatedCost: { amount: 1800, currency: currencySymbol }
+    };
+  }
+}
+
+function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, daysCount, context = {}) {
   if (!itinerary) return null;
 
   const tripSummary = itinerary.tripSummary || {};
@@ -179,6 +263,28 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
 
   const localCurrencyNote = itinerary.localCurrencyNote || null;
 
+  // Deduce budget tier
+  const avgDaily = Math.round(estCostAmount / totalDays);
+  const rate = INR_TO_CURRENCY[estCostCurrency] || 1.0;
+  const dailyBudgetInINR = avgDaily / rate;
+  let budgetTier = context.budgetTier;
+  if (!budgetTier) {
+    if (dailyBudgetInINR < 3000) {
+      budgetTier = 'low';
+    } else if (dailyBudgetInINR > 8000) {
+      budgetTier = 'high';
+    } else {
+      budgetTier = 'mid';
+    }
+  }
+
+  const howToReach = itinerary.howToReach || computeHowToReachFallback(
+    context.startCity || itinerary.startCity || '',
+    destination,
+    budgetTier,
+    estCostCurrency
+  );
+
   return {
     tripSummary: {
       destination,
@@ -190,6 +296,7 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       },
       bestTimeAdvice
     },
+    howToReach,
     dayByDayPlan,
     safetyAndLogistics,
     localCurrencyNote,
@@ -391,7 +498,7 @@ const INR_TO_CURRENCY = {
   MAD: 0.12,    BGN: 0.021,   IQD: 15.7,    TWD: 0.39,
 };
 
-function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate) {
+function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate, startCity = '', userLat = null, userLng = null) {
   const destName = destination || 'Selected Destination';
   const totalDays = Number(daysCount) || 3;
   const totalBudget = Number(budget) || 15000;
@@ -685,7 +792,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     }
   };
 
-  return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays);
+  return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays, { startCity, userLat, userLng, budgetTier });
 }
 
 // ----------------------------------------------------
@@ -767,7 +874,7 @@ async function generateTrip(req, res) {
   console.log(`[AI Trip Generation] Start processing request at ${new Date().toISOString()}`);
   
   try {
-    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency, simplified } = req.body;
+    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency, simplified, userLat, userLng, startCity, startCountry } = req.body;
 
     // Determine total days
     let daysCount = 3;
@@ -816,10 +923,21 @@ async function generateTrip(req, res) {
     const activeCurrency = currency || 'INR';
     const displayCurrency = preferredCurrency || activeCurrency || 'INR';
 
+    // Compute budget tier
+    const avgDaily = Math.round(parsedBudget / daysCount);
+    const rate = INR_TO_CURRENCY[activeCurrency] || 1.0;
+    const dailyBudgetInINR = avgDaily / rate;
+    let budgetTier = 'mid'; // default
+    if (dailyBudgetInINR < 3000) {
+      budgetTier = 'low';
+    } else if (dailyBudgetInINR > 8000) {
+      budgetTier = 'high';
+    }
+
     const fallbackResponse = () => {
       console.log('[AI Trip Generation] Fallback triggered. Generating server-side mock itinerary.');
       const safeInterests = Array.isArray(interests) ? interests : [];
-      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate);
+      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate, startCity, userLat, userLng);
       
       if (activeUser && !isPremium) {
         db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
@@ -922,6 +1040,16 @@ JSON structure:
     },
     "bestTimeAdvice": "string"
   },
+  "howToReach": {
+    "recommendedMode": "bus / train / flight",
+    "nearestStartTerminal": "string",
+    "nearestEndTerminal": "string",
+    "details": "string explaining how to travel from start city to destination based on budget and distance",
+    "estimatedCost": {
+      "amount": number,
+      "currency": "${displayCurrency}"
+    }
+  },
   "dayByDayPlan": [
     {
       "dayNumber": 1,
@@ -962,6 +1090,12 @@ JSON structure:
 }
 
 Style & Constraint Rules:
+- GEOLOCATION TRANSPORT RECOMMENDATION: The user is starting their trip from ${startCity || 'their home city'} (Coordinates: ${userLat || 'unknown'}, ${userLng || 'unknown'}). You MUST recommend the best travel mode (bus, train, or flight) to reach the destination based on their starting city, distance, and budget tier (${budgetTier}):
+  * Calculate the approximate distance.
+  * If distance is short (e.g. < 300km) or budget is low: recommend "bus" or "train" (sleeper/general).
+  * If distance is medium and budget is mid: recommend "train" (AC class) or "flight" (budget).
+  * If distance is long and budget is high: recommend "flight" or the fastest option.
+  * Populate the "howToReach" block with the recommendedMode, the nearest start terminal in the starting city (specific named station or airport), the nearest end terminal in the destination, a 2-3 sentence travel details path, and the estimated cost for transport.
 - HIGH DETAIL IMMERSIVE EXPERIENCE: Provide rich, detailed, and highly descriptive plans for each time slot (morning, afternoon, evening). Each description block MUST be at least 30 to 60 words. Do not use short summaries; describe the sights, history, atmosphere, specific dishes to order, and scenic spots to make the user feel like they have a premium local travel guide.
 - GLOBAL PLACE DETECTION: Detect what the destination is and structure the itinerary accordingly:
   * If it is a Landmark/Famous Spot (e.g. "Taj Mahal", "Eiffel Tower"): Structure the plan around that landmark and its surrounding city/neighborhood.
@@ -1075,7 +1209,7 @@ Please reformat the last answer into the required JSON schema only. Respond with
       }
     }
 
-    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount);
+    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount, { startCity, userLat, userLng, budgetTier });
     if (!itinerary) {
       return fallbackResponse();
     }

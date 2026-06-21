@@ -37,7 +37,10 @@ const aiRateLimiter = rateLimit({
 const app = express();
 
 // Midlewares
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => callback(null, true),
+  credentials: true
+}));
 app.use(express.json());
 
 // ----------------------------------------------------
@@ -47,6 +50,8 @@ app.use(express.json());
 // Authentication
 app.post('/api/auth/signup', authController.signup);
 app.post('/api/auth/firebase-sync', authController.firebaseSync);
+app.post('/api/auth/refresh', authController.refresh);
+app.post('/api/auth/logout', authController.logout);
 app.get('/api/auth/me', authController.authenticateToken, authController.getMe);
 app.patch('/api/auth/profile', authController.authenticateToken, authController.updateProfile);
 app.get('/api/auth/verify-email', authController.verifyEmail);

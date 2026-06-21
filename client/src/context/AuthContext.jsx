@@ -125,6 +125,11 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       localStorage.removeItem('token');
+      try {
+        await safeFetch('/api/auth/logout', { method: 'POST' });
+      } catch (logoutErr) {
+        console.warn("Backend logout failed or offline:", logoutErr);
+      }
       await signOut(auth);
       setUser(null);
       setIsAuthenticated(false);

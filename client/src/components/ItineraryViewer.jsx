@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Clock, Tag, Compass, FileDown, Save, ShieldAlert, ArrowLeft, RefreshCw } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock, Tag, Compass, FileDown, Save, ShieldAlert, ArrowLeft, RefreshCw, Plane, Train, Bus, MapPin } from 'lucide-react';
 import { getCurrencySymbol } from '../lib/currency';
 
 export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onBack, onDownloadPDF, openPricingModal, openAuthModal, isRefining }) {
@@ -167,6 +167,53 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
           </div>
         </div>
       </div>
+
+      {/* How to Reach transport recommendation section */}
+      {itinerary?.howToReach && (
+        <div style={{
+          background: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%)',
+          border: '1px solid #E2E8F0',
+          borderRadius: '12px',
+          padding: '1.2rem',
+          marginTop: '1.2rem',
+          marginBottom: '1.2rem',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          textAlign: 'left'
+        }}>
+          <h4 style={{ fontSize: '1rem', fontWeight: '700', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem' }}>
+            🧭 How to Reach Destination
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+            <div style={{ flex: '1 1 200px' }}>
+              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: '#64748B', fontWeight: '600', marginBottom: '0.2rem' }}>Recommended Mode</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.95rem', fontWeight: '600', color: '#0F172A' }}>
+                {itinerary.howToReach.recommendedMode?.toLowerCase().includes('flight') && <Plane size={16} color="#3B82F6" />}
+                {itinerary.howToReach.recommendedMode?.toLowerCase().includes('train') && <Train size={16} color="#10B981" />}
+                {itinerary.howToReach.recommendedMode?.toLowerCase().includes('bus') && <Bus size={16} color="#F59E0B" />}
+                <span style={{ textTransform: 'capitalize' }}>{itinerary.howToReach.recommendedMode}</span>
+              </div>
+            </div>
+            
+            <div style={{ flex: '1 1 200px' }}>
+              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: '#64748B', fontWeight: '600', marginBottom: '0.2rem' }}>Estimated Cost</div>
+              <div style={{ fontSize: '0.95rem', fontWeight: '600', color: '#0F172A' }}>
+                {currencySymbol}{itinerary.howToReach.estimatedCost?.amount?.toLocaleString() || 'N/A'}
+              </div>
+            </div>
+
+            <div style={{ flex: '2 1 300px' }}>
+              <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: '#64748B', fontWeight: '600', marginBottom: '0.2rem' }}>Route & Terminals</div>
+              <div style={{ fontSize: '0.88rem', color: '#475569', lineHeight: '1.4' }}>
+                <strong>From:</strong> {itinerary.howToReach.nearestStartTerminal || 'Starting Location'} <br />
+                <strong>To:</strong> {itinerary.howToReach.nearestEndTerminal || 'Destination Terminal'}
+              </div>
+            </div>
+          </div>
+          <p style={{ fontSize: '0.88rem', color: '#334155', marginTop: '0.8rem', borderTop: '1px solid #E2E8F0', paddingTop: '0.6rem', lineHeight: '1.5', margin: 0 }}>
+            {itinerary.howToReach.details}
+          </p>
+        </div>
+      )}
 
       {/* Premium upsell box if user is Free/Guest */}
       {(!user || !user.isPremium) && (

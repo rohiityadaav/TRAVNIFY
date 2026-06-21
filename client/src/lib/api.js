@@ -32,10 +32,46 @@ export async function safeFetch(path, options = {}) {
     }
   }
 
+  // Force credentials include for CORS HTTP-only secure cookie support
+  options.credentials = 'include';
+
   // Prepend API_BASE_URL if it is configured
   const url = path.startsWith('/api') && API_BASE_URL ? `${API_BASE_URL}${path}` : path;
   
-  const response = await fetch(url, options);
+  let response = await fetch(url, options);
+
+  // If unauthorized and it's not a refresh request, try to silently refresh the access token once
+  if ((response.status === 401 || response.status === 403) && !path.includes('/api/auth/refresh')) {
+    try {
+      const refreshUrl = API_BASE_URL ? `${API_BASE_URL}/api/auth/refresh` : '/api/auth/refresh';
+      const refreshRes = await fetch(refreshUrl, {
+        method: 'POST',
+        credentials: 'include'
+      });
+      if (refreshRes.ok) {
+        const refreshData = await refreshRes.json();
+        if (refreshData.token) {
+          localStorage.setItem('token', refreshData.token);
+          
+          // Re-sign options with new authorization header
+          if (!options.headers) {
+            options.headers = {};
+          }
+          if (typeof options.headers.set === 'function') {
+            options.headers.set('authorization', `Bearer ${refreshData.token}`);
+          } else {
+            const authKey = Object.keys(options.headers).find(k => k.toLowerCase() === 'authorization') || 'Authorization';
+            options.headers[authKey] = `Bearer ${refreshData.token}`;
+          }
+          
+          // Retry the request
+          response = await fetch(url, options);
+        }
+      }
+    } catch (refreshErr) {
+      console.error("Token refresh failed in safeFetch interceptor:", refreshErr);
+    }
+  }
   
   // Exclude third-party APIs (like OpenStreetMap reverse geocoding in NearMe.jsx) from content-type validations
   if (path.includes('openstreetmap.org')) {
