@@ -45,17 +45,21 @@ export async function safeFetch(path, options = {}) {
     try {
       const refreshUrl = API_BASE_URL ? `${API_BASE_URL}/api/auth/refresh` : '/api/auth/refresh';
       const localRefreshToken = localStorage.getItem('refreshToken');
+      console.log("[DEBUG API] Auto-refresh triggered for path:", path, "status:", response.status, "refreshToken exists:", !!localRefreshToken);
       const refreshRes = await fetch(refreshUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken: localRefreshToken }),
         credentials: 'include'
       });
+      console.log("[DEBUG API] Auto-refresh response status:", refreshRes.status);
       if (refreshRes.ok) {
         const refreshData = await refreshRes.json();
         if (refreshData.token) {
+          console.log("[DEBUG API] Auto-refresh succeeded! Saving new tokens.");
           localStorage.setItem('token', refreshData.token);
           if (refreshData.user && refreshData.user.refreshToken) {
+            console.log("[DEBUG API] Saving new refreshToken:", refreshData.user.refreshToken.substring(0, 10) + "...");
             localStorage.setItem('refreshToken', refreshData.user.refreshToken);
           }
           
@@ -73,9 +77,11 @@ export async function safeFetch(path, options = {}) {
           // Retry the request
           response = await fetch(url, options);
         }
+      } else {
+        console.warn("[DEBUG API] Auto-refresh failed with status:", refreshRes.status);
       }
     } catch (refreshErr) {
-      console.error("Token refresh failed in safeFetch interceptor:", refreshErr);
+      console.error("[DEBUG API] Token refresh failed in safeFetch interceptor:", refreshErr);
     }
   }
   

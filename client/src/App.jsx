@@ -764,6 +764,7 @@ export default function App() {
 
   // 2. AI Travel Plan Generation Trigger
   const handleGenerateTrip = async (details) => {
+    console.log("[DEBUG Loading] handleGenerateTrip called - details:", details);
     setIsGenerating(true);
     setShowSkeleton(false);
     setTripError(null);
@@ -785,7 +786,9 @@ export default function App() {
     }
 
     // Start 3-second timer for Stage 2 (skeleton screen)
+    console.log("[DEBUG Loading] Starting 3-second skeletonTimer");
     skeletonTimerRef.current = setTimeout(() => {
+      console.log("[DEBUG Loading] skeletonTimer fired - setting showSkeleton=true, activeItinerary=null");
       setShowSkeleton(true);
       setActiveItinerary(null);
     }, 3000);
@@ -834,9 +837,12 @@ export default function App() {
 
     try {
       // First attempt
+      console.log("[DEBUG Loading] First attempt started");
       const data = await makeRequest(false);
+      console.log("[DEBUG Loading] First attempt resolved successfully");
       
       if (skeletonTimerRef.current) {
+        console.log("[DEBUG Loading] Clearing skeletonTimer");
         clearTimeout(skeletonTimerRef.current);
         skeletonTimerRef.current = null;
       }
@@ -863,10 +869,11 @@ export default function App() {
         syncUserCredits();
       }
     } catch (err) {
-      console.warn('[AI Trip Generation] First attempt failed. Error:', err.message);
+      console.warn('[DEBUG Loading] First attempt failed. Error:', err.message);
       
       // If it's a premium gate error from the server, handle immediately without retrying or fallback
       if (err.code === 'NEED_PREMIUM_FOR_LONG_TRIP' || err.message?.includes('NEED_PREMIUM_FOR_LONG_TRIP')) {
+        console.log("[DEBUG Loading] Premium gate error - aborting and showing modal");
         if (skeletonTimerRef.current) {
           clearTimeout(skeletonTimerRef.current);
           skeletonTimerRef.current = null;
@@ -879,6 +886,7 @@ export default function App() {
 
       // If it's normal credit limit error, handle immediately
       if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
+        console.log("[DEBUG Loading] Limit exceeded error - aborting and showing modal");
         if (skeletonTimerRef.current) {
           clearTimeout(skeletonTimerRef.current);
           skeletonTimerRef.current = null;
@@ -891,11 +899,13 @@ export default function App() {
       }
 
       // Retry once with simplified flag
-      console.log('[AI Trip Generation] Retrying once with simplified flag...');
+      console.log('[DEBUG Loading] Retrying once with simplified flag...');
       try {
         const data = await makeRequest(true);
+        console.log("[DEBUG Loading] Retry attempt resolved successfully");
         
         if (skeletonTimerRef.current) {
+          console.log("[DEBUG Loading] Clearing skeletonTimer (retry success)");
           clearTimeout(skeletonTimerRef.current);
           skeletonTimerRef.current = null;
         }
@@ -922,9 +932,10 @@ export default function App() {
           syncUserCredits();
         }
       } catch (retryErr) {
-        console.error('[AI Trip Generation] Retry attempt also failed. Error:', retryErr.message);
+        console.error('[DEBUG Loading] Retry attempt also failed. Error:', retryErr.message);
         
         if (skeletonTimerRef.current) {
+          console.log("[DEBUG Loading] Clearing skeletonTimer (retry failure)");
           clearTimeout(skeletonTimerRef.current);
           skeletonTimerRef.current = null;
         }
@@ -1339,39 +1350,42 @@ export default function App() {
                   
                   {activeTab === 'plan' && (
                     <ProtectedRoute fallbackTab="home" setActiveTab={setActiveTab} message="Create a free TRAVNIFY account to start planning trips.">
-                      {showSkeleton ? (
-                        <ItinerarySkeleton />
-                      ) : (
-                        <>
-                          {tripError && (
-                            <div style={{
-                              padding: '1rem',
-                              background: '#FEF2F2',
-                              border: '1px solid #FCA5A5',
-                              borderRadius: '12px',
-                              color: '#991B1B',
-                              fontSize: '0.95rem',
-                              marginBottom: '1.5rem',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              gap: '0.5rem',
-                              maxWidth: '600px',
-                              margin: '0 auto 1.5rem auto',
-                              textAlign: 'left'
-                            }}>
-                              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                                <span>{tripError}</span>
-                              </span>
-                              <button onClick={() => setTripError(null)} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', padding: '0.2rem', display: 'flex', alignItems: 'center' }}>
-                                <X size={16} />
-                              </button>
-                            </div>
-                          )}
-                          <PlanTrip onGenerate={handleGenerateTrip} isLoading={isGenerating} user={user} />
-                        </>
-                      )}
+                      {(() => {
+                        console.log("[DEBUG Loading] Plan Tab Render - isGenerating:", isGenerating, "showSkeleton:", showSkeleton);
+                        return showSkeleton ? (
+                          <ItinerarySkeleton />
+                        ) : (
+                          <>
+                            {tripError && (
+                              <div style={{
+                                padding: '1rem',
+                                background: '#FEF2F2',
+                                border: '1px solid #FCA5A5',
+                                borderRadius: '12px',
+                                color: '#991B1B',
+                                fontSize: '0.95rem',
+                                marginBottom: '1.5rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: '0.5rem',
+                                maxWidth: '600px',
+                                margin: '0 auto 1.5rem auto',
+                                textAlign: 'left'
+                              }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                  <span>{tripError}</span>
+                                </span>
+                                <button onClick={() => setTripError(null)} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', padding: '0.2rem', display: 'flex', alignItems: 'center' }}>
+                                  <X size={16} />
+                                </button>
+                              </div>
+                            )}
+                            <PlanTrip onGenerate={handleGenerateTrip} isLoading={isGenerating} user={user} />
+                          </>
+                        );
+                      })()}
                     </ProtectedRoute>
                   )}
                   

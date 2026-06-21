@@ -19,6 +19,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       let token = localStorage.getItem('token');
+      const localRefreshToken = localStorage.getItem('refreshToken');
+      console.log("[DEBUG Auth] onAuthStateChanged - firebaseUser:", firebaseUser ? firebaseUser.email : 'null', "token exists:", !!token, "refreshToken exists:", !!localRefreshToken);
       if (token === 'undefined' || token === 'null') {
         token = null;
         localStorage.removeItem('token');
@@ -100,13 +102,17 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginSuccess = (userData, token) => {
+    console.log("[DEBUG Auth] loginSuccess called - userData:", userData ? { email: userData.email, hasRefreshToken: !!userData.refreshToken } : 'null', "token exists:", !!token);
     if (token && token !== 'undefined' && token !== 'null') {
       localStorage.setItem('token', token);
     } else {
       localStorage.removeItem('token');
     }
     if (userData && userData.refreshToken) {
+      console.log("[DEBUG Auth] Saving refreshToken to localStorage:", userData.refreshToken.substring(0, 10) + "...");
       localStorage.setItem('refreshToken', userData.refreshToken);
+    } else {
+      console.log("[DEBUG Auth] No refreshToken found in userData!");
     }
     setUser(userData);
     setIsAuthenticated(true);
