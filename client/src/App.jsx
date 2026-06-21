@@ -52,6 +52,7 @@ export default function App() {
   const [isRefining, setIsRefining] = useState(false);
   const [loadingTime, setLoadingTime] = useState(0);
   const [tripError, setTripError] = useState(null);
+  const [fallbackWarning, setFallbackWarning] = useState(null);
 
   useEffect(() => {
     let interval;
@@ -763,6 +764,7 @@ export default function App() {
   const handleGenerateTrip = async (details) => {
     setIsLoading(true);
     setTripError(null);
+    setFallbackWarning(null);
     setActiveTripDetails(details);
 
     // Compute trip length in days
@@ -783,7 +785,7 @@ export default function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
-      }, 30000); // 30s timeout per call
+      }, isSimplified ? 15000 : 20000); // 20s timeout for first call, 15s for simplified retry
 
       try {
         const userLat = localStorage.getItem('userLat');
@@ -888,6 +890,7 @@ export default function App() {
         const fallbackItinerary = generateClientItineraryTemplate(details);
         fallbackItinerary.generationSource = 'client_fallback';
         setActiveItinerary(fallbackItinerary);
+        setFallbackWarning("We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.");
         
         // Track fallback generation
         trackEvent('plan_created', {
@@ -1000,20 +1003,25 @@ export default function App() {
 
   // 7. Template Customization Select
   const handleSelectTemplate = (template) => {
-    // Jump straight to planner and pre-fill details!
     setActiveTab('plan');
     setActiveItinerary(null);
-    
-    // Auto-prefill variables inside the PlanTrip view via trigger or simulated copy
-    setTimeout(() => {
-      const promptField = document.querySelector('.wizard-textarea');
-      if (promptField) {
-        promptField.value = template.prompt;
-        // Trigger React updates using standard inputs
-        const changeEvent = new Event('input', { bubbles: true });
-        promptField.dispatchEvent(changeEvent);
-      }
-    }, 100);
+    setTripError(null);
+    setFallbackWarning(null);
+
+    const today = new Date().toISOString().split('T')[0];
+    const threeDaysLater = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const details = {
+      prompt: template.prompt,
+      destination: template.destination || 'Selected Destination',
+      budget: template.budget || 25000,
+      currency: template.currency || 'INR',
+      startDate: today,
+      endDate: threeDaysLater,
+      interests: template.interests || ['general']
+    };
+
+    handleGenerateTrip(details);
   };
 
   // 8. HIGH-FIDELITY CLIENT SIDE PDF GENERATION
@@ -1197,17 +1205,81 @@ export default function App() {
             <Route path="*" element={
               activeItinerary ? (
                 /* Render Generated Day Accordions */
-                <ItineraryViewer
-                  itinerary={activeItinerary}
-                  user={user}
-                  isRefining={isRefining}
-                  onSave={handleSaveTrip}
-                  onRefine={handleRefineTrip}
-                  onDownloadPDF={handleDownloadPDF}
-                  onBack={() => setActiveItinerary(null)}
-                  openPricingModal={openPricingModal}
-                  openAuthModal={openAuthModal}
-                />
+                <>
+                  {fallbackWarning && (
+                    <div style={{
+                      padding: '1.2rem',
+                      background: '#FFFBEB',
+                      border: '1px solid #FCD34D',
+                      borderRadius: '16px',
+                      color: '#B45309',
+                      fontSize: '0.92rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '1rem',
+                      maxWidth: '800px',
+                      margin: '1.5rem auto 1rem auto',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                      textAlign: 'left'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <span style={{ fontSize: '1.3rem' }}>🧭</span>
+                        <div>
+                          <strong>Lighter offline plan loaded.</strong> {fallbackWarning}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                        <button
+                          onClick={() => {
+                            setFallbackWarning(null);
+                            handleGenerateTrip(activeTripDetails);
+                          }}
+                          style={{
+                            background: '#F59E0B',
+                            border: 'none',
+                            color: '#FFFFFF',
+                            padding: '0.45rem 1.2rem',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            fontSize: '0.85rem',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          Retry AI Plan
+                        </button>
+                        <button
+                          onClick={() => setFallbackWarning(null)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#B45309',
+                            cursor: 'pointer',
+                            fontSize: '0.85rem',
+                            fontWeight: '600'
+                          }}
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  <ItineraryViewer
+                    itinerary={activeItinerary}
+                    user={user}
+                    isRefining={isRefining}
+                    onSave={handleSaveTrip}
+                    onRefine={handleRefineTrip}
+                    onDownloadPDF={handleDownloadPDF}
+                    onBack={() => {
+                      setActiveItinerary(null);
+                      setFallbackWarning(null);
+                    }}
+                    openPricingModal={openPricingModal}
+                    openAuthModal={openAuthModal}
+                  />
+                </>
               ) : (
                 /* Primary Page Tabs */
                 <>
@@ -1216,28 +1288,7 @@ export default function App() {
                   {activeTab === 'plan' && (
                     <ProtectedRoute fallbackTab="home" setActiveTab={setActiveTab} message="Create a free TRAVNIFY account to start planning trips.">
                       {isLoading ? (
-                        /* High quality planning loader */
-                        <div style={{ textAlign: 'center', padding: '8rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
-                          <div style={{ position: 'relative', width: '80px', height: '80px', margin: '0 auto 2rem auto' }}>
-                            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px dashed #E2E8F0', borderRadius: '50%', boxSizing: 'border-box' }}></div>
-                            <div className="spinner" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: '4px solid transparent', borderTopColor: '#F26430', borderRadius: '50%', boxSizing: 'border-box' }}></div>
-                          </div>
-                          <h3 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '0.5rem' }}>Constructing Your Dream Schedule</h3>
-                          <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: '1.4' }}>
-                            Our AI is parsing your parameters, mapping the daily segments, allocating budgets, and generating a premium travel map...
-                          </p>
-                          {loadingTime > 10 && (
-                            <div style={{ marginTop: '2rem', padding: '1rem', background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', color: '#B45309', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'center' }}>
-                              <span>⏳ We’re still working on your trip, almost there. (This might take a bit longer, please wait... elapsed: {loadingTime}s)</span>
-                              <button 
-                                onClick={() => { setIsLoading(false); }} 
-                                style={{ background: '#F59E0B', border: 'none', color: '#FFFFFF', padding: '0.5rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
-                              >
-                                Cancel & Try Again
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        <ItinerarySkeleton />
                       ) : (
                         <>
                           {tripError && (
@@ -1336,5 +1387,119 @@ export default function App() {
         />
       </div>
     </BrowserRouter>
+  );
+}
+
+function ItinerarySkeleton() {
+  return (
+    <div className="itinerary-container" style={{ opacity: 0.8, textAlign: 'left' }}>
+      {/* Back button skeleton placeholder */}
+      <div style={{ textAlign: 'left', marginBottom: '1rem' }}>
+        <div className="shimmer-block" style={{ height: '36px', width: '150px', borderRadius: '8px' }}></div>
+      </div>
+
+      {/* Summary Panel Skeleton */}
+      <div className="itinerary-summary-panel" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '16px', padding: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {/* Destination Title */}
+          <div className="shimmer-block" style={{ height: '32px', width: '60%', borderRadius: '6px' }}></div>
+          {/* Subtitle description */}
+          <div className="shimmer-block" style={{ height: '16px', width: '80%', borderRadius: '4px' }}></div>
+          
+          {/* Metric boxes */}
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ flex: '1 1 100px', height: '70px', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="shimmer-block" style={{ height: '18px', width: '40%', borderRadius: '4px' }}></div>
+                <div className="shimmer-block" style={{ height: '12px', width: '60%', borderRadius: '3px' }}></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Budget Allocation Progress Bars */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', justifyContent: 'center' }}>
+          <div className="shimmer-block" style={{ height: '16px', width: '50%', borderRadius: '4px', marginBottom: '0.4rem' }}></div>
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div className="shimmer-block" style={{ height: '12px', width: '30%', borderRadius: '3px' }}></div>
+                <div className="shimmer-block" style={{ height: '12px', width: '15%', borderRadius: '3px' }}></div>
+              </div>
+              <div className="shimmer-block" style={{ height: '8px', width: '100%', borderRadius: '4px' }}></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Transit Card Skeleton */}
+      <div style={{ background: '#F1F5F9', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.2rem', marginTop: '1.2rem', marginBottom: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+        <div className="shimmer-block" style={{ height: '20px', width: '200px', borderRadius: '4px' }}></div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <div className="shimmer-block" style={{ height: '12px', width: '100px', borderRadius: '3px' }}></div>
+            <div className="shimmer-block" style={{ height: '16px', width: '150px', borderRadius: '4px' }}></div>
+          </div>
+          <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <div className="shimmer-block" style={{ height: '12px', width: '100px', borderRadius: '3px' }}></div>
+            <div className="shimmer-block" style={{ height: '16px', width: '150px', borderRadius: '4px' }}></div>
+          </div>
+          <div style={{ flex: '2 1 300px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <div className="shimmer-block" style={{ height: '12px', width: '120px', borderRadius: '3px' }}></div>
+            <div className="shimmer-block" style={{ height: '16px', width: '250px', borderRadius: '4px' }}></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Safety & Logistics Tips Panel Skeleton */}
+      <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.2rem', marginTop: '1.2rem', marginBottom: '1.2rem' }}>
+        {[1, 2, 3].map(i => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="shimmer-block" style={{ height: '16px', width: '120px', borderRadius: '4px' }}></div>
+            <div className="shimmer-block" style={{ height: '12px', width: '100%', borderRadius: '3px' }}></div>
+            <div className="shimmer-block" style={{ height: '12px', width: '90%', borderRadius: '3px' }}></div>
+          </div>
+        ))}
+      </div>
+
+      {/* Day Cards Skeleton */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {[1, 2, 3].map(dayIdx => (
+          <div key={dayIdx} className="day-card" style={{ border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
+            <div className="day-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.2rem', background: '#FFFFFF' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', width: '100%' }}>
+                <div className="shimmer-block" style={{ width: '28px', height: '28px', borderRadius: '50%' }}></div>
+                <div className="shimmer-block" style={{ height: '18px', width: '40%', borderRadius: '4px' }}></div>
+                <div className="shimmer-block" style={{ height: '14px', width: '120px', borderRadius: '4px' }}></div>
+              </div>
+              <div className="shimmer-block" style={{ width: '20px', height: '20px', borderRadius: '4px' }}></div>
+            </div>
+            
+            {dayIdx === 1 && (
+              <div className="day-body" style={{ padding: '1.2rem', background: '#FFFFFF', borderTop: '1px solid #F1F5F9', display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                {[1, 2, 3].map(bIdx => (
+                  <div key={bIdx} style={{ display: 'flex', gap: '1rem' }}>
+                    {/* Time Window column */}
+                    <div style={{ width: '90px', display: 'flex', flexDirection: 'column', gap: '0.4rem', flexShrink: 0 }}>
+                      <div className="shimmer-block" style={{ height: '16px', width: '100%', borderRadius: '4px' }}></div>
+                    </div>
+                    {/* Activity content card */}
+                    <div style={{ flex: 1, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div className="shimmer-block" style={{ height: '18px', width: '50%', borderRadius: '4px' }}></div>
+                        <div className="shimmer-block" style={{ height: '16px', width: '80px', borderRadius: '4px' }}></div>
+                      </div>
+                      <div className="shimmer-block" style={{ height: '12px', width: '95%', borderRadius: '3px' }}></div>
+                      <div className="shimmer-block" style={{ height: '12px', width: '85%', borderRadius: '3px' }}></div>
+                      <div className="shimmer-block" style={{ height: '14px', width: '110px', borderRadius: '4px', marginTop: '0.4rem' }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
