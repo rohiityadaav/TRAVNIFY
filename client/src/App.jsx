@@ -28,6 +28,8 @@ import knownCitiesDb from '../../server/data/known_cities.json';
 export default function App() {
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'plan' | 'explore' | 'near-me' | 'my-trips'
   const skeletonTimerRef = useRef(null);
+  const fallbackTimerRef = useRef(null);
+  const activeAbortControllerRef = useRef(null);
   
   const {
     user,
@@ -739,192 +741,59 @@ export default function App() {
       },
       summary: {
         destination: destName,
-        totalDays: daysCount,
-        approxTotalCost: budget,
-        currency: currency,
-        dailyAverageCost: avgDaily
-      }
-    };
-  };
-
-  // 2. AI Travel Plan Generation Trigger
-  const handleGenerateTrip = async (details) => {
-    console.log("[DEBUG Loading] handleGenerateTrip called - details:", details);
-    setIsGenerating(true);
-    setShowSkeleton(false);
-    setTripError(null);
-    setActiveTripDetails(details);
-
-    // Compute trip length in days
-    const lengthInDays = calculateLengthInDays(details.startDate, details.endDate);
-    
-    // Check if user is Premium for long trips (> 92 days)
-    if (lengthInDays > 92 && (!user || !user.isPremium)) {
-      setIsGenerating(false);
-      openPricingModal();
-      return;
-    }
-
-    // Clear any existing skeleton timer
-    if (skeletonTimerRef.current) {
-      clearTimeout(skeletonTimerRef.current);
-    }
-
-    // Start 5-second timer for Stage 2 (skeleton screen)
-    const skeletonTimerStart = Date.now();
-    console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 5-second skeletonTimer`);
-    skeletonTimerRef.current = setTimeout(() => {
-      const elapsed = Date.now() - skeletonTimerStart;
-      console.log(`[DEBUG Loading] [${new Date().toISOString()}] skeletonTimer fired after ${elapsed}ms - setting showSkeleton=true, activeItinerary=null`);
-      setShowSkeleton(true);
-      setActiveItinerary(null);
-    }, 5000);
-
-    const token = localStorage.getItem('token');
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const makeRequest = async (isSimplified = false) => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, isSimplified ? 15000 : 20000); // 20s timeout for first call, 15s for simplified retry
-
-      try {
-        const userLat = localStorage.getItem('userLat');
-        const userLng = localStorage.getItem('userLng');
-        const startCity = localStorage.getItem('userCity');
-        const startCountry = localStorage.getItem('userCountry');
-
-        const bodyPayload = {
-          ...details,
-          preferredCurrency: user?.preferredCurrency || details.currency || 'INR',
-          simplified: isSimplified
-        };
-        if (userLat && userLng) {
-          bodyPayload.userLat = Number(userLat);
-          bodyPayload.userLng = Number(userLng);
+          totalDays: daysCount,
+          approxTotalCost: budget,
+          currency: currency,
+          dailyAverageCost: avgDaily
         }
-        if (startCity) bodyPayload.startCity = startCity;
-        if (startCountry) bodyPayload.startCountry = startCountry;
-
-        const response = await safeFetch('/api/generateTrip', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(bodyPayload),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return await response.json();
-      } catch (err) {
-        clearTimeout(timeoutId);
-        throw err;
-      }
-    };
-
-    try {
-      // First attempt
-      console.log("[DEBUG Loading] First attempt started");
-      const data = await makeRequest(false);
-      console.log("[DEBUG Loading] First attempt resolved successfully");
-      
-      if (skeletonTimerRef.current) {
-        console.log("[DEBUG Loading] Clearing skeletonTimer");
-        clearTimeout(skeletonTimerRef.current);
-        skeletonTimerRef.current = null;
-      }
-      setIsGenerating(false);
-      setShowSkeleton(false);
-      setFallbackWarning(null);
-
-      const itineraryWithSource = {
-        ...data.itinerary,
-        generationSource: 'backend'
       };
-      setActiveItinerary(itineraryWithSource);
-      
-      // Track plan generation success
-      trackEvent('plan_created', {
-        days: data.itinerary?.summary?.totalDays || details.days || 3,
-        destinationCount: details.destination ? details.destination.split(',').length : 1
-      });
+    };
 
-      // Sync limits left on profile if logged in
-      if (data.user && setUser) {
-        setUser(data.user);
-      } else {
-        syncUserCredits();
-      }
-    } catch (err) {
-      console.warn('[DEBUG Loading] First attempt failed. Error:', err.message);
+    // 2. AI Travel Plan Generation Trigger
+    const handleGenerateTrip = async (details) => {
+      console.log("[DEBUG Loading] handleGenerateTrip called - details:", details);
+      setIsGenerating(true);
+      setShowSkeleton(false);
+      setTripError(null);
+      setActiveTripDetails(details);
+
+      // Compute trip length in days
+      const lengthInDays = calculateLengthInDays(details.startDate, details.endDate);
       
-      // If it's a premium gate error from the server, handle immediately without retrying or fallback
-      if (err.code === 'NEED_PREMIUM_FOR_LONG_TRIP' || err.message?.includes('NEED_PREMIUM_FOR_LONG_TRIP')) {
-        console.log("[DEBUG Loading] Premium gate error - aborting and showing modal");
-        if (skeletonTimerRef.current) {
-          clearTimeout(skeletonTimerRef.current);
-          skeletonTimerRef.current = null;
-        }
+      // Check if user is Premium for long trips (> 92 days)
+      if (lengthInDays > 92 && (!user || !user.isPremium)) {
         setIsGenerating(false);
-        setShowSkeleton(false);
         openPricingModal();
         return;
       }
 
-      // If it's normal credit limit error, handle immediately
-      if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
-        console.log("[DEBUG Loading] Limit exceeded error - aborting and showing modal");
-        if (skeletonTimerRef.current) {
-          clearTimeout(skeletonTimerRef.current);
-          skeletonTimerRef.current = null;
-        }
-        setIsGenerating(false);
-        setShowSkeleton(false);
-        openPricingModal();
-        syncUserCredits();
-        return;
+      // Clear any existing timers
+      if (skeletonTimerRef.current) {
+        clearTimeout(skeletonTimerRef.current);
+      }
+      if (fallbackTimerRef.current) {
+        clearTimeout(fallbackTimerRef.current);
       }
 
-      // Retry once with simplified flag
-      console.log('[DEBUG Loading] Retrying once with simplified flag...');
-      try {
-        const data = await makeRequest(true);
-        console.log("[DEBUG Loading] Retry attempt resolved successfully");
-        
-        if (skeletonTimerRef.current) {
-          console.log("[DEBUG Loading] Clearing skeletonTimer (retry success)");
-          clearTimeout(skeletonTimerRef.current);
-          skeletonTimerRef.current = null;
-        }
-        setIsGenerating(false);
-        setShowSkeleton(false);
-        setFallbackWarning(null);
+      let isAbortedByTimeout = false;
 
-        const itineraryWithSource = {
-          ...data.itinerary,
-          generationSource: 'backend_retry'
-        };
-        setActiveItinerary(itineraryWithSource);
+      // Start 5-second timer for Stage 2 (skeleton screen)
+      const skeletonTimerStart = Date.now();
+      console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 5-second skeletonTimer`);
+      skeletonTimerRef.current = setTimeout(() => {
+        const elapsed = Date.now() - skeletonTimerStart;
+        console.log(`[DEBUG Loading] [${new Date().toISOString()}] skeletonTimer fired after ${elapsed}ms - setting showSkeleton=true, activeItinerary=null`);
+        setShowSkeleton(true);
+        setActiveItinerary(null);
+      }, 5000);
 
-        // Track plan generation success
-        trackEvent('plan_created', {
-          days: data.itinerary?.summary?.totalDays || details.days || 3,
-          destinationCount: details.destination ? details.destination.split(',').length : 1,
-          simplified: true
-        });
-
-        if (data.user && setUser) {
-          setUser(data.user);
-        } else {
-          syncUserCredits();
-        }
-      } catch (retryErr) {
-        console.error('[DEBUG Loading] Retry attempt also failed. Error:', retryErr.message);
-        
-        if (skeletonTimerRef.current) {
-          console.log("[DEBUG Loading] Clearing skeletonTimer (retry failure)");
-          clearTimeout(skeletonTimerRef.current);
-          skeletonTimerRef.current = null;
+      // Start 10-second timer for fallback (skeleton never visible > 5s)
+      console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 10-second fallbackTimer`);
+      fallbackTimerRef.current = setTimeout(() => {
+        console.log(`[DEBUG Loading] [${new Date().toISOString()}] 10-second fallbackTimer fired - aborting active request and loading fallback`);
+        isAbortedByTimeout = true;
+        if (activeAbortControllerRef.current) {
+          activeAbortControllerRef.current.abort();
         }
         setIsGenerating(false);
         setShowSkeleton(false);
@@ -934,18 +803,202 @@ export default function App() {
         fallbackItinerary.generationSource = 'client_fallback';
         setActiveItinerary(fallbackItinerary);
         setFallbackWarning("We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.");
+      }, 10000);
+
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const makeRequest = async (isSimplified = false) => {
+        const controller = new AbortController();
+        activeAbortControllerRef.current = controller;
+
+        const timeoutId = setTimeout(() => {
+          controller.abort();
+        }, isSimplified ? 15000 : 20000); // Backstop timeout inside request
+
+        try {
+          const userLat = localStorage.getItem('userLat');
+          const userLng = localStorage.getItem('userLng');
+          const startCity = localStorage.getItem('userCity');
+          const startCountry = localStorage.getItem('userCountry');
+
+          const bodyPayload = {
+            ...details,
+            preferredCurrency: user?.preferredCurrency || details.currency || 'INR',
+            simplified: isSimplified
+          };
+          if (userLat && userLng) {
+            bodyPayload.userLat = Number(userLat);
+            bodyPayload.userLng = Number(userLng);
+          }
+          if (startCity) bodyPayload.startCity = startCity;
+          if (startCountry) bodyPayload.startCountry = startCountry;
+
+          const response = await safeFetch('/api/generateTrip', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(bodyPayload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return await response.json();
+        } catch (err) {
+          clearTimeout(timeoutId);
+          throw err;
+        }
+      };
+
+      try {
+        // First attempt
+        console.log("[DEBUG Loading] First attempt started");
+        const data = await makeRequest(false);
+        console.log("[DEBUG Loading] First attempt resolved successfully");
         
-        // Track fallback generation
+        // Clear all timers on successful resolution
+        if (skeletonTimerRef.current) {
+          clearTimeout(skeletonTimerRef.current);
+          skeletonTimerRef.current = null;
+        }
+        if (fallbackTimerRef.current) {
+          clearTimeout(fallbackTimerRef.current);
+          fallbackTimerRef.current = null;
+        }
+        setIsGenerating(false);
+        setShowSkeleton(false);
+        setFallbackWarning(null);
+
+        const itineraryWithSource = {
+          ...data.itinerary,
+          generationSource: 'backend'
+        };
+        setActiveItinerary(itineraryWithSource);
+        
+        // Track plan generation success
         trackEvent('plan_created', {
-          days: fallbackItinerary?.tripSummary?.totalDays || 3,
-          destinationCount: details.destination ? details.destination.split(',').length : 1,
-          fallback: true
+          days: data.itinerary?.summary?.totalDays || details.days || 3,
+          destinationCount: details.destination ? details.destination.split(',').length : 1
         });
 
-        syncUserCredits();
+        // Sync limits left on profile if logged in
+        if (data.user && setUser) {
+          setUser(data.user);
+        } else {
+          syncUserCredits();
+        }
+      } catch (err) {
+        if (isAbortedByTimeout) {
+          console.log("[DEBUG Loading] First attempt aborted because of 10s fallback timeout. Skipping retry.");
+          return;
+        }
+
+        console.warn('[DEBUG Loading] First attempt failed. Error:', err.message);
+        
+        // If it's a premium gate error from the server, handle immediately without retrying or fallback
+        if (err.code === 'NEED_PREMIUM_FOR_LONG_TRIP' || err.message?.includes('NEED_PREMIUM_FOR_LONG_TRIP')) {
+          console.log("[DEBUG Loading] Premium gate error - aborting and showing modal");
+          if (skeletonTimerRef.current) {
+            clearTimeout(skeletonTimerRef.current);
+            skeletonTimerRef.current = null;
+          }
+          if (fallbackTimerRef.current) {
+            clearTimeout(fallbackTimerRef.current);
+            fallbackTimerRef.current = null;
+          }
+          setIsGenerating(false);
+          setShowSkeleton(false);
+          openPricingModal();
+          return;
+        }
+
+        // If it's normal credit limit error, handle immediately
+        if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
+          console.log("[DEBUG Loading] Limit exceeded error - aborting and showing modal");
+          if (skeletonTimerRef.current) {
+            clearTimeout(skeletonTimerRef.current);
+            skeletonTimerRef.current = null;
+          }
+          if (fallbackTimerRef.current) {
+            clearTimeout(fallbackTimerRef.current);
+            fallbackTimerRef.current = null;
+          }
+          setIsGenerating(false);
+          setShowSkeleton(false);
+          openPricingModal();
+          syncUserCredits();
+          return;
+        }
+
+        // Retry once with simplified flag - DO NOT reset or clear fallback/skeleton timers here.
+        console.log('[DEBUG Loading] Retrying once with simplified flag...');
+        try {
+          const data = await makeRequest(true);
+          console.log("[DEBUG Loading] Retry attempt resolved successfully");
+          
+          if (skeletonTimerRef.current) {
+            clearTimeout(skeletonTimerRef.current);
+            skeletonTimerRef.current = null;
+          }
+          if (fallbackTimerRef.current) {
+            clearTimeout(fallbackTimerRef.current);
+            fallbackTimerRef.current = null;
+          }
+          setIsGenerating(false);
+          setShowSkeleton(false);
+          setFallbackWarning(null);
+
+          const itineraryWithSource = {
+            ...data.itinerary,
+            generationSource: 'backend_retry'
+          };
+          setActiveItinerary(itineraryWithSource);
+
+          // Track plan generation success
+          trackEvent('plan_created', {
+            days: data.itinerary?.summary?.totalDays || details.days || 3,
+            destinationCount: details.destination ? details.destination.split(',').length : 1,
+            simplified: true
+          });
+
+          if (data.user && setUser) {
+            setUser(data.user);
+          } else {
+            syncUserCredits();
+          }
+        } catch (retryErr) {
+          if (isAbortedByTimeout) {
+            console.log("[DEBUG Loading] Retry attempt aborted by timeout. Aborting flow.");
+            return;
+          }
+
+          console.error('[DEBUG Loading] Retry attempt also failed. Error:', retryErr.message);
+          
+          if (skeletonTimerRef.current) {
+            clearTimeout(skeletonTimerRef.current);
+            skeletonTimerRef.current = null;
+          }
+          if (fallbackTimerRef.current) {
+            clearTimeout(fallbackTimerRef.current);
+            fallbackTimerRef.current = null;
+          }
+          setIsGenerating(false);
+          setShowSkeleton(false);
+
+          // Final fallback: show a basic template itinerary generated on the client
+          const fallbackItinerary = generateClientItineraryTemplate(details);
+          fallbackItinerary.generationSource = 'client_fallback';
+          setActiveItinerary(fallbackItinerary);
+          setFallbackWarning("We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.");
+          
+          // Track fallback generation
+          trackEvent('plan_created', {
+            days: fallbackItinerary?.tripSummary?.totalDays || 3,
+            destinationCount: details.destination ? details.destination.split(',').length : 1,
+            fallback: true
+          });
+        }
       }
-    }
-  };
+    };
 
   // 3. AI Refinement API call
   const handleRefineTrip = async (action) => {
@@ -1458,6 +1511,20 @@ export default function App() {
 
 function GeneratingLoader() {
   console.log(`[DEBUG Loading] [${new Date().toISOString()}] GeneratingLoader rendered`);
+  const [textIndex, setTextIndex] = useState(0);
+  const messages = [
+    "Finding the best places for your perfect trip...",
+    "Matching your budget with unforgettable experiences...",
+    "Designing your personalized travel story..."
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextIndex((prev) => (prev + 1) % messages.length);
+    }, 2500); // Rotate every 2.5s
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div style={{
       display: 'flex',
@@ -1467,18 +1534,52 @@ function GeneratingLoader() {
       minHeight: '65vh',
       padding: '2rem',
       textAlign: 'center',
-      gap: '1.5rem'
-    }} className="animate-pulse">
-      {/* Round Spinner */}
-      <RefreshCw size={44} className="animate-spin" style={{ color: 'var(--primary)' }} />
-      
-      {/* Loading Text */}
-      <div>
-        <h3 style={{ fontSize: '1.35rem', fontWeight: '700', color: '#0F172A', marginBottom: '0.5rem' }}>
-          We’re preparing your perfect trip...
-        </h3>
-        <p style={{ color: '#64748B', fontSize: '0.92rem', maxWidth: '420px', margin: '0 auto', lineHeight: '1.5' }}>
-          This may take a moment depending on your destination and budget.
+      gap: '2.2rem'
+    }}>
+      {/* Premium Segment Spinner */}
+      <div className="premium-spin-container" style={{
+        position: 'relative',
+        width: '90px',
+        height: '90px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {Array.from({ length: 20 }).map((_, idx) => {
+          const angle = idx * (360 / 24);
+          const delay = -((24 - idx) * (1.2 / 24)).toFixed(3);
+          return (
+            <div
+              key={idx}
+              className="segment-dash"
+              style={{
+                position: 'absolute',
+                width: '3.5px',
+                height: '11px',
+                borderRadius: '999px',
+                transform: `rotate(${angle}deg) translateY(-32px)`,
+                animationDelay: `${delay}s`
+              }}
+            />
+          );
+        })}
+      </div>
+
+      {/* Rotating Animated Loading Text */}
+      <div style={{ minHeight: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p
+          key={textIndex}
+          className="loading-text-anim"
+          style={{
+            color: '#475569',
+            fontSize: '1.05rem',
+            fontWeight: '600',
+            maxWidth: '440px',
+            margin: '0 auto',
+            lineHeight: '1.5'
+          }}
+        >
+          {messages[textIndex]}
         </p>
       </div>
     </div>
