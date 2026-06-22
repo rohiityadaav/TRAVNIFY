@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { jsPDF } from 'jspdf';
-import { ShieldCheck, Info, FileText, Heart, Shield, RefreshCw, X } from 'lucide-react';
+import { ShieldCheck, Info, FileText, Heart, Shield, RefreshCw, X, Sparkles } from 'lucide-react';
 
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
@@ -1343,9 +1343,14 @@ export default function App() {
                     <ProtectedRoute fallbackTab="home" setActiveTab={setActiveTab} message="Create a free TRAVNIFY account to start planning trips.">
                       {(() => {
                         console.log(`[DEBUG Loading] [${new Date().toISOString()}] Plan Tab Render - isGenerating: ${isGenerating}, showSkeleton: ${showSkeleton}`);
-                        if (showSkeleton) {
-                          console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning ItinerarySkeleton`);
-                          return <ItinerarySkeleton />;
+                        if (isGenerating) {
+                          if (showSkeleton) {
+                            console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning ItinerarySkeleton`);
+                            return <ItinerarySkeleton />;
+                          } else {
+                            console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning GeneratingLoader`);
+                            return <GeneratingLoader />;
+                          }
                         } else {
                           console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning PlanTrip form`);
                           return (
@@ -1448,6 +1453,87 @@ export default function App() {
         />
       </div>
     </BrowserRouter>
+  );
+}
+
+function GeneratingLoader() {
+  console.log(`[DEBUG Loading] [${new Date().toISOString()}] GeneratingLoader rendered`);
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '65vh',
+      padding: '2rem',
+      textAlign: 'center'
+    }}>
+      <div style={{
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: '24px',
+        padding: '3rem 2rem',
+        maxWidth: '450px',
+        width: '100%',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1.5rem',
+        animation: 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+      }}>
+        {/* Animated Spin Icon Container */}
+        <div style={{
+          position: 'relative',
+          width: '80px',
+          height: '80px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+          borderRadius: '50%',
+          boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.1)'
+        }} className="animate-pulse">
+          <Sparkles size={36} color="#F26430" fill="#F26430" className="animate-spin" style={{ animationDuration: '3s' }} />
+        </div>
+
+        {/* Loading text headings */}
+        <div>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
+            TRAVNIFYing Your Trip...
+          </h3>
+          <p style={{ color: '#64748B', fontSize: '0.92rem', lineHeight: '1.5', margin: 0 }}>
+            Our AI travel planner is searching hotels, mapping routes, and crafting custom day-by-day itineraries for you.
+          </p>
+        </div>
+
+        {/* Shimmery indicator bar */}
+        <div style={{
+          width: '100%',
+          height: '6px',
+          background: '#F1F5F9',
+          borderRadius: '99px',
+          overflow: 'hidden',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: '60%',
+            background: 'linear-gradient(90deg, #F26430 0%, #FB923C 100%)',
+            borderRadius: '99px',
+            animation: 'shimmer 1.5s infinite linear',
+            backgroundSize: '200% 100%'
+          }} />
+        </div>
+
+        <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          This stage takes up to 3 seconds
+        </span>
+      </div>
+    </div>
   );
 }
 
