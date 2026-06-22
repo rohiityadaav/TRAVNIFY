@@ -55,6 +55,19 @@ export default function App() {
   const [tripError, setTripError] = useState(null);
   const [fallbackWarning, setFallbackWarning] = useState(null);
 
+  // Debug state change listeners with precise millisecond timestamps
+  useEffect(() => {
+    console.log(`[DEBUG Loading] [${new Date().toISOString()}] State Change - isGenerating:`, isGenerating);
+  }, [isGenerating]);
+
+  useEffect(() => {
+    console.log(`[DEBUG Loading] [${new Date().toISOString()}] State Change - showSkeleton:`, showSkeleton);
+  }, [showSkeleton]);
+
+  useEffect(() => {
+    console.log(`[DEBUG Loading] [${new Date().toISOString()}] State Change - activeItinerary:`, activeItinerary ? "object" : "null");
+  }, [activeItinerary]);
+
   // Initialize GA4 Analytics once on mount
   useEffect(() => {
     initAnalytics();
@@ -758,9 +771,11 @@ export default function App() {
     }
 
     // Start 3-second timer for Stage 2 (skeleton screen)
-    console.log("[DEBUG Loading] Starting 3-second skeletonTimer");
+    const skeletonTimerStart = Date.now();
+    console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 3-second skeletonTimer`);
     skeletonTimerRef.current = setTimeout(() => {
-      console.log("[DEBUG Loading] skeletonTimer fired - setting showSkeleton=true, activeItinerary=null");
+      const elapsed = Date.now() - skeletonTimerStart;
+      console.log(`[DEBUG Loading] [${new Date().toISOString()}] skeletonTimer fired after ${elapsed}ms - setting showSkeleton=true, activeItinerary=null`);
       setShowSkeleton(true);
       setActiveItinerary(null);
     }, 3000);
@@ -1327,40 +1342,44 @@ export default function App() {
                   {activeTab === 'plan' && (
                     <ProtectedRoute fallbackTab="home" setActiveTab={setActiveTab} message="Create a free TRAVNIFY account to start planning trips.">
                       {(() => {
-                        console.log("[DEBUG Loading] Plan Tab Render - isGenerating:", isGenerating, "showSkeleton:", showSkeleton);
-                        return showSkeleton ? (
-                          <ItinerarySkeleton />
-                        ) : (
-                          <>
-                            {tripError && (
-                              <div style={{
-                                padding: '1rem',
-                                background: '#FEF2F2',
-                                border: '1px solid #FCA5A5',
-                                borderRadius: '12px',
-                                color: '#991B1B',
-                                fontSize: '0.95rem',
-                                marginBottom: '1.5rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '0.5rem',
-                                maxWidth: '600px',
-                                margin: '0 auto 1.5rem auto',
-                                textAlign: 'left'
-                              }}>
-                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                  <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                                  <span>{tripError}</span>
-                                </span>
-                                <button onClick={() => setTripError(null)} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', padding: '0.2rem', display: 'flex', alignItems: 'center' }}>
-                                  <X size={16} />
-                                </button>
-                              </div>
-                            )}
-                            <PlanTrip onGenerate={handleGenerateTrip} isLoading={isGenerating} user={user} />
-                          </>
-                        );
+                        console.log(`[DEBUG Loading] [${new Date().toISOString()}] Plan Tab Render - isGenerating: ${isGenerating}, showSkeleton: ${showSkeleton}`);
+                        if (showSkeleton) {
+                          console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning ItinerarySkeleton`);
+                          return <ItinerarySkeleton />;
+                        } else {
+                          console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning PlanTrip form`);
+                          return (
+                            <>
+                              {tripError && (
+                                <div style={{
+                                  padding: '1rem',
+                                  background: '#FEF2F2',
+                                  border: '1px solid #FCA5A5',
+                                  borderRadius: '12px',
+                                  color: '#991B1B',
+                                  fontSize: '0.95rem',
+                                  marginBottom: '1.5rem',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  gap: '0.5rem',
+                                  maxWidth: '600px',
+                                  margin: '0 auto 1.5rem auto',
+                                  textAlign: 'left'
+                                }}>
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                                    <span>{tripError}</span>
+                                  </span>
+                                  <button onClick={() => setTripError(null)} style={{ background: 'none', border: 'none', color: '#991B1B', cursor: 'pointer', padding: '0.2rem', display: 'flex', alignItems: 'center' }}>
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                              )}
+                              <PlanTrip onGenerate={handleGenerateTrip} isLoading={isGenerating} user={user} />
+                            </>
+                          );
+                        }
                       })()}
                     </ProtectedRoute>
                   )}
@@ -1433,7 +1452,7 @@ export default function App() {
 }
 
 function ItinerarySkeleton() {
-  console.log("[DEBUG Loading] ItinerarySkeleton rendered");
+  console.log(`[DEBUG Loading] [${new Date().toISOString()}] ItinerarySkeleton rendered`);
   return (
     <div className="itinerary-container" style={{ opacity: 0.8, textAlign: 'left' }}>
       {/* Back button skeleton placeholder */}

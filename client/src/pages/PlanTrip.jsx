@@ -3,7 +3,7 @@ import { Sparkles, Calendar, DollarSign, Tag, PlaneTakeoff, Heart } from 'lucide
 import { CURRENCIES } from '../lib/currency';
 
 export default function PlanTrip({ onGenerate, isLoading, user }) {
-  console.log("[DEBUG Loading] PlanTrip rendered - isLoading:", isLoading);
+  console.log(`[DEBUG Loading] [${new Date().toISOString()}] PlanTrip rendered - isLoading: ${isLoading}`);
   const [prompt, setPrompt] = useState('');
   const [destination, setDestination] = useState('');
   const [budget, setBudget] = useState('');
