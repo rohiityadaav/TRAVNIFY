@@ -17,86 +17,152 @@ export function AuthProvider({ children }) {
   const [pendingAction, setPendingAction] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    let isMounted = true;
+
+    async function initializeAuth() {
       let token = localStorage.getItem('token');
       const localRefreshToken = localStorage.getItem('refreshToken');
-      
-      console.log("[DEBUG Auth] onAuthStateChanged - firebaseUser:", firebaseUser ? firebaseUser.email : 'null', "token exists:", !!token, "refreshToken exists:", !!localRefreshToken);
       
       if (token === 'undefined' || token === 'null') {
         token = null;
         localStorage.removeItem('token');
       }
 
-      if (firebaseUser) {
-        let verified = false;
-        
-        if (token) {
-          try {
-            console.log("[DEBUG Auth] Verifying current access token...");
-            const res = await safeFetch('/api/auth/me', {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const contentType = res.headers.get("content-type");
-            if (res.ok && contentType && contentType.includes("application/json")) {
-              const userData = await res.json();
-              console.log("[DEBUG Auth] Token verification succeeded. Credits:", userData?.dailyCreditsUsed);
+      console.log("[DEBUG Auth] initializeAuth - token exists:", !!token, "refreshToken exists:", !!localRefreshToken);
+
+      let verified = false;
+
+      // 1. Try to verify the current access token
+      if (token) {
+        try {
+          console.log("[DEBUG Auth] Verifying current access token...");
+          const res = await safeFetch('/api/auth/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const contentType = res.headers.get("content-type");
+          if (res.ok && contentType && contentType.includes("application/json")) {
+            const userData = await res.json();
+            console.log("[DEBUG Auth] Token verification succeeded. Credits:", userData?.dailyCreditsUsed);
+            if (isMounted) {
               setUser(userData);
               setIsAuthenticated(true);
               verified = true;
             }
-          } catch (err) {
-            console.warn("[DEBUG Auth] Token verification or safeFetch auto-refresh failed:", err);
           }
+        } catch (err) {
+          console.warn("[DEBUG Auth] Token verification failed:", err);
         }
+      }
 
-        if (!verified) {
-          if (localRefreshToken) {
-            try {
-              console.log("[DEBUG Auth] Attempting silent refresh via refresh token...");
-              const res = await safeFetch('/api/auth/refresh', {
-                method: 'POST',
-                body: JSON.stringify({ refreshToken: localRefreshToken }),
-                headers: { 'Content-Type': 'application/json' }
-              });
-              if (res.ok) {
-                const data = await res.json();
-                if (data.token) {
-                  console.log("[DEBUG Auth] Silent refresh succeeded inside onAuthStateChanged. Credits:", data.user?.dailyCreditsUsed);
-                  loginSuccess(data.user, data.token);
-                  setLoading(false);
-                  return;
-                }
+      // 2. If access token verification failed or was skipped, try silent refresh
+      if (!verified && localRefreshToken) {
+        try {
+          console.log("[DEBUG Auth] Attempting silent refresh via refresh token...");
+          const res = await safeFetch('/api/auth/refresh', {
+            method: 'POST',
+            body: JSON.stringify({ refreshToken: localRefreshToken }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.token) {
+              console.log("[DEBUG Auth] Silent refresh succeeded. Credits:", data.user?.dailyCreditsUsed);
+              if (isMounted) {
+                loginSuccess(data.user, data.token);
+                verified = true;
               }
-            } catch (refreshErr) {
-              console.error("[DEBUG Auth] Silent refresh failed inside onAuthStateChanged:", refreshErr);
             }
           }
-          
-          // Both token verification and refresh failed. Cleanly log out.
-          console.warn("[DEBUG Auth] Both token verification and refresh failed. Logging out.");
+        } catch (refreshErr) {
+          console.error("[DEBUG Auth] Silent refresh failed:", refreshErr);
+        }
+      }
+
+      // 3. If both failed, check if Firebase has a user we can sync from.
+      if (!verified && auth.currentUser) {
+        try {
+          console.log("[DEBUG Auth] Custom session verification failed, but Firebase user exists. Syncing...");
+          const syncRes = await safeFetch('/api/auth/firebase-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: auth.currentUser.email,
+              name: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
+              country: 'IN',
+              emailVerified: auth.currentUser.emailVerified
+            })
+          });
+          if (syncRes.ok) {
+            const data = await syncRes.json();
+            if (data.token && isMounted) {
+              loginSuccess(data.user, data.token);
+              verified = true;
+            }
+          }
+        } catch (syncErr) {
+          console.error("[DEBUG Auth] Syncing from existing Firebase user failed:", syncErr);
+        }
+      }
+
+      // 4. If still not verified, clear everything
+      if (!verified) {
+        console.log("[DEBUG Auth] Not authenticated. Cleaning up session.");
+        if (isMounted) {
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
+          setUser(null);
+          setIsAuthenticated(false);
           try {
             await signOut(auth);
           } catch (signOutErr) {
             console.error("Firebase signOut error:", signOutErr);
           }
-          setUser(null);
-          setIsAuthenticated(false);
         }
-      } else {
-        // No firebase user
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        setUser(null);
-        setIsAuthenticated(false);
       }
-      
-      setLoading(false);
+
+      if (isMounted) {
+        setLoading(false);
+      }
+    }
+
+    initializeAuth();
+
+    // Listen for future auth state changes (e.g. if another tab signs in/out, or on first load)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log("[DEBUG Auth] onAuthStateChanged - firebaseUser:", firebaseUser ? firebaseUser.email : 'null');
+      if (firebaseUser) {
+        const token = localStorage.getItem('token');
+        const localRefreshToken = localStorage.getItem('refreshToken');
+        if (!token && !localRefreshToken) {
+          console.log("[DEBUG Auth] Firebase user exists but no local session. Syncing...");
+          try {
+            const syncRes = await safeFetch('/api/auth/firebase-sync', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: firebaseUser.email,
+                name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+                country: 'IN',
+                emailVerified: firebaseUser.emailVerified
+              })
+            });
+            if (syncRes.ok) {
+              const data = await syncRes.json();
+              if (data.token && isMounted) {
+                loginSuccess(data.user, data.token);
+              }
+            }
+          } catch (syncErr) {
+            console.error("[DEBUG Auth] Auto-sync onAuthStateChanged failed:", syncErr);
+          }
+        }
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

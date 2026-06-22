@@ -1216,7 +1216,10 @@ export default function App() {
           setActiveTab={(tab) => {
             setActiveTab(tab);
             // If switching tab, clear itinerary display to show primary list again
-            if (tab !== 'plan') setActiveItinerary(null);
+            if (tab !== 'plan') {
+              setActiveItinerary(null);
+            }
+            setShowSkeleton(false);
           }}
           user={user}
           onLogout={handleLogout}
@@ -1310,6 +1313,7 @@ export default function App() {
                     onBack={() => {
                       setActiveItinerary(null);
                       setFallbackWarning(null);
+                      setShowSkeleton(false);
                     }}
                     openPricingModal={openPricingModal}
                     openAuthModal={openAuthModal}
@@ -1429,6 +1433,7 @@ export default function App() {
 }
 
 function ItinerarySkeleton() {
+  console.log("[DEBUG Loading] ItinerarySkeleton rendered");
   return (
     <div className="itinerary-container" style={{ opacity: 0.8, textAlign: 'left' }}>
       {/* Back button skeleton placeholder */}
