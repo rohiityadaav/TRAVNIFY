@@ -770,15 +770,15 @@ export default function App() {
       clearTimeout(skeletonTimerRef.current);
     }
 
-    // Start 3-second timer for Stage 2 (skeleton screen)
+    // Start 5-second timer for Stage 2 (skeleton screen)
     const skeletonTimerStart = Date.now();
-    console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 3-second skeletonTimer`);
+    console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 5-second skeletonTimer`);
     skeletonTimerRef.current = setTimeout(() => {
       const elapsed = Date.now() - skeletonTimerStart;
       console.log(`[DEBUG Loading] [${new Date().toISOString()}] skeletonTimer fired after ${elapsed}ms - setting showSkeleton=true, activeItinerary=null`);
       setShowSkeleton(true);
       setActiveItinerary(null);
-    }, 3000);
+    }, 5000);
 
     const token = localStorage.getItem('token');
     const headers = { 'Content-Type': 'application/json' };
@@ -1466,72 +1466,20 @@ function GeneratingLoader() {
       justifyContent: 'center',
       minHeight: '65vh',
       padding: '2rem',
-      textAlign: 'center'
-    }}>
-      <div style={{
-        background: '#FFFFFF',
-        border: '1px solid #E2E8F0',
-        borderRadius: '24px',
-        padding: '3rem 2rem',
-        maxWidth: '450px',
-        width: '100%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '1.5rem',
-        animation: 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}>
-        {/* Animated Spin Icon Container */}
-        <div style={{
-          position: 'relative',
-          width: '80px',
-          height: '80px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
-          borderRadius: '50%',
-          boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.1)'
-        }} className="animate-pulse">
-          <Sparkles size={36} color="#F26430" fill="#F26430" className="animate-spin" style={{ animationDuration: '3s' }} />
-        </div>
-
-        {/* Loading text headings */}
-        <div>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#0F172A', marginBottom: '0.5rem' }}>
-            TRAVNIFYing Your Trip...
-          </h3>
-          <p style={{ color: '#64748B', fontSize: '0.92rem', lineHeight: '1.5', margin: 0 }}>
-            Our AI travel planner is searching hotels, mapping routes, and crafting custom day-by-day itineraries for you.
-          </p>
-        </div>
-
-        {/* Shimmery indicator bar */}
-        <div style={{
-          width: '100%',
-          height: '6px',
-          background: '#F1F5F9',
-          borderRadius: '99px',
-          overflow: 'hidden',
-          position: 'relative'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: '60%',
-            background: 'linear-gradient(90deg, #F26430 0%, #FB923C 100%)',
-            borderRadius: '99px',
-            animation: 'shimmer 1.5s infinite linear',
-            backgroundSize: '200% 100%'
-          }} />
-        </div>
-
-        <span style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          This stage takes up to 3 seconds
-        </span>
+      textAlign: 'center',
+      gap: '1.5rem'
+    }} className="animate-pulse">
+      {/* Round Spinner */}
+      <RefreshCw size={44} className="animate-spin" style={{ color: 'var(--primary)' }} />
+      
+      {/* Loading Text */}
+      <div>
+        <h3 style={{ fontSize: '1.35rem', fontWeight: '700', color: '#0F172A', marginBottom: '0.5rem' }}>
+          We’re preparing your perfect trip...
+        </h3>
+        <p style={{ color: '#64748B', fontSize: '0.92rem', maxWidth: '420px', margin: '0 auto', lineHeight: '1.5' }}>
+          This may take a moment depending on your destination and budget.
+        </p>
       </div>
     </div>
   );
