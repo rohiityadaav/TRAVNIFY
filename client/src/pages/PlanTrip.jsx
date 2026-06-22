@@ -118,7 +118,31 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="input-box-wrapper">
+      <form
+        onSubmit={handleSubmit}
+        className="input-box-wrapper"
+        style={{
+          position: 'relative',
+          opacity: isLoading ? 0.75 : 1,
+          pointerEvents: isLoading ? 'none' : 'auto',
+          transition: 'opacity 0.3s ease'
+        }}
+      >
+        {isLoading && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '5px',
+            background: 'linear-gradient(90deg, #F26430 25%, #FB923C 50%, #F26430 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 1.5s infinite linear',
+            borderTopLeftRadius: '20px',
+            borderTopRightRadius: '20px',
+            zIndex: 10
+          }} />
+        )}
         {/* Main Natural Language Text Area */}
         <textarea
           className="wizard-textarea"
@@ -233,6 +257,34 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
           <Sparkles size={18} fill={isLoading ? 'none' : '#FFFFFF'} className={isLoading ? 'animate-spin' : ''} />
           <span>{isLoading ? 'TRAVNIFYing Your Itinerary...' : 'Generate My Trip Plan'}</span>
         </button>
+
+        {isLoading && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem',
+            marginTop: '0.6rem',
+            padding: '1rem',
+            background: 'linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%)',
+            border: '1px solid #FED7AA',
+            borderRadius: '12px',
+            color: '#C2410C',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            boxShadow: '0 2px 8px rgba(249, 115, 22, 0.05)',
+            textAlign: 'center'
+          }} className="animate-pulse">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span className="animate-spin" style={{ display: 'inline-block' }}>🪄</span>
+              <span>Generating your custom travel itinerary...</span>
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#EA580C', fontWeight: '500' }}>
+              Consulting our AI travel guide — this stage takes up to 3 seconds.
+            </div>
+          </div>
+        )}
       </form>
 
       {/* Quick Prompts List */}
