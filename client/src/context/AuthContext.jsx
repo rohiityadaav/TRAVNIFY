@@ -3,6 +3,7 @@ import { auth } from '../lib/firebaseClient';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { safeFetch } from '../lib/api';
 import * as Sentry from '@sentry/react';
+import posthog from 'posthog-js';
 
 const AuthContext = createContext(null);
 
@@ -20,8 +21,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (user) {
       Sentry.setUser({ id: user.id, email: user.email });
+      posthog.identify(user.id, { email: user.email, role: user.role });
     } else {
       Sentry.setUser(null);
+      posthog.reset();
     }
   }, [user]);
 

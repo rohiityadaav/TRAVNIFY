@@ -4,6 +4,8 @@ import App from './App.jsx'
 import './index.css'
 import { AuthProvider } from './context/AuthContext'
 import * as Sentry from '@sentry/react'
+import posthog from 'posthog-js'
+import { PostHogProvider } from '@posthog/react'
 
 if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
@@ -13,6 +15,17 @@ if (import.meta.env.VITE_SENTRY_DSN) {
   });
 } else {
   console.warn('Sentry warning: VITE_SENTRY_DSN is missing. Sentry error monitoring is disabled.');
+}
+
+if (import.meta.env.VITE_POSTHOG_TOKEN) {
+  posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
+    api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com',
+    capture_pageview: true,
+    autocapture: true,
+    person_profiles: 'identified_only'
+  });
+} else {
+  console.warn('PostHog warning: VITE_POSTHOG_TOKEN is missing. PostHog product analytics is disabled.');
 }
 
 const container = document.getElementById('root');
@@ -55,9 +68,11 @@ root.render(
         </button>
       </div>
     )}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <PostHogProvider client={posthog}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </PostHogProvider>
     </Sentry.ErrorBoundary>
   </React.StrictMode>
 );

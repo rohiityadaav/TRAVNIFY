@@ -3,6 +3,7 @@ const db = require('../db');
 const config = require('../config');
 const authController = require('./authController');
 const Sentry = require('@sentry/node');
+const posthogClient = require('../posthogClient');
 
 function captureUnexpectedException(req, error) {
   if (process.env.SENTRY_DSN) {
@@ -1854,6 +1855,22 @@ Please reformat the last answer into the required JSON schema only. Respond with
     const duration = Date.now() - startTime;
     console.log(`[AI Trip Generation Success] Total endpoint latency: ${duration}ms`);
     const freshUser = activeUser ? await db.users.findById(activeUser.id) : null;
+    
+    if (posthogClient) {
+      posthogClient.capture({
+        distinctId: activeUser ? activeUser.id : 'anonymous',
+        event: 'trip_generated_success',
+        properties: {
+          destination: itinerary.summary?.destination || resolvedDestCity || 'Unknown',
+          days: itinerary.summary?.totalDays || daysCount,
+          budgetTier: itinerary.summary?.approxTotalCost || budgetTier,
+          budget: parsedBudget,
+          currency: activeCurrency,
+          duration_ms: duration
+        }
+      });
+    }
+
     return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
 
   } catch (error) {

@@ -23,6 +23,7 @@ import { safeFetch } from './lib/api';
 
 import { useAuth } from './context/AuthContext';
 import { initAnalytics, trackPageView, trackEvent } from './lib/analytics';
+import posthog from 'posthog-js';
 import { getCurrencySymbol, INR_TO_CURRENCY } from './lib/currency';
 import knownCitiesDb from '../../server/data/known_cities.json';
 
@@ -1362,6 +1363,11 @@ export default function App() {
     // 2. AI Travel Plan Generation Trigger
     const handleGenerateTrip = async (details) => {
       console.log("[DEBUG Loading] handleGenerateTrip called - details:", details);
+      posthog.capture('trip_generate_clicked', {
+        destination: details.destination,
+        has_dates: !!(details.startDate && details.endDate),
+        budgetTier: details.budgetTier
+      });
       
       if (!details.startDate || !details.endDate) {
         setTripError("Please select both FROM and TO dates to generate your trip.");
@@ -1539,6 +1545,12 @@ export default function App() {
           days: data.itinerary?.summary?.totalDays || details.days || 3,
           destinationCount: details.destination ? details.destination.split(',').length : 1
         });
+        posthog.capture('trip_generated_success', {
+          destination: details.destination,
+          days: data.itinerary?.summary?.totalDays || details.days || 3,
+          budgetTier: details.budgetTier,
+          method: 'ai'
+        });
 
         // Sync limits left on profile if logged in
         if (data.user && setUser) {
@@ -1619,6 +1631,12 @@ export default function App() {
             destinationCount: details.destination ? details.destination.split(',').length : 1,
             simplified: true
           });
+          posthog.capture('trip_generated_success', {
+            destination: details.destination,
+            days: data.itinerary?.summary?.totalDays || details.days || 3,
+            budgetTier: details.budgetTier,
+            method: 'ai_retry_simplified'
+          });
 
           if (data.user && setUser) {
             setUser(data.user);
@@ -1655,6 +1673,10 @@ export default function App() {
             days: fallbackItinerary?.tripSummary?.totalDays || 3,
             destinationCount: enrichedDetails.destination ? enrichedDetails.destination.split(',').length : 1,
             fallback: true
+          });
+          posthog.capture('trip_generated_failed', {
+            destination: details.destination,
+            error: retryErr.message || 'Unknown generation error'
           });
         }
       }

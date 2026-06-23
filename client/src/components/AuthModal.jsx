@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Mail, Lock, User, MapPin, X, ArrowRight, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { trackEvent } from '../lib/analytics';
+import posthog from 'posthog-js';
 import { auth } from '../lib/firebaseClient';
 import { safeFetch } from '../lib/api';
 import { COUNTRIES, getCurrencyForCountry } from '../lib/currency';
@@ -128,8 +129,9 @@ export default function AuthModal({
         // 3. Pre-create local user profile on backend and log in immediately
         await handleFirebaseSync(firebaseUser, name, country, preferredCurrency);
         
-        // Track signup event in GA4
+        // Track signup event in GA4 & PostHog
         trackEvent('signup_completed', { method: 'email' });
+        posthog.capture('auth_signup_success', { email });
       } else if (activeTab === 'login') {
         // 1. Sign in with Firebase Auth
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -138,8 +140,9 @@ export default function AuthModal({
         // 2. Synchronize with local backend DB and load session JWT (no verified checks)
         await handleFirebaseSync(firebaseUser, name, country, preferredCurrency);
         
-        // Track login event in GA4
+        // Track login event in GA4 & PostHog
         trackEvent('login_success', { method: 'email' });
+        posthog.capture('auth_login_success', { email });
       } else if (activeTab === 'forgot') {
         // 1. Send password reset email
         await sendPasswordResetEmail(auth, email);
