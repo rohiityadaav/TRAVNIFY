@@ -2118,9 +2118,6 @@ async function generateTrip(req, res) {
       return await fallbackResponse();
     }
 
-    // Try primary model first, fallback to a higher-quota secondary model
-    const primaryModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
     // Preprocessing step
     const preprocessed = preprocessInputs({
       prompt,
@@ -2320,34 +2317,49 @@ Style & Constraint Rules:
   * HIGH BUDGET: Propose premium experiences, fine-dining restaurants, guided private tours, upscale neighborhoods, shopping malls/boutiques, and taxi/private transfer options.
 - REAL PLACE NAMES ONLY: You MUST use REAL, verifiable place names — real landmarks, real neighborhoods, real restaurants, real markets, real museums, real parks, real cultural venues. Do NOT invent, fabricate, or make up fake place names. If you do not know real landmarks or restaurants for a destination, use generic descriptions of the activities (e.g., "visit a local museum", "dine at a traditional restaurant") instead of inventing specific place names.
 - Day-by-Day Variety: Do not repeat similar sentences or structures across days. Each day must feel unique, showcasing a different selection of neighborhoods, landmarks, local eats, and activities.
-- Plan every single day with specific activities for morning, afternoon, and evening (like "subah yeh karo, dopahar yeh, shaam yeh").
+- Plan every single day with specific activities for morning, afternoon, and evening.
 - If the trip is long (over 14 days), you can repeat patterns, but still give each day its own description/plan.
 - If the trip is very long (up to 92 days), you must still return an entry in dayByDayPlan for every single day, but make the descriptions and plans short and concise (e.g. 5-15 words per time slot) to prevent timeouts and token length issues.
-${simplifiedInstruction}
+${simplifiedInstruction}`;
+
+    const userPrompt = `Create a detailed travel itinerary using the following inputs.
+
+Traveler request:
+- Destination city: "${preprocessed.destination}"
+- Travel dates: "${preprocessed.startDate}" to "${preprocessed.endDate}"
+- Number of days: ${daysCount}
+- Budget Tier / Style: "${budgetTier}" (Approx budget: ${preprocessed.budget || parsedBudget} ${displayCurrency})
+- Traveler name: "${userName}"
+- Origin: "${origin || 'Traveler Location'}"
+- Group type: "${req.body.groupType || 'solo/couple/friends/family'}"
+- Vibes / interests: "${preprocessed.interests.join(', ') || 'sightseeing, local life, relaxing'}"
+- Must‑do things: "${preprocessed.mustDo || 'none'}"
+- Must‑avoid things: "${preprocessed.mustAvoid || 'none'}"
+
+Verified data for this destination:
 ${destinationDataBlock}
 
-User details for the trip:
-Name (optional): ${userName}
-Origin city/country: ${origin || 'Traveler Location'}
-Main destination(s): ${preprocessed.destination || 'Selected Destination'}
-Start date: ${preprocessed.startDate || 'today'}
-End date: ${preprocessed.endDate || 'tomorrow'}
-Total days (if known): ${daysCount}
-Group type: ${req.body.groupType || 'solo/couple/friends/family'}
-Approx budget in ${displayCurrency}: ${preprocessed.budget || parsedBudget}
-Vibes / interests: ${preprocessed.interests.join(', ') || 'sightseeing, local life, relaxing'}
-Must‑do things: ${preprocessed.mustDo || 'none'}
-Must‑avoid things: ${preprocessed.mustAvoid || 'none'}
-
-User's raw text description (as they typed it in their language):
+User's raw text description / notes:
 """
 ${preprocessed.prompt || ''}
 """
 
-Based on all this, generate the best possible trip itinerary following the JSON format and rules above.`;
+Instructions:
+- Based on all this, generate the best possible trip itinerary following the JSON format and rules specified in system instructions.
+- Return ONLY the JSON object, starting with { and ending with }. Do not include any extra text.`;
+
+    const primaryModel = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      systemInstruction: systemPrompt
+    });
+    const fallbackModel = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-lite',
+      systemInstruction: systemPrompt
+    });
 
     const aiStartTime = Date.now();
-    console.log(`[AI LLM Request Payload]:\n${systemPrompt}`);
+    console.log(`[AI LLM Request Payload (System Instruction)]:\n${systemPrompt}`);
+    console.log(`[AI LLM Request Payload (User Prompt)]:\n${userPrompt}`);
     
     // API Call with 45 seconds timeout
     const timeoutPromise = new Promise((_, reject) =>
@@ -2356,7 +2368,7 @@ Based on all this, generate the best possible trip itinerary following the JSON 
 
     let textResponse = "";
     try {
-      const primaryCallPromise = primaryModel.generateContent(systemPrompt);
+      const primaryCallPromise = primaryModel.generateContent(userPrompt);
       const result = await Promise.race([primaryCallPromise, timeoutPromise]);
       textResponse = result.response.text().trim();
       console.log(`[AI LLM Raw Response (gemini-2.5-flash)]:\n${textResponse}`);
@@ -2364,7 +2376,7 @@ Based on all this, generate the best possible trip itinerary following the JSON 
       console.warn(`[AI Trip Generation] Primary model (gemini-2.5-flash) failed: ${primaryError.message}. Trying fallback model (gemini-2.5-flash-lite)...`);
       // Try fallback model (gemini-2.5-flash-lite has higher free quota)
       try {
-        const fallbackCallPromise = fallbackModel.generateContent(systemPrompt);
+        const fallbackCallPromise = fallbackModel.generateContent(userPrompt);
         const fallbackTimeout = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Fallback AI request timed out after 45 seconds')), 45000)
         );
@@ -2401,7 +2413,7 @@ Based on all this, generate the best possible trip itinerary following the JSON 
         Sentry.captureMessage(`AI response contained banned generic patterns for destination: ${preprocessed.destination}`, 'warning');
       }
       
-      const retryPrompt = `${systemPrompt}\n\nWARNING: Your previous response contained generic placeholder text (like "central public market" or "self-guided walking tour"). You MUST rewrite the entire plan using ONLY the real, specific places and venues from the provided database/context. Do NOT use generic placeholder phrases.`;
+      const retryPrompt = `${userPrompt}\n\nWARNING: Your previous response contained generic placeholder text (like "central public market" or "self-guided walking tour"). You MUST rewrite the entire plan using ONLY the real, specific places and venues from the provided database/context. Do NOT use generic placeholder phrases.`;
       
       try {
         const retryCallPromise = primaryModel.generateContent(retryPrompt);
@@ -2452,8 +2464,8 @@ Based on all this, generate the best possible trip itinerary following the JSON 
       
       const reformatPrompt = `You are a strict JSON formatter. I asked you to generate a travel itinerary in a specific JSON structure, but your response was not valid JSON.
      
-Here is the original instruction:
-${systemPrompt}
+Here is the user query and context:
+${userPrompt}
 
 Here is your previous response:
 ${textResponse}
