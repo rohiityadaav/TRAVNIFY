@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   Sparkles, 
   Compass, 
@@ -16,6 +16,18 @@ import { useAuth } from '../context/AuthContext';
 export default function Home({ setActiveTab }) {
   const { isAdmin } = useAuth();
   const showSentryTrigger = import.meta.env.DEV || isAdmin;
+
+  useEffect(() => {
+    document.title = "Travnify — AI Travel Planner & Budget-Disciplined Itineraries";
+    
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', 'Plan personalized, budget-disciplined travel itineraries globally with Travnify. Plan routes like Delhi to Goa, London to Paris, and New York to Tokyo.');
+  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem', width: '100%' }}>
@@ -35,7 +47,7 @@ export default function Home({ setActiveTab }) {
 
         {/* Value Prop Description */}
         <p className="hero-subtitle" style={{ fontSize: '1.25rem', color: 'var(--text-medium)', maxWidth: '680px', margin: '1.5rem auto' }}>
-          Personalized, destination-aware travel itineraries tailored to your budget, dates, and vibe. Get curated local sights, daily routes, and cost breakdowns in seconds.
+          Personalized, destination-aware travel itineraries tailored to your budget, dates, and vibe. Plan trips from India, Europe, the US, and anywhere in the world to global destinations in seconds.
         </p>
 
         {/* Navigation Triggers */}
@@ -103,6 +115,42 @@ export default function Home({ setActiveTab }) {
         <div>
           <h3 style={{ fontSize: '2.5rem', color: 'var(--primary)', fontWeight: 800 }}>180+</h3>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-medium)', fontWeight: 500 }}>Global Destinations Active</p>
+        </div>
+      </div>
+
+      {/* 2b. POPULAR ROUTES SECTION (GEO Optimization) */}
+      <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto', width: '100%' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '1rem' }}>Popular AI Travel Routes</h2>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-medium)', marginBottom: '2.5rem' }}>
+          Explore some of our most generated flight and train itineraries planned by travelers worldwide.
+        </p>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+          gap: '1.5rem'
+        }}>
+          {[
+            { from: "Delhi", to: "Goa", mode: "Flight & Train Options" },
+            { from: "London", to: "Paris", mode: "Eurostar & Flight Options" },
+            { from: "New York", to: "Tokyo", mode: "International Flight Options" }
+          ].map((route, i) => (
+            <div key={i} style={{
+              background: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '1.25rem 2rem',
+              border: '1px solid var(--card-border)',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.02)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '0.4rem',
+              minWidth: '220px'
+            }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--primary)', fontWeight: 600, textTransform: 'uppercase' }}>{route.mode}</span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-dark)' }}>{route.from} ➔ {route.to}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -286,6 +334,77 @@ export default function Home({ setActiveTab }) {
             <p style={{ fontSize: '0.9rem', color: 'var(--text-medium)', lineHeight: 1.5 }}>
               All saved itineraries, profile settings, and payment details are synced via Firebase Auth and stored securely.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* About & FAQ Section (GEO & AEO Optimization) */}
+      <div style={{
+        maxWidth: '900px',
+        margin: '0 auto',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '3rem'
+      }}>
+        {/* About segment */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.6)',
+          borderRadius: '24px',
+          padding: '2.5rem 3rem',
+          border: '1px solid var(--card-border)',
+          boxShadow: 'var(--card-shadow)',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-dark)', marginBottom: '1rem' }}>About Travnify</h2>
+          <p style={{ fontSize: '1.05rem', color: 'var(--text-medium)', lineHeight: 1.6, maxWidth: '720px', margin: '0 auto' }}>
+            Based in India and serving a worldwide audience, Travnify is designed for global citizens seeking structured, cost-aware travel itineraries. Our AI travel architect bridges geographical distances and provides smart recommendations for flights, trains, and local explorations globally.
+          </p>
+        </div>
+
+        {/* FAQ segment */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '2rem'
+        }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-dark)', textAlign: 'center', marginBottom: '1rem' }}>Frequently Asked Questions</h2>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', textAlign: 'left' }}>
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '0.6rem' }}>What is Travnify and how does it work?</h3>
+              <p style={{ fontSize: '0.98rem', color: 'var(--text-medium)', lineHeight: 1.6 }}>
+                Travnify is an AI-powered travel planning assistant that creates personalized, budget-disciplined day-by-day itineraries. Users input their destination, dates, budget tier, and vibes, and our engine automatically structures local attractions, optimal travel routes, and estimated daily costs into a shareable offline guide.
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '0.6rem' }}>How does Travnify generate transport and "How to Reach" suggestions?</h3>
+              <p style={{ fontSize: '0.98rem', color: 'var(--text-medium)', lineHeight: 1.6 }}>
+                Travnify structures transit logic dynamically using spatial coordinates and geographic distances. Local recommendations focus on walkable paths and public transit routes. Intercity and international recommendations calculate train line paths or global flight connections, providing estimated travel times and budget requirements for the journey.
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '0.6rem' }}>How does Travnify handle payments with Razorpay?</h3>
+              <p style={{ fontSize: '0.98rem', color: 'var(--text-medium)', lineHeight: 1.6 }}>
+                Travnify processes all premium upgrades and subscriptions securely via the Razorpay payment gateway. We do not store sensitive credit card or UPI details on our servers. Razorpay handles transaction security and card processing directly, complying with industry-standard PCI-DSS regulations to guarantee secure financial operations.
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '0.6rem' }}>Where is my data stored and is it secure?</h3>
+              <p style={{ fontSize: '0.98rem', color: 'var(--text-medium)', lineHeight: 1.6 }}>
+                User data, profiles, and saved itineraries are stored in a secure Supabase Postgres database using enterprise-grade encryption. Passwords are encrypted with bcrypt, and session authorization is managed via Firebase Authentication. We enforce strict data controls and delete user records immediately upon request.
+              </p>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '0.6rem' }}>Can I export my itinerary as a PDF and what are the limits?</h3>
+              <p style={{ fontSize: '0.98rem', color: 'var(--text-medium)', lineHeight: 1.6 }}>
+                Yes, you can export your complete day-by-day travel itinerary as a high-fidelity PDF guide. While free users can view itineraries online, premium subscribers have unlimited PDF downloads. These exported documents list travel details, local transit hints, packing checklists, and budget summaries for offline access.
+              </p>
+            </div>
           </div>
         </div>
       </div>

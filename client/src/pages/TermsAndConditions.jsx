@@ -1,6 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const TermsAndConditions = () => {
+  useEffect(() => {
+    document.title = "Terms & Conditions — Travnify";
+    
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', 'Read the Terms and Conditions of Travnify to understand AI-generated itinerary limitations, transport recommendations, and secure billing processed via Razorpay.');
+  }, []);
+
   return (
     <div className="legal-page" style={{
       padding: "3rem 1.5rem",
@@ -11,7 +23,7 @@ const TermsAndConditions = () => {
       lineHeight: "1.7"
     }}>
       <h1 style={{ color: "var(--text-dark)", marginBottom: "0.5rem", fontFamily: "var(--font-heading)" }}>Terms & Conditions</h1>
-      <p style={{ fontSize: "0.85rem", opacity: 0.7, marginBottom: "2.5rem" }}>Last updated: June 19, 2026</p>
+      <p style={{ fontSize: "0.85rem", opacity: 0.7, marginBottom: "2.5rem" }}>Last updated: June 23, 2026</p>
       
       <section style={{ marginBottom: "2rem" }}>
         <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>1. Acceptance of Terms</h2>
@@ -23,43 +35,43 @@ const TermsAndConditions = () => {
       <section style={{ marginBottom: "2rem" }}>
         <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>2. AI-Generated Recommendations Disclaimer</h2>
         <p style={{ marginBottom: "0.8rem" }}>
-          Travnify provides itineraries, activities, schedules, transit guides, and budget estimations generated via Artificial Intelligence (LLM) technology.
+          Travnify provides travel planning services, including AI-generated day-by-day itineraries, local sights, transit notes, and high-fidelity PDF exports.
         </p>
         <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
-          <li><strong>Recommendations Only:</strong> All generated travel schedules are recommendations and suggestions only. Travnify does not guarantee the availability, operating hours, safety, road conditions, booking options, or pricing of any suggested flights, hotels, restaurants, monuments, or activities.</li>
-          <li><strong>No Bookings:</strong> Travnify is NOT a travel booking agency or reservation system. We do not book flights, hotel stays, rentals, or tickets. Users are solely responsible for verifying details and making bookings directly with official service providers.</li>
-          <li><strong>User Liability:</strong> Users assume all risks associated with travel itineraries, including transport delays, price variances, local safety hazards, weather, and physical demands.</li>
+          <li><strong>Best-Effort Suggestions:</strong> All generated itineraries, transport suggestions ("How to Reach"), and estimated costs are recommendations generated via Artificial Intelligence. They are provided on a best-effort basis and may not always be perfectly accurate, complete, or up-to-date.</li>
+          <li><strong>No Guarantees:</strong> Travnify does not guarantee availability, pricing, operating schedules, road conditions, booking options, or safety of any suggested transport routes, attractions, hotels, or eateries.</li>
+          <li><strong>No Bookings:</strong> Travnify is NOT a travel booking agency, airline, hotelier, or reservation agent. We do not sell or arrange flights, hotel stays, rentals, or activity tickets. Users are solely responsible for verifying details and booking services directly with official providers.</li>
         </ul>
       </section>
 
       <section style={{ marginBottom: "2rem" }}>
-        <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>3. Subscriptions & Credit System</h2>
+        <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>3. Third-Party Service Disclaimers</h2>
+        <p style={{ marginBottom: "0.8rem" }}>
+          Our planning tool suggests routes and connections operated by third-party service providers (such as airlines, train systems, bus routes, local guides, and hotels).
+        </p>
+        <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
+          <li><strong>Independent Providers:</strong> Travnify has no control over, and assumes no responsibility for, the services, performance, cancellations, delays, safety records, or policies of any third-party providers.</li>
+          <li><strong>User Responsibility:</strong> Any interaction, booking, or transaction with third-party service providers is strictly between you and the respective provider. Travnify is not liable for any losses, injuries, or delays incurred during your travels.</li>
+        </ul>
+      </section>
+
+      <section style={{ marginBottom: "2rem" }}>
+        <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>4. Subscriptions, Payments & Razorpay</h2>
         <p style={{ marginBottom: "0.8rem" }}>
           Travnify offers both free and premium access plans:
         </p>
         <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
-          <li><strong>Free Credits:</strong> Free users receive 5 planning credits per day. Each credit allows the generation of one itinerary or the use of specific premium explore tools. Unused daily credits expire and do not roll over to the next day.</li>
-          <li><strong>Premium Upgrades:</strong> Users can purchase a Premium subscription to unlock unlimited itinerary generations, advanced "Near Me" local transit guides, and high-fidelity PDF exports.</li>
-          <li><strong>Fair Use:</strong> Automated scraping, scripting, or abusing our AI generation endpoints is strictly prohibited and will result in immediate account termination.</li>
+          <li><strong>Free Credits:</strong> Free users receive 5 planning credits per day. Each credit allows the generation of one itinerary. Unused daily credits expire and do not roll over.</li>
+          <li><strong>Premium Upgrades:</strong> Users can upgrade to a Premium subscription to unlock unlimited itinerary generations, advanced local transit lookups, and premium PDF exports.</li>
+          <li><strong>Razorpay Integration:</strong> All premium subscription payments are processed securely via our payment gateway partner, <strong>Razorpay</strong>. By upgrading, you agree that Razorpay's own Terms of Service and Privacy Policy apply to the payment steps and data processing.</li>
+          <li><strong>Refund Policy:</strong> If you are unsatisfied with your Premium purchase, you may request a refund within 7 days of payment by contacting us at <a href="mailto:travnify@gmail.com" style={{ color: "var(--primary)", fontWeight: "600", textDecoration: "none" }}>travnify@gmail.com</a>. Refund eligibility is determined on a case-by-case basis.</li>
         </ul>
       </section>
 
       <section style={{ marginBottom: "2rem" }}>
-        <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>4. Payments & Refund Policy</h2>
-        <p style={{ marginBottom: "0.8rem" }}>
-          All premium billing is handled via our payment integration:
-        </p>
-        <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
-          <li><strong>Razorpay Integration:</strong> Payment collection is securely processed via <strong>Razorpay</strong>. Transactions are subject to Razorpay's processing conditions.</li>
-          <li><strong>Failed Payments:</strong> In the event of a failed transaction where funds were deducted but Premium status was not unlocked, please contact our support team at <a href="mailto:travnify@gmail.com" style={{ color: "var(--primary)", fontWeight: "600", textDecoration: "none" }}>travnify@gmail.com</a>. We will verify the transaction token and unlock your status manually or issue a full refund within 3-5 business days.</li>
-          <li><strong>Refund Policy:</strong> If you are unsatisfied with your Premium subscription, you may request a refund within 7 days of purchase. Refunds are evaluated and processed on a case-by-case basis.</li>
-        </ul>
-      </section>
-
-      <section style={{ marginBottom: "2rem" }}>
-        <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>5. Account Security</h2>
+        <h2 style={{ color: "var(--text-dark)", fontSize: "1.3rem", marginBottom: "0.8rem", fontWeight: "700" }}>5. Account Security & Proper Use</h2>
         <p>
-          You are responsible for keeping your login credentials secure. All activities performed under your registered account are your responsibility. If you notice any unauthorized access, please notify us immediately.
+          You are responsible for keeping your login credentials secure. Automated scraping, scripting, or abusing our AI generation endpoints is strictly prohibited and will result in immediate account termination.
         </p>
       </section>
 
