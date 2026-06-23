@@ -109,8 +109,15 @@ app.post('/api/discover/best-for-activity', authController.authenticateToken, va
 app.post('/api/subscribe/order', authController.authenticateToken, paymentController.createOrder);
 app.post('/api/subscribe/verify', authController.authenticateToken, paymentController.verifyPayment);
 app.post('/api/payments/create-order', authController.authenticateToken, paymentController.createOrder);
-// Diagnostic Endpoint for Sentry error capturing
-app.get('/api/debug-sentry-error', (req, res) => {
+// Diagnostic Endpoint for Sentry error capturing (only public in development, requires admin in production)
+app.get('/api/debug-sentry-error', (req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return next();
+  }
+  authController.authenticateToken(req, res, () => {
+    authController.requireRole('admin')(req, res, next);
+  });
+}, (req, res) => {
   throw new Error('Sentry Test Error from Travnify Express Backend!');
 });
 

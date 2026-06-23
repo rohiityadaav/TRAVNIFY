@@ -11,8 +11,12 @@ import {
   Users, 
   Globe 
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Home({ setActiveTab }) {
+  const { isAdmin } = useAuth();
+  const showSentryTrigger = import.meta.env.DEV || isAdmin;
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem', width: '100%' }}>
       {/* 1. HERO SECTION */}
@@ -44,27 +48,29 @@ export default function Home({ setActiveTab }) {
             <Compass size={18} />
             <span>Explore Templates</span>
           </button>
-          <button 
-            onClick={() => { throw new Error("Sentry Test Error from Travnify React Frontend!"); }}
-            style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              color: '#EF4444',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '12px',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
-            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
-          >
-            <span>Trigger Test Error</span>
-          </button>
+          {showSentryTrigger && (
+            <button 
+              onClick={() => { throw new Error("Sentry Test Error from Travnify React Frontend!"); }}
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#EF4444',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '12px',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+            >
+              <span>Trigger Test Error</span>
+            </button>
+          )}
         </div>
       </div>
 
