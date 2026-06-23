@@ -154,6 +154,7 @@ async function signup(req, res) {
       country: userCountry,
       currency: userCurrency,
       preferredCurrency: userPreferredCurrency,
+      role: 'user',
       isPremium: false,
       subscriptionType: null,
       subscriptionStart: null,
@@ -210,6 +211,9 @@ function formatUserProfile(user) {
   userWithoutHash.premiumPlanType = user.subscriptionType === 'yearly' ? 'yearly' : (user.subscriptionType === 'monthly' ? 'monthly' : null);
   userWithoutHash.premiumExpiresAt = user.subscriptionEnd || null;
   
+  // Ensure role is always present
+  userWithoutHash.role = user.role || 'user';
+
   // Ensure preferredCurrency is always present (default to INR)
   userWithoutHash.preferredCurrency = user.preferredCurrency || user.currency || 'INR';
 
@@ -256,25 +260,48 @@ async function getMe(req, res) {
   }
 }
 
-// Authentication Middleware
+// Authentication Middleware — verifies JWT, attaches req.user and req.userId
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
   if (!token) {
-    return res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ error: 'Authentication required' });
   }
 
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);
-    req.userId = decoded.userId;
+    // Look up user to get latest role from DB (roles can change without re-login)
+    const dbUser = db.users.findById(decoded.userId);
+    if (!dbUser) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    req.userId = dbUser.id;                       // backward compat
+    req.user = {
+      id: dbUser.id,
+      email: dbUser.email,
+      role: dbUser.role || 'user'
+    };
     next();
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid token' });
+    return res.status(401).json({ error: 'Authentication required' });
   }
 }
 
-// Optional Authentication Middleware (populates req.userId if token is present, does not fail if not)
+// Role Authorization Middleware — checks req.user.role against allowed roles
+function requireRole(...roles) {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    next();
+  };
+}
+
+// Optional Authentication Middleware (populates req.userId/req.user if token present, does not fail if not)
 function optionalAuthenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -285,7 +312,11 @@ function optionalAuthenticateToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);
-    req.userId = decoded.userId;
+    const dbUser = db.users.findById(decoded.userId);
+    if (dbUser) {
+      req.userId = dbUser.id;
+      req.user = { id: dbUser.id, email: dbUser.email, role: dbUser.role || 'user' };
+    }
   } catch (error) {
     // Ignore invalid token, proceed as guest
   }
@@ -325,6 +356,7 @@ async function firebaseSync(req, res) {
         country: userCountry,
         currency: userCurrency,
         preferredCurrency: userPreferredCurrency,
+        role: 'user',
         isPremium: false,
         subscriptionType: null,
         subscriptionStart: null,
@@ -699,16 +731,93 @@ async function logout(req, res) {
   }
 }
 
+// ─────────────────────────────────────────────────
+// Admin Handlers
+// ─────────────────────────────────────────────────
+
+// GET /api/admin/users — list all users (admin only)
+async function getAllUsers(req, res) {
+  try {
+    const allUsers = db.users.findAll();
+    const safeUsers = allUsers.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role || 'user',
+      isPremium: u.isPremium || false,
+      subscriptionType: u.subscriptionType || null,
+      dailyCreditsUsed: u.dailyCreditsUsed || 0,
+      country: u.country || 'IN',
+      emailVerified: u.emailVerified || false,
+      createdAt: u.createdAt || null
+    }));
+    return res.json({ users: safeUsers });
+  } catch (error) {
+    console.error('Admin getAllUsers error:', error);
+    return res.status(500).json({ error: 'Failed to retrieve users.' });
+  }
+}
+
+// PATCH /api/admin/users/:id/role — change a user's role (admin only)
+async function updateUserRole(req, res) {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!['user', 'admin'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role. Must be "user" or "admin".' });
+    }
+
+    const target = db.users.findById(id);
+    if (!target) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const updated = db.users.update(id, { role });
+    return res.json({
+      message: `Role updated to "${role}" for ${updated.email}`,
+      user: { id: updated.id, email: updated.email, role: updated.role }
+    });
+  } catch (error) {
+    console.error('Admin updateUserRole error:', error);
+    return res.status(500).json({ error: 'Failed to update role.' });
+  }
+}
+
+// GET /api/admin/stats — site-level statistics (admin only)
+async function getAdminStats(req, res) {
+  try {
+    const allUsers = db.users.findAll();
+    const allTrips = db.trips.findAll();
+    const admins = allUsers.filter(u => u.role === 'admin');
+    const premiumUsers = allUsers.filter(u => u.isPremium);
+    return res.json({
+      totalUsers: allUsers.length,
+      totalTrips: allTrips.length,
+      totalAdmins: admins.length,
+      totalPremium: premiumUsers.length
+    });
+  } catch (error) {
+    console.error('Admin getAdminStats error:', error);
+    return res.status(500).json({ error: 'Failed to retrieve stats.' });
+  }
+}
+
 module.exports = {
   signup,
   getMe,
   updateProfile,
   authenticateToken,
   optionalAuthenticateToken,
+  requireRole,
   firebaseSync,
   verifyEmail,
   resendVerification,
   formatUserProfile,
   refresh,
-  logout
+  logout,
+  // admin
+  getAllUsers,
+  updateUserRole,
+  getAdminStats
 };

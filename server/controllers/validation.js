@@ -44,27 +44,26 @@ exports.validateGenerateTrip = (req, res, next) => {
   }
 
   // 4. Validate days duration bounds (1 to 366 days)
-  if (startDate && endDate) {
-    let start = new Date(startDate);
-    let end = new Date(endDate);
-    
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      req.body.startDate = new Date().toISOString().split('T')[0];
-      req.body.endDate = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    } else {
-      let diffTime = end - start;
-      let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-      
-      if (diffDays < 1) {
-        // End date is before start date, adjust to be 3 days from start
-        end = new Date(start.getTime() + 2 * 24 * 60 * 60 * 1000);
-        req.body.endDate = end.toISOString().split('T')[0];
-      } else if (diffDays > 366) {
-        // Clamp to 366 days max
-        end = new Date(start.getTime() + 365 * 24 * 60 * 60 * 1000);
-        req.body.endDate = end.toISOString().split('T')[0];
-      }
-    }
+  if (!startDate || !endDate) {
+    return res.status(400).json({ error: "FROM date and TO date are required to generate a trip." });
+  }
+
+  let start = new Date(startDate);
+  let end = new Date(endDate);
+  
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+    return res.status(400).json({ error: "FROM date and TO date are required to generate a trip." });
+  }
+
+  let diffTime = end - start;
+  let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  
+  if (diffDays < 1) {
+    return res.status(400).json({ error: "FROM date cannot be after TO date." });
+  } else if (diffDays > 366) {
+    // Clamp to 366 days max
+    end = new Date(start.getTime() + 365 * 24 * 60 * 60 * 1000);
+    req.body.endDate = end.toISOString().split('T')[0];
   }
 
   // 5. Validate budget and currency values

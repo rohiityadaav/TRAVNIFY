@@ -6,6 +6,7 @@
       "email": "rohiityaddav@gmail.com",
       "passwordHash": "$2a$10$rA8orDUeXZSBOTF99scNDeae5UMNnd9BwSU3mBbONx3qqpwg0Lsqa",
       "country": "IN",
+      "role": "admin",
       "isPremium": true,
       "subscriptionType": "monthly",
       "subscriptionStart": "2026-05-19T10:11:25.853Z",
@@ -22,6 +23,7 @@
       "email": "solutionsfelipas@gmail.com",
       "passwordHash": "FIREBASE_MANAGED_AUTH",
       "country": "IN",
+      "role": "user",
       "isPremium": false,
       "subscriptionType": null,
       "subscriptionStart": null,
@@ -38,8 +40,10 @@
       "subscriptionType": null,
       "subscriptionStart": null,
       "subscriptionEnd": null,
-      "freeTripsGenerated": 0,
-      "currency": "INR"
+      "freeTripsGenerated": 4,
+      "currency": "INR",
+      "dailyCreditsUsed": 4,
+      "creditsWindowStartedAt": "2026-06-23T06:44:09.541Z"
     },
     {
       "id": "usr_h9bsmw5bj",
@@ -47,6 +51,7 @@
       "email": "rohityadav@gmail.com",
       "passwordHash": "FIREBASE_MANAGED_AUTH",
       "country": "US",
+      "role": "user",
       "isPremium": false,
       "subscriptionType": null,
       "subscriptionStart": null,
@@ -59,6 +64,7 @@
       "email": "rohiiiityadavvv@gmail.com",
       "passwordHash": "FIREBASE_MANAGED_AUTH",
       "country": "US",
+      "role": "user",
       "isPremium": false,
       "subscriptionType": null,
       "subscriptionStart": null,
@@ -214,6 +220,14 @@
       "emailVerified": false,
       "emailVerificationToken": "dfbb2f94a43e94ba6b2e4e5097a827ef7573214cf48d7f939d7d8be599e6e85d",
       "emailVerificationExpiresAt": 1781892486494
+    },
+    {
+      "id": "usr_refine_test",
+      "name": "Premium Tester",
+      "email": "premium@tester.com",
+      "passwordHash": "dummy",
+      "isPremium": true,
+      "freeTripsGenerated": 0
     }
   ],
   "trips": [

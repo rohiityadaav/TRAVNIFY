@@ -4,7 +4,7 @@ const path = require('path');
 const config = require('./config');
 
 // Initialize database data structures
-require('./db');
+const db = require('./db');
 
 const authController = require('./controllers/authController');
 const tripController = require('./controllers/tripController');
@@ -43,6 +43,18 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Resource-level middleware: allow if user owns the trip OR is admin
+function tripOwnerOrAdmin(req, res, next) {
+  const tripId = req.params.id;
+  if (!tripId) return next(); // no id param, let controller handle
+  const trip = db.trips.findById(tripId);
+  if (!trip) return res.status(404).json({ error: 'Trip not found.' });
+  const isOwner = trip.userId === req.user.id;
+  const isAdmin = req.user.role === 'admin';
+  if (isOwner || isAdmin) return next();
+  return res.status(403).json({ error: 'Forbidden' });
+}
+
 // ----------------------------------------------------
 // API ROUTES
 // ----------------------------------------------------
@@ -64,9 +76,14 @@ app.post('/api/refineTrip', authController.authenticateToken, validation.validat
 // Saved Trips Management
 app.get('/api/trips', authController.authenticateToken, tripController.getSavedTrips);
 app.post('/api/trips', authController.authenticateToken, tripController.saveTrip);
-app.delete('/api/trips/:id', authController.authenticateToken, tripController.deleteTrip);
+app.delete('/api/trips/:id', authController.authenticateToken, tripOwnerOrAdmin, tripController.deleteTrip);
 app.post('/api/trips/pdf', authController.authenticateToken, tripController.downloadTripPDF);
-app.post('/api/trips/:id/pdf', authController.authenticateToken, tripController.downloadTripPDF);
+app.post('/api/trips/:id/pdf', authController.authenticateToken, tripOwnerOrAdmin, tripController.downloadTripPDF);
+
+// Admin Routes — require login + admin role
+app.get('/api/admin/stats',      authController.authenticateToken, authController.requireRole('admin'), authController.getAdminStats);
+app.get('/api/admin/users',      authController.authenticateToken, authController.requireRole('admin'), authController.getAllUsers);
+app.patch('/api/admin/users/:id/role', authController.authenticateToken, authController.requireRole('admin'), authController.updateUserRole);
 
 // Discovery & Real Nearby Locations
 app.get('/api/nearbyPlaces', placesController.getNearbyPlaces);

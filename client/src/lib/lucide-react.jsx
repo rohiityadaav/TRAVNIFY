@@ -414,3 +414,20 @@ export const Bus = createIcon('bus', [
   <circle key="6" cx="17.5" cy="18.5" r="2.5" />
 ]);
 
+export const Crown = createIcon('crown', [
+  <path key="1" d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 6a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.519A.5.5 0 0 1 2.818 6l4.277 3.164a1 1 0 0 0 1.516-.294z" />,
+  <path key="2" d="M5 21h14" />
+]);
+
+export const AlertTriangle = createIcon('alert-triangle', [
+  <path key="1" d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z" />,
+  <line key="2" x1="12" y1="9" x2="12" y2="13" />,
+  <line key="3" x1="12" y1="17" x2="12.01" y2="17" />
+]);
+
+export const BarChart3 = createIcon('bar-chart-3', [
+  <path key="1" d="M3 3v18h18" />,
+  <path key="2" d="M18 17V9" />,
+  <path key="3" d="M13 17V5" />,
+  <path key="4" d="M8 17v-3" />
+]);

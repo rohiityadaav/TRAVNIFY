@@ -106,6 +106,16 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAu
           <Star size={16} fill={activeTab === 'premium' ? '#F59E0B' : 'transparent'} color="#F59E0B" />
           <span>Premium</span>
         </div>
+        {user?.role === 'admin' && (
+          <div
+            className={`nav-item ${activeTab === 'admin' ? 'active' : ''}`}
+            onClick={() => handleNavClick('admin')}
+            style={{ color: activeTab === 'admin' ? '#F97316' : undefined }}
+          >
+            <Shield size={16} color={activeTab === 'admin' ? '#F97316' : undefined} />
+            <span>Admin</span>
+          </div>
+        )}
       </nav>
 
       {/* Actions / Auth States */}
@@ -143,6 +153,11 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAu
                   {user.isPremium && (
                     <div style={{ marginTop: '0.4rem', color: '#F26430', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
                       <Shield size={12} fill="#F26430" /> Premium Active
+                    </div>
+                  )}
+                  {user.role === 'admin' && (
+                    <div style={{ marginTop: '0.3rem', color: '#F97316', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.74rem' }}>
+                      <Shield size={11} /> Admin Account
                     </div>
                   )}
                 </div>

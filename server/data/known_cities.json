@@ -367,7 +367,8 @@
         "DUMBO",
         "Williamsburg",
         "Harlem",
-        "Chelsea"
+        "Chelsea",
+        "Brooklyn"
       ],
       "food": [
         "Classic New York slice of pizza",
@@ -1294,7 +1295,9 @@
         "Greater Kailash",
         "Khan Market",
         "Karol Bagh",
-        "Aerocity"
+        "Aerocity",
+        "Lajpat Nagar",
+        "Saket"
       ],
       "food": [
         "Butter Chicken at Moti Mahal",

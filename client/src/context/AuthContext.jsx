@@ -254,12 +254,15 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const isAdmin = user?.role === 'admin';
+
   return (
     <AuthContext.Provider value={{
       user,
       setUser,
       loading,
       isAuthenticated,
+      isAdmin,
       loginSuccess,
       logout,
       authModalOpen,

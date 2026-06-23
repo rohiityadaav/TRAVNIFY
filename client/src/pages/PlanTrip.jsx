@@ -12,6 +12,7 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedInterests, setSelectedInterests] = useState([]);
+  const [dateError, setDateError] = useState('');
 
   // Sync currency to user's preferredCurrency when user data loads
   useEffect(() => {
@@ -19,6 +20,20 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
       setCurrency(user.preferredCurrency);
     }
   }, [user?.preferredCurrency]);
+
+  useEffect(() => {
+    if (startDate && endDate) {
+      if (startDate > endDate) {
+        setDateError("FROM date cannot be after TO date.");
+      } else {
+        setDateError('');
+      }
+    } else if (startDate || endDate) {
+      setDateError("Please select both FROM and TO dates to generate your trip.");
+    } else {
+      setDateError('');
+    }
+  }, [startDate, endDate]);
 
   const interestList = [
     { id: 'beach', label: 'Beach 🏖️' },
@@ -75,21 +90,39 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!startDate || !endDate) {
+      setDateError("Please select both FROM and TO dates to generate your trip.");
+      return;
+    }
+    if (startDate > endDate) {
+      setDateError("FROM date cannot be after TO date.");
+      return;
+    }
     if (!prompt.trim() && !destination.trim()) return;
 
+    setDateError('');
     onGenerate({
       prompt: prompt || `Trip to ${destination} within budget ${budget} ${currency}`,
       destination: destination || (prompt.toLowerCase().includes('bali') ? 'Bali' : prompt.toLowerCase().includes('manali') ? 'Manali' : prompt.toLowerCase().includes('paris') ? 'Paris' : prompt.toLowerCase().includes('goa') ? 'Goa' : 'Destination'),
       budget: budget ? Number(budget) : (prompt.toLowerCase().includes('60,000') || prompt.toLowerCase().includes('60k') ? 60000 : prompt.toLowerCase().includes('15k') || prompt.toLowerCase().includes('15,000') ? 15000 : prompt.toLowerCase().includes('1500') ? 1500 : prompt.toLowerCase().includes('12k') || prompt.toLowerCase().includes('12,000') ? 12000 : 15000),
       currency: currency || (prompt.includes('$') || prompt.toLowerCase().includes('usd') ? 'USD' : 'INR'),
-      startDate: startDate || new Date().toISOString().split('T')[0],
-      endDate: endDate || new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      startDate,
+      endDate,
       interests: selectedInterests.length > 0 ? selectedInterests : ['general']
     });
   };
 
   return (
     <div className="plan-wizard" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Build version chip — confirms latest deployment is active */}
+      <div style={{
+        position: 'absolute', top: '0.5rem', right: '0.75rem',
+        fontSize: '0.6rem', color: 'rgba(148,163,184,0.6)',
+        background: 'rgba(0,0,0,0.04)', borderRadius: '99px',
+        padding: '0.2rem 0.55rem', letterSpacing: '0.04em', userSelect: 'none'
+      }}>
+        Build: auth-roles-v1
+      </div>
       <h2 className="wizard-title">Where do you want to go?</h2>
       <p className="wizard-subtitle" style={{ marginBottom: user && !user.isPremium ? '0.5rem' : '1.5rem' }}>
         Describe your dream trip in any language — our AI will handle the rest
@@ -183,6 +216,7 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 disabled={isLoading}
+                required
               />
               <span className="date-separator">to</span>
               <input
@@ -191,6 +225,7 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 disabled={isLoading}
+                required
               />
             </div>
           </div>
@@ -223,12 +258,18 @@ export default function PlanTrip({ onGenerate, isLoading, user }) {
           )}
         </div>
 
+        {dateError && (
+          <div style={{ color: '#EF4444', fontSize: '0.875rem', fontWeight: '500', marginTop: '0.5rem', marginBottom: '0.5rem', textAlign: 'left' }}>
+            ⚠️ {dateError}
+          </div>
+        )}
+
         {/* CTA Generate Button */}
         <button
           type="submit"
-          className={`btn btn-primary btn-lg ${!prompt.trim() && !destination.trim() ? 'btn-disabled' : ''}`}
+          className={`btn btn-primary btn-lg ${(!prompt.trim() && !destination.trim()) || !startDate || !endDate || startDate > endDate ? 'btn-disabled' : ''}`}
           style={{ width: '100%', marginTop: '0.5rem' }}
-          disabled={!prompt.trim() && !destination.trim()}
+          disabled={(!prompt.trim() && !destination.trim()) || !startDate || !endDate || startDate > endDate}
         >
           <Sparkles size={18} fill="#FFFFFF" />
           <span>Generate My Trip Plan</span>

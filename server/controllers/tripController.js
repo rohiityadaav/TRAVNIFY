@@ -169,7 +169,7 @@ function estimateDistance(startCity, startCountry, destCity, destCountry, startL
   return 3000; // International default
 }
 
-function computeHowToReach(startCity, startCountry, destCity, destCountry, distanceKm, budgetTier, currency) {
+function computeHowToReach(startCity, startCountry, destCity, destCountry, distanceKm, budgetTier, currency, destArea) {
   const currencySymbol = currency || 'INR';
   const rate = INR_TO_CURRENCY[currencySymbol] || 1.0;
   const startC = startCity || 'Origin';
@@ -190,13 +190,16 @@ function computeHowToReach(startCity, startCountry, destCity, destCountry, dista
 
   // 1) Same-city / local trips
   if (startC.toLowerCase().trim() === destC.toLowerCase().trim() && startC !== '') {
+    const localTips = getCityLocalTransitTips(destC, destArea);
+    const startLoc = `Your location in ${destC} (nearest metro or cab pickup)`;
+    const endLoc = destArea || destC;
     if (distanceKm <= 3) {
       return {
         recommendedMode: "walking",
         summary: `Walking or quick local transport recommended in ${destC}.`,
-        details: `Since you’re already in ${destC}, you don’t need a flight or train. The best way to reach your destination is walking, which takes just a few minutes. For a more comfortable trip or if carrying luggage, a short auto/e-rickshaw or app-based cab ride is also easily available.`,
-        nearestStartTerminal: "Local transit stop",
-        nearestEndTerminal: "Local transit destination",
+        details: localTips.walking,
+        nearestStartTerminal: startLoc,
+        nearestEndTerminal: endLoc,
         estimatedCost: getCost(budget === 'low' ? 0 : (budget === 'high' ? 150 : 60))
       };
     } else if (distanceKm <= 10) {
@@ -207,9 +210,9 @@ function computeHowToReach(startCity, startCountry, destCity, destCountry, dista
       return {
         recommendedMode: mode,
         summary: `Local metro, bus, or cab ride recommended in ${destC}.`,
-        details: `Since you’re already in ${destC}, you don’t need a flight or train. The best way to reach your destination is using the local metro/subway or tram network for a quick, traffic-free transit. Alternatively, you can take a direct app-based taxi or taxi cab for door-to-door comfort, especially if your budget allows.`,
-        nearestStartTerminal: "Local transit stop",
-        nearestEndTerminal: "Local transit destination",
+        details: localTips.medium,
+        nearestStartTerminal: startLoc,
+        nearestEndTerminal: endLoc,
         estimatedCost: getCost(budget === 'low' ? 50 : (budget === 'high' ? 250 : 120))
       };
     } else {
@@ -220,9 +223,9 @@ function computeHowToReach(startCity, startCountry, destCity, destCountry, dista
       return {
         recommendedMode: mode,
         summary: `Cross-city transit via metro or direct cab in ${destC}.`,
-        details: `Since you’re already in ${destC}, you don’t need a flight or train. The best way to reach the other side of the city is taking the metro/subway for the main stretch to bypass traffic, then hailing a short cab or auto for the last mile. If you prefer comfort and are on a higher budget, a direct app-based taxi is highly convenient.`,
-        nearestStartTerminal: "Local transit stop",
-        nearestEndTerminal: "Local transit destination",
+        details: localTips.long,
+        nearestStartTerminal: startLoc,
+        nearestEndTerminal: endLoc,
         estimatedCost: getCost(budget === 'low' ? 80 : (budget === 'high' ? 500 : 200))
       };
     }
@@ -495,12 +498,190 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     }
   }
 
-  const howToReach = itinerary.howToReach || computeHowToReachFallback(
-    context.startCity || itinerary.startCity || '',
-    destination,
-    budgetTier,
-    estCostCurrency
-  );
+  const startCity = context.startCity || itinerary.startCity || '';
+  const startCountry = context.startCountry || '';
+  const startLat = context.userLat || null;
+  const startLng = context.userLng || null;
+
+  const destLat = context.destLat || null;
+  const destLng = context.destLng || null;
+  const resolvedDestCity = context.resolvedDestCity || '';
+  const resolvedDestCountry = context.resolvedDestCountry || '';
+
+  const resolvedStart = resolveCityAndCountry(startCity);
+  const resolvedDest = resolveCityAndCountry(destination);
+
+  // Integrate client geocoding if available
+  if (resolvedDestCity) {
+    if (!resolvedDest.city || resolvedDest.city.toLowerCase() === destination.toLowerCase()) {
+      resolvedDest.city = resolvedDestCity;
+      resolvedDest.country = resolvedDestCountry || resolvedDest.country;
+    }
+  }
+
+  const cleanCity = (c) => {
+    if (!c) return '';
+    let name = c.toLowerCase().trim();
+    if (name === 'new delhi' || name === 'delhi ncr' || name === 'noida' || name === 'gurgaon' || name === 'ghaziabad' || name === 'faridabad') {
+      return 'delhi';
+    }
+    if (name === 'nyc' || name === 'new york city' || name === 'brooklyn' || name === 'queens' || name === 'manhattan' || name === 'bronx' || name === 'staten island' || name === 'brooklyn heights' || name === 'williamsburg') {
+      return 'new york';
+    }
+    if (name === 'bombay') {
+      return 'mumbai';
+    }
+    return name;
+  };
+
+  const startCityClean = cleanCity(resolvedStart.city || startCity);
+  const destCityClean = cleanCity(resolvedDest.city || destination);
+
+  const normalizedStartCountry = normalizeCountry(resolvedStart.country || startCountry);
+  const normalizedDestCountry = normalizeCountry(resolvedDest.country);
+
+  let isSameCity = startCityClean && destCityClean && 
+    (startCityClean === destCityClean || startCityClean.includes(destCityClean) || destCityClean.includes(startCityClean)) &&
+    (
+      !normalizedStartCountry || !normalizedDestCountry ||
+      normalizedStartCountry === normalizedDestCountry
+    );
+
+  // Coordinate-based same-city check (if within 50 km, force isSameCity = true)
+  let distanceKm = null;
+  if (startLat && startLng) {
+    let dLat = Number(destLat);
+    let dLng = Number(destLng);
+    if (isNaN(dLat) || isNaN(dLng) || !destLat || !destLng) {
+      const coords = cityCoords[destCityClean];
+      if (coords) {
+        dLat = coords.lat;
+        dLng = coords.lng;
+      }
+    }
+
+    if (dLat !== null && dLng !== null && !isNaN(dLat) && !isNaN(dLng)) {
+      distanceKm = getHaversineDistance(Number(startLat), Number(startLng), dLat, dLng);
+      if (distanceKm !== null && distanceKm < 50) {
+        isSameCity = true;
+      }
+    }
+  }
+
+  let howToReach = itinerary.howToReach;
+
+  // Strict override when isSameCity === true: Completely discard the AI's howToReach and rebuild via computeHowToReach.
+  if (isSameCity) {
+    const finalDistance = resolvedDest.area ? 10 : 2;
+    howToReach = computeHowToReach(
+      resolvedDest.city || destCityClean || destination,
+      resolvedDest.country || startCountry,
+      resolvedDest.city || destCityClean || destination,
+      resolvedDest.country,
+      finalDistance,
+      budgetTier,
+      estCostCurrency,
+      resolvedDest.area || destination
+    );
+  } else if (!howToReach) {
+    const finalDistance = distanceKm || estimateDistance(
+      resolvedStart.city || startCity,
+      resolvedStart.country || startCountry,
+      resolvedDest.city,
+      resolvedDest.country,
+      startLat,
+      startLng
+    );
+    howToReach = computeHowToReach(
+      resolvedStart.city || startCity,
+      resolvedStart.country || startCountry,
+      resolvedDest.city,
+      resolvedDest.country,
+      finalDistance,
+      budgetTier,
+      estCostCurrency,
+      resolvedDest.area || destination
+    );
+  } else {
+    // If not same-city but has missing fields, generate it
+    const hasRequiredFields = howToReach.recommendedMode && howToReach.details && howToReach.estimatedCost;
+    if (!hasRequiredFields) {
+      const finalDistance = distanceKm || estimateDistance(
+        resolvedStart.city || startCity,
+        resolvedStart.country || startCountry,
+        resolvedDest.city,
+        resolvedDest.country,
+        startLat,
+        startLng
+      );
+      howToReach = computeHowToReach(
+        resolvedStart.city || startCity,
+        resolvedStart.country || startCountry,
+        resolvedDest.city,
+        resolvedDest.country,
+        finalDistance,
+        budgetTier,
+        estCostCurrency,
+        resolvedDest.area || destination
+      );
+    }
+  }
+
+  // Defensive post-validation pass for same-city trips
+  if (isSameCity && howToReach) {
+    const recModeLower = (howToReach.recommendedMode || '').toLowerCase();
+    const startTerminalLower = (howToReach.nearestStartTerminal || '').toLowerCase();
+    const endTerminalLower = (howToReach.nearestEndTerminal || '').toLowerCase();
+    const detailsLower = (howToReach.details || '').toLowerCase();
+
+    const hasFlightOrAirport = 
+      recModeLower.includes('flight') || 
+      recModeLower.includes('plane') || 
+      recModeLower.includes('airport') ||
+      startTerminalLower.includes('airport') || 
+      endTerminalLower.includes('airport') ||
+      detailsLower.includes('airport') ||
+      detailsLower.includes('flight');
+
+    if (hasFlightOrAirport) {
+      console.warn(`[AI Same-City Sanitization] Detected residual flight/airport mention for same-city trip. Re-forcing override and sanitizing details.`);
+      const finalDistance = resolvedDest.area ? 10 : 2;
+      howToReach = computeHowToReach(
+        resolvedDest.city || destCityClean || destination,
+        resolvedDest.country || startCountry,
+        resolvedDest.city || destCityClean || destination,
+        resolvedDest.country,
+        finalDistance,
+        budgetTier,
+        estCostCurrency,
+        resolvedDest.area || destination
+      );
+
+      // Strip airport and flight words from details/summary
+      if (howToReach.details) {
+        howToReach.details = howToReach.details
+          .replace(/\bflight\b/gi, 'local transit')
+          .replace(/\bflights\b/gi, 'local transit options')
+          .replace(/\bairport\b/gi, 'metro station/pickup point')
+          .replace(/\bairports\b/gi, 'metro stations/pickup points');
+      }
+      if (howToReach.summary) {
+        howToReach.summary = howToReach.summary
+          .replace(/\bflight\b/gi, 'local transit')
+          .replace(/\bflights\b/gi, 'local transit options')
+          .replace(/\bairport\b/gi, 'metro station/pickup point');
+      }
+    }
+  }
+
+  console.log(`[DEBUG Same-City] Resolution summary for destination "${destination}":`);
+  console.log(`  - startCity: "${startCity}" -> resolved: "${resolvedStart.city}", country: "${resolvedStart.country}"`);
+  console.log(`  - destination: "${destination}" -> resolved: "${resolvedDest.city}", country: "${resolvedDest.country}", area: "${resolvedDest.area}"`);
+  console.log(`  - startCoords: (${startLat}, ${startLng})`);
+  console.log(`  - destCoords: (${destLat}, ${destLng})`);
+  console.log(`  - distanceKm: ${distanceKm}`);
+  console.log(`  - isSameCity: ${isSameCity}`);
+  console.log(`  - final howToReach:`, JSON.stringify(howToReach, null, 2));
 
   return {
     tripSummary: {
@@ -519,6 +700,15 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     localCurrencyNote,
     budgetBreakdown,
     destination,
+    startCity,
+    startCountry,
+    userLat: startLat,
+    userLng: startLng,
+    resolvedDestCity,
+    resolvedDestCountry,
+    destLat,
+    destLng,
+    budgetTier,
     days: dayByDayPlan.map(day => ({
       dayNumber: day.dayNumber,
       date: day.date,
@@ -611,6 +801,15 @@ function isFuzzyMatch(s1, s2) {
   return dist <= threshold;
 }
 
+function cleanNameForMatching(name) {
+  if (!name) return '';
+  return name.toLowerCase()
+    .replace(/\(.*\)/g, '') // remove parentheses content
+    .replace(/\b(village|town|district|station|metro|airport|railway|junction|terminal|west|east|north|south|central|market|street|road|avenue|square|park|palace|castle|fort|temple|church|mosque|tomb|gardens|monument|bridge|lake|harbor|valley|hills|caves|dargah|tower)\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function matchDestinationInDb(destName) {
   const dbInstance = getKnownCitiesDb();
   const cities = dbInstance.cities || {};
@@ -652,6 +851,35 @@ function matchDestinationInDb(destName) {
     matchedCity = matchingCountry || exactNameMatch || cityCandidates[0];
   }
 
+  // If no city matches directly, check if the input matches any neighborhood of a city!
+  if (!matchedCity) {
+    const neighborhoodCandidates = [];
+    for (const [key, ct] of Object.entries(cities)) {
+      const neighborhoods = ct.neighborhoods || [];
+      const matchedNh = neighborhoods.find(nh => {
+        const cleanNh = nh.toLowerCase().trim();
+        const escaped = primaryToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const boundaryRegex = new RegExp(`(^|[\\s,\\/\\(\\)-])${escaped}([\\s,\\/\\(\\)-]|$)`, 'i');
+        
+        const nhClean = cleanNameForMatching(cleanNh);
+        const tokenClean = cleanNameForMatching(primaryToken);
+        const hasSubstringMatch = nhClean && tokenClean && (nhClean.includes(tokenClean) || tokenClean.includes(nhClean));
+        
+        return boundaryRegex.test(cleanNh) || isFuzzyMatch(cleanNh, primaryToken) || hasSubstringMatch;
+      });
+      if (matchedNh) {
+        neighborhoodCandidates.push(ct);
+      }
+    }
+    if (neighborhoodCandidates.length > 0) {
+      const matchingCountry = neighborhoodCandidates.find(ct => {
+        const countryLower = (ct.country || '').toLowerCase();
+        return cleanDest.includes(countryLower);
+      });
+      matchedCity = matchingCountry || neighborhoodCandidates[0];
+    }
+  }
+
   // If no city matches directly, check if the input matches any landmark of a city!
   if (!matchedCity) {
     const landmarkCandidates = [];
@@ -661,7 +889,12 @@ function matchDestinationInDb(destName) {
         const cleanLm = lm.toLowerCase().trim();
         const escaped = primaryToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const boundaryRegex = new RegExp(`(^|[\\s,\\/\\(\\)-])${escaped}([\\s,\\/\\(\\)-]|$)`, 'i');
-        return boundaryRegex.test(cleanLm) || isFuzzyMatch(cleanLm, primaryToken);
+        
+        const lmClean = cleanNameForMatching(cleanLm);
+        const tokenClean = cleanNameForMatching(primaryToken);
+        const hasSubstringMatch = lmClean && tokenClean && (lmClean.includes(tokenClean) || tokenClean.includes(lmClean));
+        
+        return boundaryRegex.test(cleanLm) || isFuzzyMatch(cleanLm, primaryToken) || hasSubstringMatch;
       });
       if (matchedLandmark) {
         landmarkCandidates.push(ct);
@@ -698,6 +931,158 @@ function matchDestinationInDb(destName) {
   return { matchedCity, matchedRegion };
 }
 
+function normalizeCountry(c) {
+  if (!c) return '';
+  const low = c.toLowerCase().trim();
+  if (low === 'usa' || low === 'united states' || low === 'united states of america' || low === 'u.s.a.' || low === 'u.s.') {
+    return 'united states';
+  }
+  if (low === 'uk' || low === 'united kingdom' || low === 'u.k.') {
+    return 'united kingdom';
+  }
+  return low;
+}
+
+function isKnownCountry(countryName) {
+  if (!countryName) return false;
+  const dbInstance = getKnownCitiesDb();
+  const cities = dbInstance.cities || {};
+  const cNameLower = countryName.toLowerCase().trim();
+  for (const ct of Object.values(cities)) {
+    if ((ct.country || '').toLowerCase().trim() === cNameLower) {
+      return true;
+    }
+  }
+  const regions = dbInstance.regions || {};
+  for (const reg of Object.values(regions)) {
+    if ((reg.country || '').toLowerCase().trim() === cNameLower) {
+      return true;
+    }
+  }
+  const commonCountries = ['usa', 'united states', 'uk', 'united kingdom', 'india', 'france', 'germany', 'japan', 'china', 'australia', 'canada', 'brazil', 'spain', 'italy'];
+  if (commonCountries.includes(cNameLower)) return true;
+  return false;
+}
+
+function resolveCityAndCountry(destName) {
+  if (!destName) return { area: '', city: '', country: '' };
+
+  const { matchedCity, matchedRegion } = matchDestinationInDb(destName);
+
+  if (matchedCity) {
+    const cleanDest = destName.toLowerCase().trim();
+    const primaryToken = cleanDest.split(',')[0].trim();
+    let area = '';
+
+    const neighborhoods = matchedCity.neighborhoods || [];
+    const foundNh = neighborhoods.find(nh => {
+      const cleanNh = nh.toLowerCase().trim();
+      const nhClean = cleanNameForMatching(cleanNh);
+      const tokenClean = cleanNameForMatching(primaryToken);
+      const hasSubstringMatch = nhClean && tokenClean && (nhClean.includes(tokenClean) || tokenClean.includes(nhClean));
+      return cleanNh.includes(primaryToken) || primaryToken.includes(cleanNh) || isFuzzyMatch(cleanNh, primaryToken) || hasSubstringMatch;
+    });
+
+    let foundLm = null;
+    if (!foundNh) {
+      const landmarks = matchedCity.landmarks || [];
+      foundLm = landmarks.find(lm => {
+        const cleanLm = lm.toLowerCase().trim();
+        const lmClean = cleanNameForMatching(cleanLm);
+        const tokenClean = cleanNameForMatching(primaryToken);
+        const hasSubstringMatch = lmClean && tokenClean && (lmClean.includes(tokenClean) || tokenClean.includes(lmClean));
+        return cleanLm.includes(primaryToken) || primaryToken.includes(cleanLm) || isFuzzyMatch(cleanLm, primaryToken) || hasSubstringMatch;
+      });
+    }
+
+    const matchedArea = foundNh || foundLm;
+    if (matchedArea) {
+      area = matchedArea;
+    } else {
+      // Fallback: if the input is not exactly the city name, treat the first token as the area
+      const rawFirstToken = destName.split(',')[0].trim();
+      if (rawFirstToken.toLowerCase() !== matchedCity.name.toLowerCase()) {
+        area = rawFirstToken;
+      }
+    }
+
+    return {
+      area: area || '',
+      city: matchedCity.name,
+      country: matchedCity.country
+    };
+  }
+
+  if (matchedRegion) {
+    return {
+      area: '',
+      city: matchedRegion.name,
+      country: matchedRegion.country
+    };
+  }
+
+  // Parse text heuristics if no DB match
+  const parts = destName.split(',').map(s => s.trim()).filter(Boolean);
+
+  if (parts.length === 1) {
+    return { area: '', city: parts[0], country: '' };
+  } else if (parts.length === 2) {
+    if (isKnownCountry(parts[1])) {
+      return { area: '', city: parts[0], country: parts[1] };
+    } else {
+      return { area: parts[0], city: parts[1], country: '' };
+    }
+  } else if (parts.length >= 3) {
+    return {
+      area: parts[0],
+      city: parts[1],
+      country: parts[parts.length - 1]
+    };
+  }
+
+  return { area: '', city: destName, country: '' };
+}
+
+function getCityLocalTransitTips(cityName, destArea) {
+  const nameLower = cityName.toLowerCase().trim();
+  const destName = destArea || 'your destination';
+  if (nameLower === 'delhi' || nameLower === 'new delhi') {
+    return {
+      walking: `Since you’re already in Delhi, you don’t need air travel or intercity train. The best way to reach ${destName} is walking, which takes just a few minutes, or a quick auto-rickshaw ride.`,
+      medium: `Since you’re already in Delhi, you don’t need air travel or intercity train. The best way to reach ${destName} is taking the Delhi Metro (such as the Yellow Line) to avoid traffic. Alternatively, you can take a direct cab or auto-rickshaw for door-to-door comfort.`,
+      long: `Since you’re already in Delhi, you don’t need air travel or intercity train. The best way to cross the city to ${destName} is using the Delhi Metro network for the main stretch, then taking a short auto or cab for the last mile. Direct app-based cabs are also highly convenient.`
+    };
+  }
+  if (nameLower === 'mumbai') {
+    return {
+      walking: `Since you’re already in Mumbai, you don’t need air travel or intercity train. The best way to reach ${destName} is walking or taking a quick auto-rickshaw/local taxi.`,
+      medium: `Since you’re already in Mumbai, you don’t need air travel or intercity train. The best way to reach ${destName} is taking the Mumbai Metro or the local train network. A cab or auto-rickshaw is also a great option for door-to-door transit.`,
+      long: `Since you’re already in Mumbai, you don’t need air travel or intercity train. The best way to cross the city to ${destName} is using the local trains or Metro to bypass traffic, then taking a taxi or auto for the last mile.`
+    };
+  }
+  if (nameLower === 'new york' || nameLower === 'nyc') {
+    return {
+      walking: `Since you’re already in New York, the best way to reach ${destName} is a pleasant walk or a quick taxi ride.`,
+      medium: `Since you’re already in New York, the best way to reach ${destName} is taking the NYC subway. It is the fastest way to travel between boroughs and avoid street traffic.`,
+      long: `Since you’re already in New York, the best way to travel to ${destName} is taking the subway (express lines where available) for the main stretch, followed by walking or a taxi for the final blocks.`
+    };
+  }
+  if (nameLower === 'paris') {
+    return {
+      walking: `Since you’re already in Paris, the best way to reach ${destName} is walking through the scenic streets or taking a short metro ride.`,
+      medium: `Since you’re already in Paris, the best way to reach ${destName} is using the Paris Métro or RER network. It is very efficient and covers all neighborhoods.`,
+      long: `Since you’re already in Paris, the best way to travel to ${destName} is taking the Métro or RER train lines to the nearest station, then a short walk or taxi for the last stretch.`
+    };
+  }
+
+  // Default generic local transit tips for any other city in the world
+  return {
+    walking: `Since you’re already in ${cityName}, you don’t need air travel or intercity train. The best way to reach ${destName} is walking, which takes just a few minutes. For convenience, a short local taxi or public bus ride is also easily available.`,
+    medium: `Since you’re already in ${cityName}, you don’t need air travel or intercity train. The best way to reach ${destName} is using the city's local metro/subway, tram, or bus network. Alternatively, you can take a direct taxi or app-based cab for door-to-door comfort.`,
+    long: `Since you’re already in ${cityName}, you don’t need air travel or intercity train. The best way to travel across the city to ${destName} is taking local transit (metro/subway or express bus) to bypass traffic, then a short taxi or walk for the last mile.`
+  };
+}
+
 const INR_TO_CURRENCY = {
   INR: 1,       USD: 0.012,   EUR: 0.011,   GBP: 0.0094,
   AUD: 0.0183,  CAD: 0.0164,  SGD: 0.0162,  AED: 0.044,
@@ -715,7 +1100,7 @@ const INR_TO_CURRENCY = {
   MAD: 0.12,    BGN: 0.021,   IQD: 15.7,    TWD: 0.39,
 };
 
-function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate, startCity = '', startCountry = '', userLat = null, userLng = null) {
+function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate, startCity = '', startCountry = '', userLat = null, userLng = null, resolvedDestCity = '', resolvedDestCountry = '', destLat = null, destLng = null) {
   const destName = destination || 'Selected Destination';
   const totalDays = Number(daysCount) || 3;
   const totalBudget = Number(budget) || 15000;
@@ -1009,7 +1394,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     }
   };
 
-  return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays, { startCity, startCountry, userLat, userLng, budgetTier });
+  return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays, { startCity, startCountry, userLat, userLng, budgetTier, resolvedDestCity, resolvedDestCountry, destLat, destLng });
 }
 
 // ----------------------------------------------------
@@ -1090,8 +1475,17 @@ async function generateTrip(req, res) {
   const startTime = Date.now();
   console.log(`[AI Trip Generation] Start processing request at ${new Date().toISOString()}`);
   
+  let fallbackResponse;
   try {
-    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency, simplified, userLat, userLng, startCity, startCountry } = req.body;
+    const { prompt, destination, budget, currency, startDate, endDate, interests, preferredCurrency, simplified, userLat, userLng, startCity, startCountry, resolvedDestCity, resolvedDestCountry, destLat, destLng } = req.body;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: "FROM date and TO date are required to generate a trip." });
+    }
+
+    if (startDate > endDate) {
+      return res.status(400).json({ error: "FROM date cannot be after TO date." });
+    }
 
     // Determine total days
     let daysCount = 3;
@@ -1151,10 +1545,10 @@ async function generateTrip(req, res) {
       budgetTier = 'high';
     }
 
-    const fallbackResponse = () => {
+    fallbackResponse = () => {
       console.log('[AI Trip Generation] Fallback triggered. Generating server-side mock itinerary.');
       const safeInterests = Array.isArray(interests) ? interests : [];
-      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate, startCity, startCountry, userLat, userLng);
+      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate, startCity, startCountry, userLat, userLng, resolvedDestCity, resolvedDestCountry, destLat, destLng);
       
       if (activeUser && !isPremium) {
         db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
@@ -1309,7 +1703,7 @@ JSON structure:
 
 Style & Constraint Rules:
 - GEOLOCATION TRANSPORT RECOMMENDATION: The user is starting their trip from ${startCity || 'their home city'}, ${startCountry || 'their home country'} (Coordinates: ${userLat || 'unknown'}, ${userLng || 'unknown'}). You MUST recommend the best travel mode to reach the destination based on starting location, distance, and budget tier (${budgetTier}) using this 3-level rule set:
-  1) Same-city / local trips (startCity == destCity): Suggest local city transport only (walking, cab/taxi/app-based taxi, auto/e-rickshaw/tuk-tuk, metro/subway/tram, city buses). Do NOT suggest flights or intercity trains. Distance guidelines: Very short (0-3 km) -> walking + optional auto/taxi. Short/medium (3-10 km) -> metro/subway/tram + short auto/taxi, or direct cab. Long cross-city (10+ km) -> metro + cab/auto, or full cab if budget is high. Budget: low budget -> prioritize metro/subway/bus/tram; mid budget -> metro + cab/auto mix; high budget -> cabs/app taxis.
+  1) Same-city / local trips (origin and destination in the same city/metro area, e.g. Delhi to Hauz Khas, Paris to Montmartre, Mumbai to Bandra, NY to Brooklyn): Suggest local city transport only (walking, cab/taxi/app-based taxi, auto/e-rickshaw/tuk-tuk, metro/subway/tram, city buses). You must NOT mention flights or intercity trains, and you must NOT invent fake airports or train terminals for local neighborhoods under any circumstances. Recommend only realistic local transit options. Distance guidelines: Very short (0-3 km) -> walking + optional auto/taxi. Short/medium (3-10 km) -> metro/subway/tram + short auto/taxi, or direct cab. Long cross-city (10+ km) -> metro + cab/auto, or full cab if budget is high. Budget: low budget -> prioritize metro/subway/bus/tram; mid budget -> metro + cab/auto mix; high budget -> cabs/app taxis.
   2) Inter-city, same country trips (startCountry == destCountry AND startCity != destCity): Recommend bus, train, or flight. Distance guidelines: Short (< 300-400 km) -> bus or train, avoid flights. Medium (400-800 km) -> low budget uses train (sleeper/AC) or overnight bus; high budget uses flight (optional). Long (> 800-1000 km) -> high/medium budget uses flight; low budget uses train (sleeper) or bus. Budget: low budget -> prefer train/bus (flights only as optional/more expensive); mid budget -> AC trains or budget flights; high budget -> flights for long distances.
   3) International trips (startCountry != destCountry): Flights are the primary mode. Suggest direct or 1-stop flights from nearest international airport of startCity to destination airport. After the flight, recommend local transfer modes at destination (airport train/metro/bus/taxi).
   * Populate the "howToReach" block with recommendedMode, summary (1-2 lines), details (3-5 sentences), nearestStartTerminal, nearestEndTerminal, and estimatedCost.
@@ -1426,7 +1820,17 @@ Please reformat the last answer into the required JSON schema only. Respond with
       }
     }
 
-    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount, { startCity, startCountry, userLat, userLng, budgetTier });
+    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount, {
+      startCity,
+      startCountry,
+      userLat,
+      userLng,
+      budgetTier,
+      resolvedDestCity,
+      resolvedDestCountry,
+      destLat,
+      destLng
+    });
     if (!itinerary) {
       return fallbackResponse();
     }
@@ -1548,12 +1952,39 @@ You MUST output your response ONLY as a single valid JSON object following the e
       const extractedCurrency = originalItinerary.estimatedTotalCost?.currency || originalItinerary.summary?.currency || 'INR';
       const extractedDaysCount = originalItinerary.days?.length || 3;
 
+      const startCity = req.body.startCity || originalItinerary.startCity || '';
+      const startCountry = req.body.startCountry || originalItinerary.startCountry || '';
+      const userLat = req.body.userLat !== undefined ? req.body.userLat : (originalItinerary.userLat || null);
+      const userLng = req.body.userLng !== undefined ? req.body.userLng : (originalItinerary.userLng || null);
+      const resolvedDestCity = req.body.resolvedDestCity || originalItinerary.resolvedDestCity || '';
+      const resolvedDestCountry = req.body.resolvedDestCountry || originalItinerary.resolvedDestCountry || '';
+      const destLat = req.body.destLat !== undefined ? req.body.destLat : (originalItinerary.destLat || null);
+      const destLng = req.body.destLng !== undefined ? req.body.destLng : (originalItinerary.destLng || null);
+      const budgetTier = req.body.budgetTier || originalItinerary.budgetTier || '';
+
       refinedItinerary = normalizeItinerary(
-        rawRefined,
+        {
+          ...rawRefined,
+          howToReach: originalItinerary.howToReach,
+          safetyAndLogistics: originalItinerary.safetyAndLogistics,
+          localCurrencyNote: originalItinerary.localCurrencyNote,
+          budgetBreakdown: originalItinerary.budgetBreakdown
+        },
         extractedStartDate,
         extractedBudget,
         extractedCurrency,
-        extractedDaysCount
+        extractedDaysCount,
+        {
+          startCity,
+          startCountry,
+          userLat,
+          userLng,
+          resolvedDestCity,
+          resolvedDestCountry,
+          destLat,
+          destLng,
+          budgetTier
+        }
       );
     } catch (parseError) {
       console.error('Failed to parse Gemini refined itinerary.', parseError);
