@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../db');
 const config = require('../config');
 const Sentry = require('@sentry/node');
+const { isConfigured: isSupabaseConfigured } = require('../supabaseClient');
 
 // Helper to capture unexpected exceptions in Sentry
 function captureUnexpectedException(req, error) {
@@ -342,6 +343,13 @@ async function optionalAuthenticateToken(req, res, next) {
 async function firebaseSync(req, res) {
   try {
     const { email, name, country, emailVerified, preferredCurrency } = req.body;
+
+    // Guard: fail fast if Supabase is not configured
+    if (!isSupabaseConfigured) {
+      return res.status(503).json({
+        error: 'Server database is not configured. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in the server environment variables. Please contact support.'
+      });
+    }
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required for synchronization.' });
