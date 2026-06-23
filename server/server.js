@@ -1,3 +1,15 @@
+const Sentry = require('@sentry/node');
+
+// Initialize Sentry before importing express to ensure auto-instrumentation works
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0
+  });
+} else {
+  console.warn('WARNING: SENTRY_DSN environment variable is missing. Sentry error monitoring is disabled.');
+}
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -35,6 +47,8 @@ const aiRateLimiter = rateLimit({
 });
 
 const app = express();
+
+
 
 // Midlewares
 app.use(cors({
@@ -95,7 +109,10 @@ app.post('/api/discover/best-for-activity', authController.authenticateToken, va
 app.post('/api/subscribe/order', authController.authenticateToken, paymentController.createOrder);
 app.post('/api/subscribe/verify', authController.authenticateToken, paymentController.verifyPayment);
 app.post('/api/payments/create-order', authController.authenticateToken, paymentController.createOrder);
-app.post('/api/payments/verify', authController.authenticateToken, paymentController.verifyPayment);
+// Diagnostic Endpoint for Sentry error capturing
+app.get('/api/debug-sentry-error', (req, res) => {
+  throw new Error('Sentry Test Error from Travnify Express Backend!');
+});
 
 // Diagnostic Endpoint for Gemini connectivity
 app.get('/api/debug-gemini', async (req, res) => {
@@ -122,6 +139,11 @@ app.get('/api/debug-gemini', async (req, res) => {
     });
   }
 });
+
+// Sentry Error Handler MUST be before any other error middleware and after all controllers
+if (process.env.SENTRY_DSN) {
+  Sentry.setupExpressErrorHandler(app);
+}
 
 // ----------------------------------------------------
 // PRODUCTION STATIC FILE SERVING

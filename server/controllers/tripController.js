@@ -2,6 +2,18 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const db = require('../db');
 const config = require('../config');
 const authController = require('./authController');
+const Sentry = require('@sentry/node');
+
+function captureUnexpectedException(req, error) {
+  if (process.env.SENTRY_DSN) {
+    Sentry.withScope(scope => {
+      if (req.user) {
+        scope.setUser({ id: req.user.id, email: req.user.email });
+      }
+      Sentry.captureException(error);
+    });
+  }
+}
 const fs = require('fs');
 const path = require('path');
 
@@ -1846,6 +1858,7 @@ Please reformat the last answer into the required JSON schema only. Respond with
 
   } catch (error) {
     console.error(`[AI Trip Generation Fatal Error] Error:`, error);
+    captureUnexpectedException(req, error);
     return await fallbackResponse();
   }
 }
@@ -1988,12 +2001,14 @@ You MUST output your response ONLY as a single valid JSON object following the e
       );
     } catch (parseError) {
       console.error('Failed to parse Gemini refined itinerary.', parseError);
+      captureUnexpectedException(req, parseError);
       return res.status(500).json({ error: 'AI failed to adjust this trip cleanly. Please try again.' });
     }
 
     return res.json({ itinerary: refinedItinerary });
   } catch (error) {
     console.error('Refine trip error:', error);
+    captureUnexpectedException(req, error);
     return res.status(500).json({ error: error.message || 'AI service temporarily unavailable. Please contact support.' });
   }
 }
@@ -2007,6 +2022,7 @@ async function getSavedTrips(req, res) {
     return res.json(saved);
   } catch (error) {
     console.error('Get trips error:', error);
+    captureUnexpectedException(req, error);
     return res.status(500).json({ error: 'An error occurred fetching your saved trips.' });
   }
 }
@@ -2036,6 +2052,7 @@ async function saveTrip(req, res) {
     return res.status(201).json(saved);
   } catch (error) {
     console.error('Save trip error:', error);
+    captureUnexpectedException(req, error);
     return res.status(500).json({ error: 'An error occurred saving your trip.' });
   }
 }
@@ -2058,6 +2075,7 @@ async function deleteTrip(req, res) {
     return res.json({ message: 'Trip deleted successfully.' });
   } catch (error) {
     console.error('Delete trip error:', error);
+    captureUnexpectedException(req, error);
     return res.status(500).json({ error: 'An error occurred deleting your trip.' });
   }
 }
@@ -2074,6 +2092,7 @@ async function downloadTripPDF(req, res) {
     return res.json({ success: true, message: 'PDF download authorized.' });
   } catch (error) {
     console.error('Verify PDF download error:', error);
+    captureUnexpectedException(req, error);
     return res.status(500).json({ error: 'An error occurred verifying PDF download permission.' });
   }
 }

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../lib/firebaseClient';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { safeFetch } from '../lib/api';
+import * as Sentry from '@sentry/react';
 
 const AuthContext = createContext(null);
 
@@ -15,6 +16,14 @@ export function AuthProvider({ children }) {
 
   // Queue to retry actions that were locked behind login
   const [pendingAction, setPendingAction] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      Sentry.setUser({ id: user.id, email: user.email });
+    } else {
+      Sentry.setUser(null);
+    }
+  }, [user]);
 
   useEffect(() => {
     let isMounted = true;

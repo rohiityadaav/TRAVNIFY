@@ -35,7 +35,7 @@ export default function Home({ setActiveTab }) {
         </p>
 
         {/* Navigation Triggers */}
-        <div className="hero-ctas" style={{ marginTop: '2rem' }}>
+        <div className="hero-ctas" style={{ marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '1rem' }}>
           <button className="btn btn-primary btn-lg" onClick={() => setActiveTab('plan')}>
             <span>Plan your trip now</span>
             <ArrowRight size={18} />
@@ -43,6 +43,27 @@ export default function Home({ setActiveTab }) {
           <button className="btn btn-outline-slate btn-lg" onClick={() => setActiveTab('explore')}>
             <Compass size={18} />
             <span>Explore Templates</span>
+          </button>
+          <button 
+            onClick={() => { throw new Error("Sentry Test Error from Travnify React Frontend!"); }}
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#EF4444',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '12px',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+          >
+            <span>Trigger Test Error</span>
           </button>
         </div>
       </div>
