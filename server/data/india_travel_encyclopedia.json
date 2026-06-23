@@ -1,0 +1,97 @@
+{
+  "delhi - connaught place (cp)": {
+    "name": "Delhi - Connaught Place (CP)",
+    "city": "Delhi",
+    "neighborhood": "Connaught Place (CP)",
+    "type": "hub",
+    "places": [
+      { "name": "Agrasen ki Baoli", "type": "attraction", "approx_cost": 0, "description": "14th-century historic stepwell known for its unique red-stone architecture and peaceful, mysterious vibe right in the middle of Delhi." },
+      { "name": "Janpath Market", "type": "market", "approx_cost": 0, "description": "Lively street market known for inexpensive clothing, Tibetan handicrafts, brass artifacts, and local souvenir shopping." },
+      { "name": "Central Park", "type": "attraction", "approx_cost": 0, "description": "Sprawling circular park at the center of Inner Circle, featuring a giant national flag, lush lawns, and walking paths." },
+      { "name": "Gurudwara Bangla Sahib", "type": "attraction", "approx_cost": 0, "description": "Prominent Sikh house of worship offering a tranquil pond (Sarovar), beautiful gold domes, and a community kitchen (Langar)." },
+      { "name": "Jantar Mantar", "type": "attraction", "approx_cost": 50, "description": "Historic equinoctial sundial observatory built by Maharaja Jai Singh II of Jaipur in 1724." },
+      { "name": "Indian Coffee House", "type": "cafe", "approx_cost": 150, "description": "Classic, nostalgia-filled cafe in Mohan Singh Place serving filter coffee, masala dosas, and historical charm at low prices." },
+      { "name": "Cha Bar", "type": "cafe", "approx_cost": 250, "description": "Cozy cafe located inside Oxford Bookstore, offering hundreds of tea varieties, pastries, and a great reading environment." },
+      { "name": "Wenger's Deli", "type": "cafe", "approx_cost": 200, "description": "Historic bakery and deli famous for its mutton patties, Swiss chocolates, pastries, and retro standing-only dining style." },
+      { "name": "Social Connaught Place", "type": "nightlife", "approx_cost": 800, "description": "Energetic co-working space by day and high-energy pub by night, famous for innovative cocktails and quirky food presentation." },
+      { "name": "Ministry of Beer", "type": "nightlife", "approx_cost": 1200, "description": "Delhi's first steam-punk themed craft brewery in CP, serving delicious microbrewed beers and multi-cuisine pub bites." },
+      { "name": "Lord of the Drinks", "type": "nightlife", "approx_cost": 1000, "description": "Spacious lounge bar with a grand medieval theme and an outdoor terrace overlooking the circular streets of CP." },
+      { "name": "Saravana Bhavan", "type": "restaurant", "approx_cost": 300, "description": "Hugely popular vegetarian restaurant serving authentic South Indian filter coffee, giant ghee rava dosas, and standard thalis." },
+      { "name": "United Coffee House", "type": "restaurant", "approx_cost": 800, "description": "Grand, high-ceilinged colonial era dining lounge serving signature blends, Indian classics, and continental favorites since 1942." },
+      { "name": "Palika Bazaar", "type": "market", "approx_cost": 0, "description": "Underground air-conditioned market known for clothes, electronics, and local bargaining experiences." }
+    ]
+  },
+  "delhi - hauz khas": {
+    "name": "Delhi - Hauz Khas",
+    "city": "Delhi",
+    "neighborhood": "Hauz Khas",
+    "type": "village",
+    "places": [
+      { "name": "Hauz Khas Fort", "type": "attraction", "approx_cost": 25, "description": "13th-century fort ruins with a beautiful reservoir, ancient mosque, tomb, and madrasa, offering sunset views." },
+      { "name": "Deer Park", "type": "attraction", "approx_cost": 0, "description": "Lush green oasis adjoining the fort, featuring spotted deer, peacocks, walking trails, and dense foliage." },
+      { "name": "Hauz Khas Lake", "type": "attraction", "approx_cost": 0, "description": "Historic water reservoir built by Alauddin Khalji, surrounded by paths and popular for bird watching and walking." },
+      { "name": "Social Hauz Khas", "type": "nightlife", "approx_cost": 700, "description": "Lakeside outpost of the famous chain with retro-industrial decor, serving craft beer and creative fusion snacks." },
+      { "name": "Kunzum Travel Cafe", "type": "cafe", "approx_cost": 150, "description": "Quirky travel-themed cafe where travelers share stories, browse travel photography, and pay whatever they want for coffee." },
+      { "name": "The Tea Room by Blossom Kochhar", "type": "cafe", "approx_cost": 450, "description": "Charming, elegant cafe in Hauz Khas Village serving premium organic teas, coffees, and delicious pastries." },
+      { "name": "Coast Cafe", "type": "restaurant", "approx_cost": 800, "description": "Light-filled coastal restaurant specializing in Kerala-style curry, appams, fish tacos, and great cocktails." },
+      { "name": "Yeti - The Himalayan Kitchen", "type": "restaurant", "approx_cost": 900, "description": "Acclaimed restaurant serving authentic Tibetan, Nepalese, and Bhutanese dishes like momos, thukpa, and shapta." },
+      { "name": "Mia Bella", "type": "restaurant", "approx_cost": 1200, "description": "Rooftop dining restaurant overlooking the lake, famous for Italian fare, cocktails, and sunset views." },
+      { "name": "Naivedyam", "type": "restaurant", "approx_cost": 300, "description": "Beautiful traditional-style restaurant serving high-quality South Indian meals with warm service." },
+      { "name": "Summer House Cafe", "type": "nightlife", "approx_cost": 1500, "description": "Vibrant bar and nightclub nearby offering live music gigs, rooftop seating, and a bustling weekend nightlife scene." },
+      { "name": "Hauz Khas Village Boutiques", "type": "market", "approx_cost": 0, "description": "Labyrinth of narrow lanes filled with independent fashion designer shops, antique stores, and quirky art galleries." }
+    ]
+  },
+  "delhi - safdarjung": {
+    "name": "Delhi - Safdarjung",
+    "city": "Delhi",
+    "neighborhood": "Safdarjung",
+    "type": "neighborhood",
+    "places": [
+      { "name": "Safdarjung Tomb", "type": "attraction", "approx_cost": 50, "description": "18th-century sandstone and marble mausoleum showcasing the grandeur of Late Mughal architecture." },
+      { "name": "Safdarjung Development Area (SDA) Market", "type": "market", "approx_cost": 0, "description": "Vibrant market hub popular with university students, lined with hip cafes, dessert shops, and street vendors." },
+      { "name": "The Piano Man Jazz Club", "type": "nightlife", "approx_cost": 1200, "description": "Renowned jazz club offering nightly live performances, cozy seating, craft cocktails, and a distinct speakeasy vibe." },
+      { "name": "Rajinder Da Dhaba", "type": "restaurant", "approx_cost": 400, "description": "Iconic local eatery famous for its delicious and spicy North Indian curries, kebabs, and Galouti rolls." },
+      { "name": "What A Comic Show", "type": "cafe", "approx_cost": 350, "description": "Charming comic-book themed cafe serving great coffee, burgers, and Italian dishes in a relaxed environment." },
+      { "name": "Humayunpur Market", "type": "market", "approx_cost": 0, "description": "Narrow, bustling lanes famous for Northeast Indian food joints, boutique shopping, and trendy fashion outlets." },
+      { "name": "Cultured Cafe", "type": "cafe", "approx_cost": 400, "description": "Hip coffee shop offering a serene atmosphere, delicious sourdough toasts, and pour-over coffee specialties." },
+      { "name": "Lodi Gardens", "type": "attraction", "approx_cost": 0, "description": "Lush historic park located nearby, dotted with Sayyid and Lodi dynasty tombs, popular for morning jogs." },
+      { "name": "Mizo Diner", "type": "restaurant", "approx_cost": 350, "description": "Cozy restaurant in Humayunpur specializing in authentic Mizo cuisine, smoked pork dishes, and bamboo shoot curries." }
+    ]
+  },
+  "mumbai - bandra": {
+    "name": "Mumbai - Bandra",
+    "city": "Mumbai",
+    "neighborhood": "Bandra",
+    "type": "hub",
+    "places": [
+      { "name": "Bandra-Worli Sea Link", "type": "attraction", "approx_cost": 0, "description": "Stunning cable-stayed bridge spanning the Arabian Sea, best viewed from the Bandra coastline." },
+      { "name": "Bandstand Promenade", "type": "attraction", "approx_cost": 0, "description": "Scenic seaside walking pathway popular for sea views, matching breeze, and spotting Bollywood stars' homes." },
+      { "name": "Mount Mary Church", "type": "attraction", "approx_cost": 0, "description": "Historic Roman Catholic Basilica of Our Lady of the Mount, situated on a hill overlooking the ocean." },
+      { "name": "Bandra Fort", "type": "attraction", "approx_cost": 0, "description": "Castella de Aguada, a historic 17th-century Portuguese watchtower offering panoramic sea views at sunset." },
+      { "name": "Carter Road Promenade", "type": "attraction", "approx_cost": 0, "description": "Lively coastal boulevard featuring a culinary strip, walking tracks, and musical performances." },
+      { "name": "Linking Road", "type": "market", "approx_cost": 0, "description": "Famous shopping street offering a mix of brand outlets, affordable footwear stalls, and local street wear." },
+      { "name": "Hill Road", "type": "market", "approx_cost": 0, "description": "Bustling retail street lined with thrift shops, export-surplus clothing outlets, and local accessories." },
+      { "name": "Candies", "type": "cafe", "approx_cost": 300, "description": "Iconic Portuguese-villa style cafe with multi-level terrace seating, known for chicken rolls, lasagna, and wild berry iced tea." },
+      { "name": "Salt Water Cafe", "type": "restaurant", "approx_cost": 900, "description": "Chic, relaxed restaurant serving European bistro fare, fresh seafood, and outstanding sangrias." },
+      { "name": "Toto's Garage", "type": "nightlife", "approx_cost": 1000, "description": "Famous VW Beetle-themed pub with auto body parts hanging from the ceiling, playing classic rock and serving chilled beer." },
+      { "name": "Taj Mahal Tea House", "type": "cafe", "approx_cost": 600, "description": "Elegant tea lounge set in an old Bandra bungalow, offering high-end artisanal teas, classical music, and local snacks." }
+    ]
+  },
+  "jaipur - old city": {
+    "name": "Jaipur - Old City",
+    "city": "Jaipur",
+    "neighborhood": "Old City",
+    "type": "hub",
+    "places": [
+      { "name": "Hawa Mahal", "type": "attraction", "approx_cost": 50, "description": "The iconic 'Palace of Winds', a five-story pink sandstone pyramid-like facade built in 1799." },
+      { "name": "City Palace Jaipur", "type": "attraction", "approx_cost": 300, "description": "Magnificent royal residence showcasing a blend of Rajput and Mughal architecture, with museums and courtyards." },
+      { "name": "Jantar Mantar Jaipur", "type": "attraction", "approx_cost": 200, "description": "UNESCO World Heritage site featuring nineteen architectural astronomical instruments built by Sawai Jai Singh II." },
+      { "name": "Johri Bazar", "type": "market", "approx_cost": 0, "description": "Traditional jewelry market famous for gold, silver, emeralds, and handmade Bandhej block-print textiles." },
+      { "name": "Bapu Bazar", "type": "market", "approx_cost": 0, "description": "Vibrant market lane known for Rajasthani leather shoes (mojris), handicraft home decor, and traditional block prints." },
+      { "name": "Laxmi Mishthan Bhandar (LMB)", "type": "restaurant", "approx_cost": 450, "description": "Legendary sweet shop and dining room famous for its Rajasthani thali, Pyaaz Kachori, and Ghewar sweet." },
+      { "name": "Wind View Cafe", "type": "cafe", "approx_cost": 250, "description": "Rooftop cafe located directly opposite Hawa Mahal, offering great views of the palace facade and classic masala chai." },
+      { "name": "Lassiwala", "type": "cafe", "approx_cost": 100, "description": "Famous shop on MI Road serving thick, sweet lassi in traditional clay cups (kulhads) since 1944." },
+      { "name": "Bar Palladio", "type": "nightlife", "approx_cost": 1500, "description": "Stunning heritage-style restaurant and lounge featuring royal blue interiors and classical Italian food." }
+    ]
+  }
+}

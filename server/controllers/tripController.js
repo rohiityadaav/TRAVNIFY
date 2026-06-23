@@ -46,6 +46,68 @@ function getKnownCitiesDb() {
   return knownCitiesDb;
 }
 
+// Load India travel encyclopedia
+let indiaEncyclopedia = {};
+try {
+  const encPath = path.join(__dirname, '../data/india_travel_encyclopedia.json');
+  if (fs.existsSync(encPath)) {
+    indiaEncyclopedia = JSON.parse(fs.readFileSync(encPath, 'utf8'));
+    console.log(`Loaded India travel encyclopedia: ${Object.keys(indiaEncyclopedia).length} entries.`);
+  } else {
+    console.warn(`WARNING: india_travel_encyclopedia.json not found at ${encPath}.`);
+  }
+} catch (err) {
+  console.error('Failed to load India travel encyclopedia:', err);
+}
+
+// Find encyclopedia entry by name (smart matching with aliases and typos)
+function findIndiaEncyclopediaEntry(destName) {
+  if (!destName) return null;
+  const cleanDest = destName.toLowerCase().trim();
+  
+  // 1. Direct exact key match
+  if (indiaEncyclopedia[cleanDest]) {
+    return indiaEncyclopedia[cleanDest];
+  }
+  
+  // 2. Scan and find matches based on aliases, names, and neighborhoods
+  for (const [key, data] of Object.entries(indiaEncyclopedia)) {
+    const nameLower = (data.name || '').toLowerCase();
+    const nhLower = (data.neighborhood || '').toLowerCase();
+    const cityLower = (data.city || '').toLowerCase();
+    
+    if (cleanDest === nameLower || cleanDest === nhLower) {
+      return data;
+    }
+    
+    if (cleanDest.includes(nhLower) && cleanDest.includes(cityLower)) {
+      return data;
+    }
+    
+    // Check for Connaught Place or CP (special boundary case)
+    if (nhLower.includes('connaught place') && (cleanDest.includes('connaught place') || /\bcp\b/.test(cleanDest))) {
+      return data;
+    }
+    
+    // Check for Hauz Khas / Hauz Khas Village / Hauz Kahs (handling user's typos like 'hauz kahs')
+    if (nhLower.includes('hauz khas')) {
+      if (cleanDest.includes('hauz khas') || cleanDest.includes('hauz kahs')) {
+        return data;
+      }
+    }
+    
+    // Generic substring match if name is long enough
+    if (nameLower.length > 5 && cleanDest.includes(nameLower)) {
+      return data;
+    }
+    if (nhLower.length > 5 && cleanDest.includes(nhLower)) {
+      return data;
+    }
+  }
+  return null;
+}
+
+
 // Helper to generate unique ID
 function generateId(prefix = 'trip') {
   return `${prefix}_${Math.random().toString(36).substring(2, 11)}`;
@@ -410,7 +472,9 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       let amount = 0;
       let currency = estCostCurrency;
 
-      if (block.estimatedCost && typeof block.estimatedCost === 'object') {
+      if (block.places && Array.isArray(block.places)) {
+        amount = block.places.reduce((sum, p) => sum + (Number(p.approx_cost || p.approxCost || p.approx_value || p.approxValue) || 0), 0);
+      } else if (block.estimatedCost && typeof block.estimatedCost === 'object') {
         amount = Number(block.estimatedCost.amount || block.estimatedCost.value) || 0;
         currency = block.estimatedCost.currency || estCostCurrency;
       } else if (block.approxCost && typeof block.approxCost === 'object') {
@@ -440,9 +504,12 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       grandTotal += amount;
 
       return {
+        title: block.title || '',
         description,
         estimatedCost: { amount, currency },
-        type
+        type,
+        places: block.places || [],
+        notes: block.notes || ''
       };
     };
 
@@ -733,44 +800,50 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
         {
           timeWindow: 'Morning (09:00 - 12:00)',
           timeSlot: 'Morning (09:00 - 12:00)',
-          title: '☀️ Morning',
-          placeName: '☀️ Morning Plan',
+          title: day.morning.title || '☀️ Morning',
+          placeName: (day.morning.places && day.morning.places[0]) ? day.morning.places[0].name : '☀️ Morning Plan',
           description: day.morning.description,
           activity: day.morning.description,
-          areaOrNeighborhood: destination,
+          areaOrNeighborhood: (day.morning.places && day.morning.places[0]) ? day.morning.places[0].area : destination,
           approxCost: {
             value: day.morning.estimatedCost.amount,
             currency: day.morning.estimatedCost.currency
           },
-          type: day.morning.type
+          type: day.morning.type,
+          places: day.morning.places || [],
+          notes: day.morning.notes || ''
         },
         {
           timeWindow: 'Afternoon (13:00 - 17:00)',
           timeSlot: 'Afternoon (13:00 - 17:00)',
-          title: '🌤️ Afternoon',
-          placeName: '🌤️ Afternoon Plan',
+          title: day.afternoon.title || '🌤️ Afternoon',
+          placeName: (day.afternoon.places && day.afternoon.places[0]) ? day.afternoon.places[0].name : '🌤️ Afternoon Plan',
           description: day.afternoon.description,
           activity: day.afternoon.description,
-          areaOrNeighborhood: destination,
+          areaOrNeighborhood: (day.afternoon.places && day.afternoon.places[0]) ? day.afternoon.places[0].area : destination,
           approxCost: {
             value: day.afternoon.estimatedCost.amount,
             currency: day.afternoon.estimatedCost.currency
           },
-          type: day.afternoon.type
+          type: day.afternoon.type,
+          places: day.afternoon.places || [],
+          notes: day.afternoon.notes || ''
         },
         {
           timeWindow: 'Evening (18:00 - 22:00)',
           timeSlot: 'Evening (18:00 - 22:00)',
-          title: '🌙 Evening',
-          placeName: '🌙 Evening Plan',
+          title: day.evening.title || '🌙 Evening',
+          placeName: (day.evening.places && day.evening.places[0]) ? day.evening.places[0].name : '🌙 Evening Plan',
           description: day.evening.description,
           activity: day.evening.description,
-          areaOrNeighborhood: destination,
+          areaOrNeighborhood: (day.evening.places && day.evening.places[0]) ? day.evening.places[0].area : destination,
           approxCost: {
             value: day.evening.estimatedCost.amount,
             currency: day.evening.estimatedCost.currency
           },
-          type: day.evening.type
+          type: day.evening.type,
+          places: day.evening.places || [],
+          notes: day.evening.notes || ''
         }
       ]
     })),
@@ -1131,6 +1204,217 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     budgetTier = 'high';
   }
 
+  const safeInterests = Array.isArray(interests) && interests.length > 0 ? interests : ['landmarks', 'culture', 'nature', 'shopping', 'food', 'nightlife'];
+  const activeInterest = safeInterests[0];
+
+  // Check if destination matches any India Travel Encyclopedia entries
+  const matchedEnc = findIndiaEncyclopediaEntry(destName);
+  if (matchedEnc) {
+    const places = matchedEnc.places || [];
+    const attractions = places.filter(p => p.type === 'attraction');
+    const cafes = places.filter(p => p.type === 'cafe');
+    const markets = places.filter(p => p.type === 'market');
+    const nightlife = places.filter(p => p.type === 'nightlife');
+    const restaurants = places.filter(p => p.type === 'restaurant');
+
+    const dayByDayPlan = [];
+    for (let i = 0; i < totalDays; i++) {
+      const d = new Date(baseDate);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+
+      // Select specific places dynamically (rotate lists)
+      const att1 = attractions[i % attractions.length] || { name: `${matchedEnc.neighborhood} Landmark`, type: "attraction", approx_cost: 0, description: `Explore the beautiful areas around ${matchedEnc.neighborhood}.` };
+      const att2 = attractions[(i + 1) % attractions.length] || attractions[0] || { name: `${matchedEnc.neighborhood} Sight`, type: "attraction", approx_cost: 0, description: `Enjoy sightseeing in the historical locality of ${matchedEnc.neighborhood}.` };
+      const cafe1 = cafes[i % cafes.length] || { name: `Local Café in ${matchedEnc.neighborhood}`, type: "cafe", approx_cost: 200, description: `Relax and grab a beverage at a cozy café.` };
+      const mkt1 = markets[i % markets.length] || { name: `${matchedEnc.neighborhood} Market`, type: "market", approx_cost: 0, description: `Stroll through the local shops and boutique stores.` };
+      const rest1 = restaurants[i % restaurants.length] || { name: `Popular Restaurant in ${matchedEnc.neighborhood}`, type: "restaurant", approx_cost: 400, description: `Savor regional specialties at a highly recommended dining spot.` };
+      const bar1 = nightlife[i % nightlife.length] || { name: `Lounge bar in ${matchedEnc.neighborhood}`, type: "nightlife", approx_cost: 800, description: `Unwind at a popular night spot or bar with local atmosphere.` };
+
+      // Build periods based on CP / Hauz Khas / Safdarjung templates if matching, else generic data-driven template
+      let title = '';
+      let morning = {};
+      let afternoon = {};
+      let evening = {};
+      let notes = [];
+
+      const isCP = matchedEnc.neighborhood.toLowerCase().includes('connaught');
+      const isHK = matchedEnc.neighborhood.toLowerCase().includes('hauz');
+      const isSJ = matchedEnc.neighborhood.toLowerCase().includes('safdarjung');
+
+      if (isCP) {
+        title = `Explore Connaught Place - Day ${i + 1}`;
+        morning = {
+          title: `Visit ${att2.name} and explore ${mkt1.name}`,
+          description: `Start your morning by visiting ${att2.name} to admire its unique historical architecture, followed by a walk through the lively stalls of ${mkt1.name}. Enjoy a traditional filter coffee or snack at ${cafe1.name}.`,
+          places: [
+            { name: att2.name, type: att2.type, area: matchedEnc.neighborhood, approx_cost: att2.approx_cost },
+            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+          ],
+          notes: `Janpath Market is great for bargaining and buy local items.`
+        };
+        afternoon = {
+          title: `Lunch at ${rest1.name} and shopping in CP Inner Circle`,
+          description: `Have a delicious lunch at the iconic ${rest1.name} in Connaught Place. Spend the afternoon exploring the circular streets and shopping colonnades, visiting ${att1.name} at the center of the hub.`,
+          places: [
+            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost },
+            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost }
+          ],
+          notes: `Rajiv Chowk metro station is the central hub here.`
+        };
+        evening = {
+          title: `Evening drinks at ${bar1.name} overlooking CP`,
+          description: `As dusk falls, head to ${bar1.name} for drinks and dinner. Enjoy a fantastic view over CP and soak in the lively nightlife and cosmopolitan vibe.`,
+          places: [
+            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+          ],
+          notes: `Advance reservations are recommended on weekends.`
+        };
+        notes = [`CP is pedestrian-friendly but watch out for street vendors.`, `Carry some cash for small purchases.`];
+      } else if (isHK) {
+        title = `Explore Hauz Khas - Day ${i + 1}`;
+        morning = {
+          title: `Morning walk at ${att1.name} and ${att2.name}`,
+          description: `Begin your morning walking through the ancient 13th-century ruins of ${att1.name} next to the lake, then wander into the lush greenery of ${att2.name} to see the spotted deer in their natural habitat.`,
+          places: [
+            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost },
+            { name: att2.name, type: att2.type, area: matchedEnc.neighborhood, approx_cost: att2.approx_cost }
+          ],
+          notes: `Early morning has the coolest weather for walking.`
+        };
+        afternoon = {
+          title: `Boutique shopping and coffee at ${cafe1.name}`,
+          description: `Explore the narrow lanes of Hauz Khas Village, browsing unique designer fashion shops at ${mkt1.name}. Take a rest and enjoy lunch or coffee at the cozy ${cafe1.name}.`,
+          places: [
+            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+          ],
+          notes: `Look for art galleries hidden in upper floors.`
+        };
+        evening = {
+          title: `Dine at ${rest1.name} and nightlife at ${bar1.name}`,
+          description: `Enjoy authentic dinner at ${rest1.name} with views of the fort. Spend the night experiencing the lively nightlife, music, and cocktail scene at ${bar1.name} in Hauz Khas.`,
+          places: [
+            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost },
+            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+          ],
+          notes: `Cabs can be boarded right outside the village gate.`
+        };
+        notes = [`Hauz Khas is one of Delhi's most popular nightlife areas.`, `Watch your step in narrow village staircases.`];
+      } else if (isSJ) {
+        title = `Explore Safdarjung - Day ${i + 1}`;
+        morning = {
+          title: `Visit the majestic ${att1.name}`,
+          description: `Start your day by visiting the famous ${att1.name} to admire its sandstone and marble Mughal architecture. Walk through the quiet gardens and enjoy the serene morning breeze.`,
+          places: [
+            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost }
+          ],
+          notes: `Carry camera for beautiful monument pictures.`
+        };
+        afternoon = {
+          title: `Lunch at ${rest1.name} and SDA Market stroll`,
+          description: `For lunch, head over to ${rest1.name} to enjoy delicious spicy North Indian curries. Spend your afternoon wandering through ${mkt1.name} and grab a special dessert at ${cafe1.name}.`,
+          places: [
+            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost },
+            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+          ],
+          notes: `SDA market is a popular student hub with lively vibes.`
+        };
+        evening = {
+          title: `Live music at ${bar1.name} in Safdarjung`,
+          description: `Spend your evening experiencing outstanding live music performances and cocktails at ${bar1.name}. Enjoy the cozy speakeasy ambiance and premium dining menu.`,
+          places: [
+            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+          ],
+          notes: `Booking a table in advance is highly recommended.`
+        };
+        notes = [`Safdarjung area features a mix of quiet residential lanes and hip markets.`, `Public transport is easily accessible near SDA.`];
+      } else {
+        // Generic but DATA-DRIVEN template using matchedEnc data for any other area (Safdarjung, Bandra, Jaipur Old City, etc.)
+        title = `Explore ${matchedEnc.name} - Day ${i + 1}`;
+        morning = {
+          title: `Morning exploration of ${att1.name}`,
+          description: `Start your day by visiting the famous ${att1.name} to take photos and explore the site. Head over to ${cafe1.name} for breakfast or local specialty coffee.`,
+          places: [
+            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+          ],
+          notes: `Check entry rules and fees before visiting.`
+        };
+        afternoon = {
+          title: `Shopping walk through ${mkt1.name} and lunch`,
+          description: `Spend your afternoon exploring the local culture and shopping lanes of ${mkt1.name}. For lunch, dine at ${rest1.name} and try authentic local recipes.`,
+          places: [
+            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
+            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost }
+          ],
+          notes: `Bargaining is common in these local markets.`
+        };
+        evening = {
+          title: `Evening leisure at ${att2.name} and nightlife at ${bar1.name}`,
+          description: `Stroll through the scenic area of ${att2.name} as the weather cools down. Later, enjoy dinner and drinks at the popular local venue ${bar1.name}.`,
+          places: [
+            { name: att2.name, type: att2.type, area: matchedEnc.neighborhood, approx_cost: att2.approx_cost },
+            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+          ],
+          notes: `Reserve tables in advance on weekends.`
+        };
+        notes = [`Use authorized transport options.`, `Keep hydrated throughout the day.`];
+      }
+
+      dayByDayPlan.push({
+        dayNumber: i + 1,
+        date: dateStr,
+        title: title || `Explore ${matchedEnc.name} - Day ${i + 1}`,
+        theme: activeInterest.toUpperCase(),
+        morning,
+        afternoon,
+        evening,
+        notes
+      });
+    }
+
+    const rawMock = {
+      tripSummary: {
+        destination: matchedEnc.name,
+        totalDays: totalDays,
+        travelStyle: budgetTier,
+        estimatedTotalCost: {
+          amount: dayByDayPlan.reduce((sum, d) => {
+            const mCost = d.morning.places.reduce((s, p) => s + p.approx_cost, 0);
+            const aCost = d.afternoon.places.reduce((s, p) => s + p.approx_cost, 0);
+            const eCost = d.evening.places.reduce((s, p) => s + p.approx_cost, 0);
+            return sum + mCost + aCost + eCost;
+          }, 0),
+          currency: curr
+        },
+        bestTimeAdvice: "Best visited during October to March when the weather is pleasant."
+      },
+      howToReach: {
+        recommendedMode: "local transit",
+        summary: "Take metro, auto-rickshaw, or app-based cab directly to the area.",
+        nearestStartTerminal: "Local station",
+        nearestEndTerminal: `${matchedEnc.neighborhood}`,
+        details: `Reaching ${matchedEnc.neighborhood} is very easy via the city's metro network or using app-based taxi options depending on your location.`,
+        estimatedCost: {
+          amount: 150,
+          currency: curr
+        }
+      },
+      dayByDayPlan,
+      safetyAndLogistics: {
+        localTransportTips: "Metro is highly recommended for escaping traffic.",
+        areaSafetyNotes: "Keep your belongings safe in crowded market areas.",
+        moneySavingTips: "Explore street food stalls and local heritage spots for budget options."
+      }
+    };
+
+    return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays, { startCity, startCountry, userLat, userLng, budgetTier, resolvedDestCity, resolvedDestCountry, destLat, destLng });
+  }
+
+  // --- Normal non-matched destination fallback logic ---
   const { matchedCity, matchedRegion } = matchDestinationInDb(destName);
   const dbInstance = getKnownCitiesDb();
   const cities = dbInstance.cities || {};
@@ -1146,7 +1430,6 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     resolvedCities = [matchedCity];
   }
 
-  // Filter and provide fallbacks to make sure we always have enough items
   resolvedCities = resolvedCities.map(c => {
     return {
       name: c.name,
@@ -1161,8 +1444,6 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
   });
 
   const dayByDayPlan = [];
-  const safeInterests = Array.isArray(interests) && interests.length > 0 ? interests : ['landmarks', 'culture', 'nature', 'shopping', 'food', 'nightlife'];
-
   for (let i = 0; i < totalDays; i++) {
     const activeInterest = safeInterests[i % safeInterests.length];
     const d = new Date(baseDate);
@@ -1170,10 +1451,8 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     const dateStr = d.toISOString().split('T')[0];
 
     if (resolvedCities.length > 0) {
-      // Pick a city for this day (rotate through resolved cities)
       const city = resolvedCities[i % resolvedCities.length];
       
-      // Select index based on day to make sure different places are mentioned each day
       const lmIdx1 = (i * 2) % city.landmarks.length;
       const lmIdx2 = (i * 2 + 1) % city.landmarks.length;
       const nhIdx1 = i % city.neighborhoods.length;
@@ -1187,16 +1466,17 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
       let afternoonDesc = '';
       let eveningDesc = '';
 
+      // Replaced banned/generic templates: "self-guided walking tour", "central public market", "waterfront promenade"
       if (budgetTier === 'low') {
-        morningDesc = `Begin the morning with a self-guided walking tour exploring ${city.landmarks[lmIdx1]} and wandering through the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the free-entry cultural site of ${city.culture[cultIdx]}.`;
-        afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for budget-friendly window shopping. For lunch, sample local street eats or taste ${city.food[foodIdx]} at an affordable neighborhood diner.`;
+        morningDesc = `Begin the morning with an exploratory walk around ${city.landmarks[lmIdx1]} and wandering through the ${city.neighborhoods[nhIdx1]} neighborhood. Visit the free-entry cultural site of ${city.culture[cultIdx]}.`;
+        afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for budget-friendly local market shopping. For lunch, sample local street eats or taste ${city.food[foodIdx]} at an affordable neighborhood diner.`;
         eveningDesc = `Enjoy a relaxed evening activity of ${city.activities[actIdx]} (utilizing cheap local transport). Afterwards, dine at a pocket-friendly cafe in the lively ${city.neighborhoods[nhIdx2]} district.`;
       } else if (budgetTier === 'high') {
-        morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} with a private guide, followed by a personalized tour of the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the premier cultural exhibition at ${city.culture[cultIdx]}.`;
+        morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} with a private guide, followed by a personalized tour of the beautiful ${city.neighborhoods[nhIdx1]} neighborhood. Visit the premier cultural exhibition at ${city.culture[cultIdx]}.`;
         afternoonDesc = `Head to the upscale boutiques in the ${city.shopping[shopIdx]} area for premium shopping. Enjoy a gourmet lunch featuring refined preparations of ${city.food[foodIdx]} at a highly-acclaimed signature restaurant.`;
         eveningDesc = `Indulge in a premium evening experience of ${city.activities[actIdx]} via private transport. Afterwards, unwind with a multi-course dinner at a top-tier restaurant in the exclusive ${city.neighborhoods[nhIdx2]} district.`;
       } else {
-        morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and taking a guided stroll around the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the nearby cultural site of ${city.culture[cultIdx]}.`;
+        morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and taking a guided stroll around the beautiful ${city.neighborhoods[nhIdx1]} neighborhood. Visit the nearby cultural site of ${city.culture[cultIdx]}.`;
         afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for shopping and sightseeing. Have a delicious local lunch tasting ${city.food[foodIdx]} at a well-rated local diner.`;
         eveningDesc = `Enjoy the evening activity of ${city.activities[actIdx]}. Afterwards, relax and dine at a cozy restaurant in the lively ${city.neighborhoods[nhIdx2]} district.`;
       }
@@ -1234,12 +1514,12 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     } else {
       const lowBudgetPlans = [
         {
-          morning: `Take a self-guided walking tour through the historic streets of ${destName}, exploring the main public plazas and taking photos from a free scenic city overlook.`,
-          afternoon: `Wander through the bustling central public market of ${destName} to browse budget-friendly local stalls. Enjoy a budget lunch at a popular street food joint or local eatery.`,
-          evening: `Take a relaxing evening stroll along the main waterfront promenade or central plaza of ${destName}, and enjoy a pocket-friendly dinner at a casual neighborhood restaurant.`
+          morning: `Take an exploratory walk around the famous landmarks of ${destName}, exploring the main public streets and taking photos from a free scenic city viewpoint.`,
+          afternoon: `Wander through the bustling local market street of ${destName} to browse budget-friendly local stalls. Enjoy a budget lunch at a popular street food joint or local eatery.`,
+          evening: `Take a relaxing evening stroll along the main walking boulevard or central area of ${destName}, and enjoy a pocket-friendly dinner at a casual neighborhood restaurant.`
         },
         {
-          morning: `Join a free walking tour through ${destName}'s oldest residential neighborhood to see the historic architecture and learn about local heritage.`,
+          morning: `Join a free walking tour through ${destName}'s oldest residential neighborhood to see the classic architecture and learn about local heritage.`,
           afternoon: `Browse the artisan workshops and local craft displays in the creative arts district of ${destName}. Have lunch at an affordable courtyard cafe or bakery.`,
           evening: `Experience the local evening vibe at a lively community square or night market in ${destName}, tasting affordable street food snacks.`
         },
@@ -1247,102 +1527,27 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           morning: `Visit a peaceful scenic park, nature reserve, or iconic natural viewpoint just outside the central area of ${destName} (using low-cost public transit).`,
           afternoon: `Explore a free cultural center, art gallery, or public history archive in ${destName}. Have a relaxing lunch at a budget-friendly local bistro.`,
           evening: `Relax at a popular local sunset spot or public park in ${destName}. Enjoy a simple dinner featuring fresh regional ingredients at a cozy tavern.`
-        },
-        {
-          morning: `Explore the public areas around a historic fort, castle, or old stone heritage structure in or near ${destName}.`,
-          afternoon: `Head to a lively bazaar or flea market in ${destName} to browse unique local crafts. Enjoy lunch at a traditional family-owned diner.`,
-          evening: `Enjoy a peaceful evening riverfront walk or lakeside stroll in ${destName}, followed by dining at an affordable family-style eatery.`
-        },
-        {
-          morning: `Walk through a vibrant shopping district or local high street in ${destName}, stopping by historic architecture sites along the way.`,
-          afternoon: `Visit a public botanical garden, municipal glasshouse, or scenic green space in ${destName}. Have lunch at a garden cafe known for fresh local produce.`,
-          evening: `Attend a free cultural event or live street performance in ${destName}, followed by dinner at a cozy, budget-friendly tavern.`
-        },
-        {
-          morning: `Take a morning walk through a quiet residential neighborhood of ${destName} to see how locals live, visiting a popular local bakery.`,
-          afternoon: `Explore a local science museum, library, or historic archive in ${destName}. Have lunch at a popular cafe nearby.`,
-          evening: `Discover the local nightlife scene in a lively district of ${destName}, visiting a popular pub or music lounge for drinks and snacks.`
-        },
-        {
-          morning: `Visit a beautiful local monument, historic bridge, or ancient architectural tower in ${destName}.`,
-          afternoon: `Spend the afternoon exploring local boutique shops and souvenir markets in ${destName}. Enjoy a farewell lunch at a highly-rated local diner.`,
-          evening: `Gather at the main central square of ${destName} to see the city lights, and enjoy a final celebratory dinner at a premium restaurant.`
         }
       ];
 
       const midBudgetPlans = [
         {
-          morning: `Explore the central historic quarter of ${destName}, walking down the main heritage streets, visiting the municipal museum, and stopping at a scenic city overlook.`,
-          afternoon: `Visit the central market square of ${destName} to explore local stalls. Have a traditional local lunch at a popular family-run restaurant nearby.`,
-          evening: `Take an evening walk along the main waterfront promenade or central plaza of ${destName}, and enjoy dinner at a highly-rated local eatery serving regional specialties.`
+          morning: `Explore the central historic quarter of ${destName}, walking down the main heritage streets, visiting the municipal museum, and stopping at a scenic city viewpoint.`,
+          afternoon: `Visit the central market area of ${destName} to explore local stalls. Have a traditional local lunch at a popular family-run restaurant nearby.`,
+          evening: `Take an evening walk along the main walking boulevard or central plaza of ${destName}, and enjoy dinner at a highly-rated local eatery serving regional specialties.`
         },
         {
-          morning: `Join a guided walking tour through ${destName}'s oldest neighborhood to see the historic architecture and learn about local heritage.`,
+          morning: `Join a guided walking tour through ${destName}'s oldest neighborhood to see the classic architecture and learn about local heritage.`,
           afternoon: `Browse the artisan workshops and local craft boutiques in the creative arts district of ${destName}. Have lunch at a cozy courtyard cafe.`,
           evening: `Experience the local evening vibe at a popular street food lane or central square in ${destName}, tasting authentic local street eats.`
-        },
-        {
-          morning: `Visit a peaceful scenic park, nature reserve, or iconic natural viewpoint just outside the central area of ${destName}.`,
-          afternoon: `Explore a prominent cultural center, art gallery, or history archive in ${destName}. Have a relaxing lunch at a nearby bistro.`,
-          evening: `Relax at a popular local sunset spot or rooftop lounge in ${destName}. Enjoy a premium dinner featuring fresh regional ingredients.`
-        },
-        {
-          morning: `Walk through a vibrant shopping district or local high street in ${destName}, stopping by historic architecture sites along the way.`,
-          afternoon: `Visit a botanical garden, municipal glasshouse, or scenic green space in ${destName}. Have lunch at a garden cafe known for fresh local produce.`,
-          evening: `Attend a traditional cultural show, live music performance, or community event in ${destName}, followed by dinner at a cozy tavern.`
-        },
-        {
-          morning: `Explore the ruins of a historic fort, castle, or old stone heritage structure in or near ${destName}.`,
-          afternoon: `Head to a bustling bazaar or flea market in ${destName} to buy unique local crafts. Enjoy lunch at a traditional diner nearby.`,
-          evening: `Enjoy a peaceful evening boat ride, riverfront stroll, or lakeside walk in ${destName}, followed by dining at a waterfront restaurant.`
-        },
-        {
-          morning: `Take a morning walk through a quiet residential neighborhood of ${destName} to see how locals live, visiting a popular local bakery.`,
-          afternoon: `Explore a local science museum, library, or historic archive in ${destName}. Have lunch at a popular cafe nearby.`,
-          evening: `Discover the local nightlife scene in a lively district of ${destName}, visiting a popular pub or music lounge for drinks and snacks.`
-        },
-        {
-          morning: `Visit a beautiful local monument, historic bridge, or ancient architectural tower in ${destName}.`,
-          afternoon: `Spend the afternoon exploring local boutique shops and souvenir markets in ${destName}. Enjoy a farewell lunch at a highly-rated local diner.`,
-          evening: `Gather at the main central square of ${destName} to see the city lights, and enjoy a final celebratory dinner at a premium restaurant.`
         }
       ];
 
       const highBudgetPlans = [
         {
-          morning: `Embark on a private guided tour of the central historic quarter of ${destName}, gaining exclusive access to key heritage landmarks and a premium scenic overlook.`,
+          morning: `Embark on a private guided tour of the central historic quarter of ${destName}, gaining exclusive access to key heritage landmarks and a premium scenic viewpoint.`,
           afternoon: `Browse the high-end specialty boutiques around the central district of ${destName}. Have a gourmet lunch featuring upscale local recipes at a highly-rated signature restaurant.`,
-          evening: `Take a private sunset cruise or guided evening tour of the waterfront in ${destName}, followed by a multi-course tasting dinner at an acclaimed fine dining restaurant.`
-        },
-        {
-          morning: `Join a private expert-led walking tour of ${destName}'s historic neighborhood, visiting exclusive historical sites and private archives.`,
-          afternoon: `Visit the fine art galleries, designer studios, and premium craft boutiques in ${destName}'s arts district. Have lunch at a highly-rated chef's bistro.`,
-          evening: `Experience the city's nightlife with a VIP reservation at a top-tier lounge or live music venue in ${destName}, enjoying custom cocktails and premium appetizers.`
-        },
-        {
-          morning: `Take a private chauffeured excursion to a pristine nature reserve, national park, or stunning panoramic viewpoint just outside ${destName}.`,
-          afternoon: `Explore a major private museum, prestigious art exhibition, or private collection in ${destName}. Have a gourmet lunch at a Michelin-rated garden pavilion restaurant.`,
-          evening: `Enjoy sunset cocktails at an exclusive rooftop bar with sweeping views of ${destName}, followed by an exquisite celebratory dinner at a top-ranked restaurant.`
-        },
-        {
-          morning: `Take a VIP guided tour of a historic palace, private castle, or prominent heritage estate in the ${destName} region.`,
-          afternoon: `Hire a personal shopping guide to browse the premium artisan boutiques and high-end markets in ${destName}. Enjoy lunch at a refined traditional restaurant.`,
-          evening: `Book a private boat charter, yacht cruise, or scenic helicopter ride over ${destName}, followed by a luxury dinner at a celebrated waterside establishment.`
-        },
-        {
-          morning: `Browse the luxury designer boutiques along the premier high street of ${destName}, accompanied by private transit.`,
-          afternoon: `Visit a prestigious botanical garden or private historic estate in ${destName}. Enjoy a catered gourmet lunch in a scenic reserved pavilion.`,
-          evening: `Attend a premier theatrical production, opera, or exclusive cultural show in ${destName}, followed by a late-night dinner at a high-end bistro.`
-        },
-        {
-          morning: `Take a private cooking class with a renowned chef in ${destName} to learn the secrets of local gastronomy, starting with a guided market tour.`,
-          afternoon: `Visit a luxury wellness spa or exclusive private library/gallery in ${destName}. Enjoy a light, high-end lunch at a premium wellness cafe.`,
-          evening: `Discover the upscale nightlife scene in the most exclusive district of ${destName}, visiting a renowned cocktail lounge or private club.`
-        },
-        {
-          morning: `Take a private helicopter tour or luxury scenic drive to view the iconic architectural landmarks of ${destName}.`,
-          afternoon: `Spend the afternoon collecting premium local art, jewelry, and specialty goods from ${destName}'s top boutiques. Enjoy a celebratory farewell lunch.`,
-          evening: `Gather for a private dinner event at a top-rated panoramic restaurant overlooking ${destName}, celebrating the completion of your luxury journey.`
+          evening: `Take a private sunset cruise or guided evening tour of the coastline in ${destName}, followed by a multi-course tasting dinner at an acclaimed fine dining restaurant.`
         }
       ];
 
@@ -1567,7 +1772,7 @@ async function generateTrip(req, res) {
         await db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
       }
       const freshUser = activeUser ? await db.users.findById(activeUser.id) : null;
-      return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
+      return res.json({ itinerary, user: authController.formatUserProfile(freshUser), engineVersion: "itinerary-v2-global-encyclopedia" });
     };
 
     // Initialize Gemini dynamically if not already done
@@ -1604,50 +1809,69 @@ async function generateTrip(req, res) {
       simplifiedInstruction = "\n- SIMPLIFIED MODE ACTIVATED: Keep all descriptions under 10 words. Propose simple, well-known locations only. Minimize nesting complexity.";
     }
 
-    // --- Resolve destination against known cities database for Gemini prompt augmentation ---
+    // --- Resolve destination against India Travel Encyclopedia or fallback database ---
     let destinationDataBlock = '';
-    const { matchedCity: matchedDbCity, matchedRegion: matchedDbRegion } = matchDestinationInDb(preprocessed.destination);
+    const matchedEnc = findIndiaEncyclopediaEntry(preprocessed.destination);
 
-    // Build destination data block for Gemini prompt
-    if (matchedDbRegion) {
-      const dbInstance = getKnownCitiesDb();
-      const dbCities = dbInstance.cities || {};
-      const regionCities = matchedDbRegion.cities.map(name => {
-        const key = name.toLowerCase().trim();
-        return dbCities[key] || null;
-      }).filter(Boolean);
+    if (matchedEnc) {
+      destinationDataBlock = `\n\nINDIA TRAVEL ENCYCLOPEDIA CONTEXT (Destination: ${matchedEnc.name}):
+You are planning a trip to a highly specific neighborhood/area of India: "${matchedEnc.name}".
+You MUST construct the itinerary using the following real, physically existing venues, attractions, cafes, markets, and nightlife spots from our verified India database. Do NOT invent other names.
 
-      if (regionCities.length > 0) {
-        destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (Region: ${matchedDbRegion.name}, ${matchedDbRegion.country}):\nThis is a known region. You MUST structure the itinerary around these real cities within it: ${matchedDbRegion.cities.join(', ')}.\n`;
-        for (const ct of regionCities.slice(0, 10)) {
-          destinationDataBlock += `\n--- ${ct.name} ---\n`;
-          destinationDataBlock += `Real Landmarks: ${(ct.landmarks || []).join(', ')}\n`;
-          destinationDataBlock += `Real Neighborhoods: ${(ct.neighborhoods || []).join(', ')}\n`;
-          destinationDataBlock += `Real Food/Dining: ${(ct.food || []).join(', ')}\n`;
-          destinationDataBlock += `Real Activities: ${(ct.activities || []).join(', ')}\n`;
-          destinationDataBlock += `Real Shopping: ${(ct.shopping || []).join(', ')}\n`;
-          destinationDataBlock += `Real Culture: ${(ct.culture || []).join(', ')}\n`;
+Available real venues in this locality:
+`;
+      matchedEnc.places.forEach(place => {
+        destinationDataBlock += `- Name: "${place.name}" | Type: "${place.type}" | Typical Cost: ${place.approx_cost} INR | Description: ${place.description}\n`;
+      });
+      
+      destinationDataBlock += `\nCRITICAL AI INSTRUCTIONS FOR THIS MATCHED AREA:
+1. You MUST use these real venues and names. Do not invent any generic landmarks or places.
+2. In each time slot (morning, afternoon, evening), mention at least one of the real place names listed above.
+3. Keep timings and spatial routing highly localized to this neighborhood to avoid unnecessary travel across the city.
+`;
+    } else {
+      // Build destination data block for Gemini prompt using standard matchDestinationInDb
+      const { matchedCity: matchedDbCity, matchedRegion: matchedDbRegion } = matchDestinationInDb(preprocessed.destination);
+      if (matchedDbRegion) {
+        const dbInstance = getKnownCitiesDb();
+        const dbCities = dbInstance.cities || {};
+        const regionCities = matchedDbRegion.cities.map(name => {
+          const key = name.toLowerCase().trim();
+          return dbCities[key] || null;
+        }).filter(Boolean);
+
+        if (regionCities.length > 0) {
+          destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (Region: ${matchedDbRegion.name}, ${matchedDbRegion.country}):\nThis is a known region. You MUST structure the itinerary around these real cities within it: ${matchedDbRegion.cities.join(', ')}.\n`;
+          for (const ct of regionCities.slice(0, 10)) {
+            destinationDataBlock += `\n--- ${ct.name} ---\n`;
+            destinationDataBlock += `Real Landmarks: ${(ct.landmarks || []).join(', ')}\n`;
+            destinationDataBlock += `Real Neighborhoods: ${(ct.neighborhoods || []).join(', ')}\n`;
+            destinationDataBlock += `Real Food/Dining: ${(ct.food || []).join(', ')}\n`;
+            destinationDataBlock += `Real Activities: ${(ct.activities || []).join(', ')}\n`;
+            destinationDataBlock += `Real Shopping: ${(ct.shopping || []).join(', ')}\n`;
+            destinationDataBlock += `Real Culture: ${(ct.culture || []).join(', ')}\n`;
+          }
+          destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in these cities to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
         }
-        destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in these cities to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
+      } else if (matchedDbCity) {
+        destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (City: ${matchedDbCity.name}, ${matchedDbCity.country}):\n`;
+        destinationDataBlock += `Real Landmarks: ${(matchedDbCity.landmarks || []).join(', ')}\n`;
+        destinationDataBlock += `Real Neighborhoods: ${(matchedDbCity.neighborhoods || []).join(', ')}\n`;
+        destinationDataBlock += `Real Food/Dining: ${(matchedDbCity.food || []).join(', ')}\n`;
+        destinationDataBlock += `Real Activities: ${(matchedDbCity.activities || []).join(', ')}\n`;
+        destinationDataBlock += `Real Shopping: ${(matchedDbCity.shopping || []).join(', ')}\n`;
+        destinationDataBlock += `Real Culture: ${(matchedDbCity.culture || []).join(', ')}\n`;
+        destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in this city to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
       }
-    } else if (matchedDbCity) {
-      destinationDataBlock = `\n\nDESTINATION DATABASE MATCH (City: ${matchedDbCity.name}, ${matchedDbCity.country}):\n`;
-      destinationDataBlock += `Real Landmarks: ${(matchedDbCity.landmarks || []).join(', ')}\n`;
-      destinationDataBlock += `Real Neighborhoods: ${(matchedDbCity.neighborhoods || []).join(', ')}\n`;
-      destinationDataBlock += `Real Food/Dining: ${(matchedDbCity.food || []).join(', ')}\n`;
-      destinationDataBlock += `Real Activities: ${(matchedDbCity.activities || []).join(', ')}\n`;
-      destinationDataBlock += `Real Shopping: ${(matchedDbCity.shopping || []).join(', ')}\n`;
-      destinationDataBlock += `Real Culture: ${(matchedDbCity.culture || []).join(', ')}\n`;
-      destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in this city to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
     }
 
-    const systemPrompt = `You are an expert travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach telling the user exactly what to do each day.
+    const systemPrompt = `You are a professional India travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach.
 
 Your goals:
 - Always return a complete, day‑by‑day itinerary.
-- Never refuse or say it is not possible; if budget or time is tight, still propose the best possible plan within constraints.
+- Never refuse or say it is not possible; if budget or time is tight, still propose the best possible plan.
 - Optimize for enjoyment, realism, local culture, safety, and efficient routing.
-- Respect the user's budget and preferences as much as possible.
+- Respect the user's budget and preferences.
 
 Required output format:
 Reply in JSON only, no extra text.
@@ -1665,11 +1889,11 @@ JSON structure:
     "bestTimeAdvice": "string"
   },
   "howToReach": {
-    "recommendedMode": "string (e.g. metro + cab, sleeper train, flight)",
-    "summary": "string (1-2 lines summarizing the transport recommendation)",
+    "recommendedMode": "string (e.g. metro, train, flight, cab)",
+    "summary": "string (1-2 lines summarizing transport recommendation)",
     "nearestStartTerminal": "string",
     "nearestEndTerminal": "string",
-    "details": "string (3-5 sentences explaining why this mode is best for this distance and budget, naming key stations/airports if possible)",
+    "details": "string (3-5 sentences explaining transport recommendation, naming stations/airports)",
     "estimatedCost": {
       "amount": number,
       "currency": "${displayCurrency}"
@@ -1677,33 +1901,35 @@ JSON structure:
   },
   "dayByDayPlan": [
     {
-      "dayNumber": 1,
-      "title": "Short title for the day",
+      "dayNumber": number,
+      "title": "string",
       "theme": "string",
       "morning": {
-        "description": "Detailed step‑by‑step plan for morning (subah kya karein) with SPECIFIC named locations and what to eat/do there.",
-        "estimatedCost": {
-          "amount": number,
-          "currency": "${displayCurrency}"
-        }
+        "title": "string (e.g. Explore Connaught Place cafés and Central Park)",
+        "description": "Detailed plan (2-3 sentences) with SPECIFIC place names from the database.",
+        "places": [
+          { "name": "string", "type": "attraction|cafe|restaurant|market|park|nightlife|other", "area": "string", "approx_cost": number }
+        ],
+        "notes": "string (optional tips)"
       },
       "afternoon": {
-        "description": "Detailed step‑by‑step plan for afternoon (dopahar kya karein) with SPECIFIC named markets, sights, or cafes.",
-        "estimatedCost": {
-          "amount": number,
-          "currency": "${displayCurrency}"
-        }
+        "title": "string",
+        "description": "Detailed plan (2-3 sentences) with SPECIFIC place names from the database.",
+        "places": [
+          { "name": "string", "type": "attraction|cafe|restaurant|market|park|nightlife|other", "area": "string", "approx_cost": number }
+        ],
+        "notes": "string (optional tips)"
       },
       "evening": {
-        "description": "Detailed step‑by‑step plan for evening (shaam kya karein) with SPECIFIC named restaurants, street food stalls, or nightlife clubs/bars.",
-        "estimatedCost": {
-          "amount": number,
-          "currency": "${displayCurrency}"
-        }
+        "title": "string",
+        "description": "Detailed plan (2-3 sentences) with SPECIFIC place names from the database.",
+        "places": [
+          { "name": "string", "type": "attraction|cafe|restaurant|market|park|nightlife|other", "area": "string", "approx_cost": number }
+        ],
+        "notes": "string (optional tips)"
       },
       "notes": [
-        "short practical tip 1",
-        "short practical tip 2"
+        "string"
       ]
     }
   ],
@@ -1715,16 +1941,17 @@ JSON structure:
 }
 
 Style & Constraint Rules:
+- PROFESSIONAL INDIA TRAVEL PLANNER ROLE: Act as an expert local planner. Write in a helpful, professional tone. Avoid any emojis in the final stored data (icons will be handled in the UI).
+- LOCALIZED & EFFICIENT ROUTING: Cluster activities by neighborhood to prevent unnecessary cross-city travel. Keep timings realistic, ensuring only 2-4 key activities/places are planned per day. Add short justifications in descriptions explaining why a place is suitable for a particular time of day (e.g. cooler in morning, lively vibe in evening).
+- STRICT AVOIDANCE OF GENERIC PLACEHOLDERS: Do NOT invent generic filler names like "central public market", "main waterfront promenade", "self-guided walking tour through the historic streets of [area]" under any circumstances. Mention real venue names, landmarks, and streets. Every morning, afternoon, and evening slot must reference at least one concrete place.
 - GEOLOCATION TRANSPORT RECOMMENDATION: The user is starting their trip from ${startCity || 'their home city'}, ${startCountry || 'their home country'} (Coordinates: ${userLat || 'unknown'}, ${userLng || 'unknown'}). You MUST recommend the best travel mode to reach the destination based on starting location, distance, and budget tier (${budgetTier}) using this 3-level rule set:
   1) Same-city / local trips (origin and destination in the same city/metro area, e.g. Delhi to Hauz Khas, Paris to Montmartre, Mumbai to Bandra, NY to Brooklyn): Suggest local city transport only (walking, cab/taxi/app-based taxi, auto/e-rickshaw/tuk-tuk, metro/subway/tram, city buses). You must NOT mention flights or intercity trains, and you must NOT invent fake airports or train terminals for local neighborhoods under any circumstances. Recommend only realistic local transit options. Distance guidelines: Very short (0-3 km) -> walking + optional auto/taxi. Short/medium (3-10 km) -> metro/subway/tram + short auto/taxi, or direct cab. Long cross-city (10+ km) -> metro + cab/auto, or full cab if budget is high. Budget: low budget -> prioritize metro/subway/bus/tram; mid budget -> metro + cab/auto mix; high budget -> cabs/app taxis.
   2) Inter-city, same country trips (startCountry == destCountry AND startCity != destCity): Recommend bus, train, or flight. Distance guidelines: Short (< 300-400 km) -> bus or train, avoid flights. Medium (400-800 km) -> low budget uses train (sleeper/AC) or overnight bus; high budget uses flight (optional). Long (> 800-1000 km) -> high/medium budget uses flight; low budget uses train (sleeper) or bus. Budget: low budget -> prefer train/bus (flights only as optional/more expensive); mid budget -> AC trains or budget flights; high budget -> flights for long distances.
   3) International trips (startCountry != destCountry): Flights are the primary mode. Suggest direct or 1-stop flights from nearest international airport of startCity to destination airport. After the flight, recommend local transfer modes at destination (airport train/metro/bus/taxi).
   * Populate the "howToReach" block with recommendedMode, summary (1-2 lines), details (3-5 sentences), nearestStartTerminal, nearestEndTerminal, and estimatedCost.
+  * For matched encyclopedia entries in India, recommend standard local travel modes.
 - HIGH DETAIL IMMERSIVE EXPERIENCE: Provide rich, detailed, and highly descriptive plans for each time slot (morning, afternoon, evening). Each description block MUST be at least 30 to 60 words. Do not use short summaries; describe the sights, history, atmosphere, specific dishes to order, and scenic spots to make the user feel like they have a premium local travel guide.
-- GLOBAL PLACE DETECTION: Detect what the destination is and structure the itinerary accordingly:
-  * If it is a Landmark/Famous Spot (e.g. "Taj Mahal", "Eiffel Tower"): Structure the plan around that landmark and its surrounding city/neighborhood.
-  * If it is a Country or State/Region (e.g. "India", "California", "Scotland", "Kenya"): Structure the plan across 1 to 3 key cities within that region (e.g. Edinburgh and Glasgow for Scotland).
-  * If it is a City: Organize days by distinct neighborhoods to minimize transit time.
+- GLOBAL PLACE DETECTION: Detect what the destination is and structure the itinerary accordingly.
 - BALANCED DEFAULT (NO SPECIFIC INTERESTS): If no specific interests or vibes are chosen, you MUST automatically output a "Best of the Destination" itinerary. Each day must include a balanced mix of:
   * At least 1-2 top landmarks or major tourist attractions.
   * At least 1 famous local dish or must-try food joint (name specific restaurants/cafes/street stalls).
@@ -1793,6 +2020,57 @@ Based on all this, generate the best possible trip itinerary following the JSON 
         console.error(`[AI Trip Generation] Both models failed. Primary: ${primaryError.message}. Fallback: ${fallbackError.message}. Using mock itinerary.`);
         return await fallbackResponse();
       }
+    }
+
+    // --- AI Guardrails Scan for Banned Generic Patterns ---
+    const BANNED_PATTERNS = [
+      /central public market/i,
+      /waterfront promenade/i,
+      /self-guided walking tour/i,
+      /historic streets of/i,
+      /main public plazas/i,
+      /scenic city overlook/i
+    ];
+    
+    let isGeneric = false;
+    for (const pattern of BANNED_PATTERNS) {
+      if (pattern.test(textResponse)) {
+        isGeneric = true;
+        break;
+      }
+    }
+    
+    if (isGeneric) {
+      console.warn(`[AI Guardrails] Banned generic pattern detected in LLM response for: ${preprocessed.destination}. Retrying once with strict instructions...`);
+      if (process.env.SENTRY_DSN) {
+        Sentry.captureMessage(`AI response contained banned generic patterns for destination: ${preprocessed.destination}`, 'warning');
+      }
+      
+      const retryPrompt = `${systemPrompt}\n\nWARNING: Your previous response contained generic placeholder text (like "central public market" or "self-guided walking tour"). You MUST rewrite the entire plan using ONLY the real, specific places and venues from the provided database/context. Do NOT use generic placeholder phrases.`;
+      
+      try {
+        const retryCallPromise = primaryModel.generateContent(retryPrompt);
+        const retryResult = await Promise.race([retryCallPromise, timeoutPromise]);
+        textResponse = retryResult.response.text().trim();
+        console.log(`[AI LLM Retry Response]:\n${textResponse}`);
+        
+        // Re-check retried response
+        isGeneric = false;
+        for (const pattern of BANNED_PATTERNS) {
+          if (pattern.test(textResponse)) {
+            isGeneric = true;
+            break;
+          }
+        }
+      } catch (retryError) {
+        console.error(`[AI Guardrails] Retry request failed: ${retryError.message}. Falling back to deterministic itinerary.`);
+        return await fallbackResponse();
+      }
+    }
+    
+    if (isGeneric) {
+      console.warn(`[AI Guardrails] Retried response is still generic. Falling back to deterministic mock generator.`);
+      return await fallbackResponse();
     }
 
     let parsedJson = null;
@@ -1871,7 +2149,7 @@ Please reformat the last answer into the required JSON schema only. Respond with
       });
     }
 
-    return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
+    return res.json({ itinerary, user: authController.formatUserProfile(freshUser), engineVersion: "itinerary-v2-global-encyclopedia" });
 
   } catch (error) {
     console.error(`[AI Trip Generation Fatal Error] Error:`, error);
