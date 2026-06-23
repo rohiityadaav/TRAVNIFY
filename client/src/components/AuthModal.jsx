@@ -4,6 +4,7 @@ import { Mail, Lock, User, MapPin, X, ArrowRight, RefreshCw, Eye, EyeOff } from 
 import { useAuth } from '../context/AuthContext';
 import { trackEvent } from '../lib/analytics';
 import posthog from 'posthog-js';
+import * as Sentry from '@sentry/react';
 import { auth } from '../lib/firebaseClient';
 import { safeFetch } from '../lib/api';
 import { COUNTRIES, getCurrencyForCountry } from '../lib/currency';
@@ -54,8 +55,9 @@ export default function AuthModal({
 
   // Sync session and fetch/create user in backend
   const handleFirebaseSync = async (firebaseUser, nameValue, countryValue, currencyValue) => {
+    let syncRes = null;
     try {
-      const syncRes = await safeFetch('/api/auth/firebase-sync', {
+      syncRes = await safeFetch('/api/auth/firebase-sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -81,12 +83,32 @@ export default function AuthModal({
         onClose();
       } else {
         const errorText = await syncRes.text().catch(() => '');
+        let errMsg = 'Login failed due to a server error. Please try again later.';
+        try {
+          const errJson = JSON.parse(errorText);
+          if (errJson && errJson.error) {
+            errMsg = errJson.error;
+          }
+        } catch (parseErr) {
+          if (errorText) errMsg = errorText;
+        }
         console.error("Backend synchronization failed. Status:", syncRes.status, "Response:", errorText);
-        throw new Error('Login failed due to a server error. Please try again later.');
+        throw new Error(errMsg);
       }
     } catch (err) {
-      console.error("Firebase sync error", err);
-      throw new Error(err.message || 'Login failed due to a server error. Please try again later.');
+      console.error("Firebase sync error details:", {
+        error: err,
+        url: '/api/auth/firebase-sync',
+        status: syncRes ? syncRes.status : 'network_error'
+      });
+      Sentry.captureException(err, {
+        extra: {
+          url: '/api/auth/firebase-sync',
+          status: syncRes ? syncRes.status : 'network_error',
+          email: firebaseUser.email
+        }
+      });
+      throw err;
     }
   };
 

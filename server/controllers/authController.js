@@ -3,6 +3,19 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../db');
 const config = require('../config');
+const Sentry = require('@sentry/node');
+
+// Helper to capture unexpected exceptions in Sentry
+function captureUnexpectedException(req, error) {
+  if (process.env.SENTRY_DSN) {
+    Sentry.withScope(scope => {
+      if (req && req.user) {
+        scope.setUser({ id: req.user.id, email: req.user.email });
+      }
+      Sentry.captureException(error);
+    });
+  }
+}
 
 // Helper to parse refresh token from cookies
 function getRefreshTokenCookie(req) {
@@ -195,7 +208,8 @@ async function signup(req, res) {
     });
   } catch (error) {
     console.error('Signup error:', error);
-    return res.status(500).json({ error: 'An error occurred during registration.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred during registration: ' + error.message });
   }
 }
 
@@ -256,7 +270,8 @@ async function getMe(req, res) {
     return res.json(formatUserProfile(activeUser));
   } catch (error) {
     console.error('Get profile error:', error);
-    return res.status(500).json({ error: 'An error occurred fetching user profile.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred fetching user profile: ' + error.message });
   }
 }
 
@@ -427,7 +442,8 @@ async function firebaseSync(req, res) {
     });
   } catch (error) {
     console.error('Firebase sync error:', error);
-    return res.status(500).json({ error: 'An error occurred during synchronization.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred during synchronization: ' + error.message });
   }
 }
 
@@ -562,7 +578,8 @@ async function verifyEmail(req, res) {
     return res.status(200).send(renderStatusPage(true, 'Your email has been verified successfully! You can now access all features of TRAVNIFY.'));
   } catch (error) {
     console.error('Verify email error:', error);
-    return res.status(500).send(renderStatusPage(false, 'An unexpected error occurred during email verification.'));
+    captureUnexpectedException(req, error);
+    return res.status(500).send(renderStatusPage(false, 'An unexpected error occurred during email verification: ' + error.message));
   }
 }
 
@@ -598,7 +615,8 @@ async function resendVerification(req, res) {
     return res.status(200).json({ message: 'Verification email sent again. Please check your inbox.' });
   } catch (error) {
     console.error('Resend verification error:', error);
-    return res.status(500).json({ error: 'An error occurred while resending the verification email.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred while resending the verification email: ' + error.message });
   }
 }
 
@@ -627,7 +645,8 @@ async function updateProfile(req, res) {
     return res.json(formatUserProfile(updatedUser));
   } catch (error) {
     console.error('Update profile error:', error);
-    return res.status(500).json({ error: 'An error occurred updating your profile.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred updating your profile: ' + error.message });
   }
 }
 
@@ -695,7 +714,8 @@ async function refresh(req, res) {
     });
   } catch (error) {
     console.error('Refresh token error:', error);
-    return res.status(500).json({ error: 'An error occurred during token refresh.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred during token refresh: ' + error.message });
   }
 }
 
@@ -730,7 +750,8 @@ async function logout(req, res) {
     return res.json({ success: true, message: 'Logged out successfully.' });
   } catch (error) {
     console.error('Logout error:', error);
-    return res.status(500).json({ error: 'An error occurred during logout.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'An error occurred during logout: ' + error.message });
   }
 }
 
@@ -757,7 +778,8 @@ async function getAllUsers(req, res) {
     return res.json({ users: safeUsers });
   } catch (error) {
     console.error('Admin getAllUsers error:', error);
-    return res.status(500).json({ error: 'Failed to retrieve users.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'Failed to retrieve users: ' + error.message });
   }
 }
 
@@ -783,7 +805,8 @@ async function updateUserRole(req, res) {
     });
   } catch (error) {
     console.error('Admin updateUserRole error:', error);
-    return res.status(500).json({ error: 'Failed to update role.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'Failed to update role: ' + error.message });
   }
 }
 
@@ -802,7 +825,8 @@ async function getAdminStats(req, res) {
     });
   } catch (error) {
     console.error('Admin getAdminStats error:', error);
-    return res.status(500).json({ error: 'Failed to retrieve stats.' });
+    captureUnexpectedException(req, error);
+    return res.status(500).json({ error: 'Failed to retrieve stats: ' + error.message });
   }
 }
 
