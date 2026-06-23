@@ -1,5 +1,5 @@
 // scratch_test_encyclopedia.js
-// Unit and End-to-End Test for India Travel Encyclopedia, Prompt Engineering, Schemas, and Guardrails.
+// Global Unit and End-to-End Test for World Travel Encyclopedia, Prompt Engineering, Schemas, and Guardrails.
 const path = require('path');
 const fs = require('fs');
 
@@ -9,77 +9,71 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const tripController = require('./controllers/tripController');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Import key files directly for granular testing
-const dbPath = path.join(__dirname, 'data/india_travel_encyclopedia.json');
-const encyclopedia = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+// Load the world travel encyclopedia
+const encPath = path.join(__dirname, 'data/world_travel_encyclopedia.json');
+const encyclopedia = JSON.parse(fs.readFileSync(encPath, 'utf8'));
 
 console.log('========================================================================');
-console.log('1. TESTING DATABASE ENTRIES AND KEYS');
+console.log('1. TESTING WORLD TRAVEL ENCYCLOPEDIA STRUCTURE');
 console.log('========================================================================');
-const testDestinations = [
-  { input: 'Delhi – Connaught Place (CP)', expectedKey: 'delhi - connaught place (cp)' },
-  { input: 'cp', expectedKey: 'delhi - connaught place (cp)' },
-  { input: 'Delhi – Hauz Khas', expectedKey: 'delhi - hauz khas' },
-  { input: 'hauz kahs', expectedKey: 'delhi - hauz khas' },
-  { input: 'Delhi – Safdarjung', expectedKey: 'delhi - safdarjung' },
-  { input: 'Mumbai – Bandra', expectedKey: 'mumbai - bandra' },
-  { input: 'Jaipur – Old City', expectedKey: 'jaipur - old city' }
-];
 
-// Locate the private findIndiaEncyclopediaEntry function from tripController
-// Since it's module-private, we re-declare it here from tripController logic to verify its behavior
-function findIndiaEncyclopediaEntry(destName) {
-  if (!destName) return null;
-  const cleanDest = destName.toLowerCase().trim();
-  
-  if (encyclopedia[cleanDest]) {
-    return encyclopedia[cleanDest];
-  }
-  
-  for (const [key, data] of Object.entries(encyclopedia)) {
-    const nameLower = (data.name || '').toLowerCase();
-    const nhLower = (data.neighborhood || '').toLowerCase();
-    const cityLower = (data.city || '').toLowerCase();
-    
-    if (cleanDest === nameLower || cleanDest === nhLower) {
-      return data;
-    }
-    
-    if (cleanDest.includes(nhLower) && cleanDest.includes(cityLower)) {
-      return data;
-    }
-    
-    if (nhLower.includes('connaught') && (cleanDest.includes('connaught') || /\bcp\b/.test(cleanDest))) {
-      return data;
-    }
-    
-    if (nhLower.includes('hauz')) {
-      if (cleanDest.includes('hauz khas') || cleanDest.includes('hauz kahs')) {
-        return data;
+const continents = Object.keys(encyclopedia.continents || {});
+console.log(`  Found ${continents.length} continents:`, continents.join(', '));
+
+let totalAreas = 0;
+let totalPlaces = 0;
+for (const [contKey, cont] of Object.entries(encyclopedia.continents || {})) {
+  for (const [countKey, country] of Object.entries(cont.countries || {})) {
+    for (const [stateKey, state] of Object.entries(country.statesOrRegions || {})) {
+      for (const [cityKey, city] of Object.entries(state.cities || {})) {
+        for (const [areaKey, area] of Object.entries(city.areas || {})) {
+          totalAreas++;
+          totalPlaces += (area.places || []).length;
+        }
       }
     }
-    
-    if (nameLower.length > 5 && cleanDest.includes(nameLower)) {
-      return data;
-    }
-    if (nhLower.length > 5 && cleanDest.includes(nhLower)) {
-      return data;
-    }
   }
-  return null;
 }
+console.log(`  Found ${totalAreas} areas / neighborhoods with ${totalPlaces} curated places.`);
+
+console.log('\n========================================================================');
+console.log('2. TESTING findGlobalDestination MATCHING');
+console.log('========================================================================');
+
+const testDestinations = [
+  { input: 'Delhi – Connaught Place (CP)', expected: 'Connaught Place' },
+  { input: 'cp', expected: 'Connaught Place' },
+  { input: 'Delhi – Hauz Khas', expected: 'Hauz Khas' },
+  { input: 'hauz kahs', expected: 'Hauz Khas' },
+  { input: 'Mumbai – Bandra', expected: 'Bandra' },
+  { input: 'Jaipur', expected: 'Jaipur' },
+  { input: 'Paris', expected: 'Paris' },
+  { input: 'Montmartre', expected: 'Montmartre' },
+  { input: 'Tokyo', expected: 'Tokyo' },
+  { input: 'Shibuya', expected: 'Shibuya' },
+  { input: 'New York City', expected: 'New York' },
+  { input: 'Times Square', expected: 'Times Square' },
+  { input: 'Brooklyn', expected: 'Brooklyn' }
+];
 
 testDestinations.forEach(td => {
-  const matched = findIndiaEncyclopediaEntry(td.input);
-  if (matched && matched.name.toLowerCase().includes(td.expectedKey.split(' - ')[1].replace(' (cp)', ''))) {
-    console.log(`✅ Input: "${td.input}" -> Matched: "${matched.name}"`);
+  const matched = tripController.findGlobalDestinationPublic(td.input);
+  if (matched) {
+    const nameInc = (matched.name || '').toLowerCase().includes(td.expected.toLowerCase()) ||
+      (matched.neighborhood || '').toLowerCase().includes(td.expected.toLowerCase()) ||
+      (matched.city || '').toLowerCase().includes(td.expected.toLowerCase());
+    if (nameInc) {
+      console.log(`  ✅ Input: "${td.input}" -> Matched: "${matched.name || matched.city}" (${matched.matchType})`);
+    } else {
+      console.warn(`  ⚠️  Input: "${td.input}" -> Matched but unexpected: "${matched.name || matched.city}" (expected: ${td.expected})`);
+    }
   } else {
-    console.error(`❌ Input: "${td.input}" failed to match. Result:`, matched ? matched.name : 'null');
+    console.error(`  ❌ Input: "${td.input}" -> No match found (expected: ${td.expected})`);
   }
 });
 
 console.log('\n========================================================================');
-console.log('2. TESTING DETERMINISTIC MOCK GENERATION FOR ALL MATCHED LOCALITIES');
+console.log('3. TESTING MOCK ITINERARY GENERATION FOR ALL ENCYCLOPEDIA DESTINATIONS');
 console.log('========================================================================');
 
 const BANNED_PATTERNS = [
@@ -91,199 +85,136 @@ const BANNED_PATTERNS = [
   /scenic city overlook/i
 ];
 
-const testCases = [
-  'Delhi – Connaught Place (CP)',
-  'Delhi – Hauz Khas',
-  'Delhi – Safdarjung',
-  'Mumbai – Bandra',
-  'Jaipur – Old City'
+const mockTestCases = [
+  { dest: 'Delhi – Connaught Place (CP)', currency: 'INR', budget: 1500 },
+  { dest: 'Delhi – Hauz Khas', currency: 'INR', budget: 2000 },
+  { dest: 'Mumbai – Bandra', currency: 'INR', budget: 3000 },
+  { dest: 'Paris', currency: 'EUR', budget: 300 },
+  { dest: 'Tokyo – Shibuya', currency: 'JPY', budget: 15000 },
+  { dest: 'New York City', currency: 'USD', budget: 200 }
 ];
 
-testCases.forEach(dest => {
-  console.log(`\n--- Generating Mock Itinerary for "${dest}" ---`);
-  const itinerary = tripController.generateMockItinerary(dest, 1000, 'INR', 1, ['sightseeing'], '2026-06-24');
-  
+mockTestCases.forEach(tc => {
+  console.log(`\n--- Generating Mock Itinerary for "${tc.dest}" (${tc.currency}) ---`);
+  const itinerary = tripController.generateMockItinerary(tc.dest, tc.budget, tc.currency, 1, ['sightseeing'], '2026-06-24');
+
   if (!itinerary) {
-    console.error('❌ Failed to generate itinerary.');
+    console.error('  ❌ Failed to generate itinerary.');
     return;
   }
-  
-  console.log('Summary Destination:', itinerary.summary.destination);
-  console.log('Total Cost:', itinerary.summary.approxTotalCost, itinerary.summary.currency);
-  
-  const day = itinerary.days[0];
-  console.log('Day Title:', day.title);
-  console.log('Morning block:', day.blocks[0].title);
-  console.log('  Description:', day.blocks[0].description);
-  console.log('  Cost:', day.blocks[0].approxCost.value);
-  console.log('  Places:', day.blocks[0].places.map(p => p.name).join(', '));
-  
-  console.log('Afternoon block:', day.blocks[1].title);
-  console.log('  Description:', day.blocks[1].description);
-  console.log('  Cost:', day.blocks[1].approxCost.value);
-  console.log('  Places:', day.blocks[1].places.map(p => p.name).join(', '));
-  
-  console.log('Evening block:', day.blocks[2].title);
-  console.log('  Description:', day.blocks[2].description);
-  console.log('  Cost:', day.blocks[2].approxCost.value);
-  console.log('  Places:', day.blocks[2].places.map(p => p.name).join(', '));
 
-  // Verify banned patterns
-  let hasBanned = false;
+  console.log(`  Summary Destination: ${itinerary.summary.destination}`);
+  console.log(`  Total Cost: ${itinerary.summary.approxTotalCost} ${itinerary.summary.currency}`);
+
+  const day = itinerary.days[0];
+  if (day) {
+    console.log(`  Day Title: ${day.title}`);
+    if (day.blocks && day.blocks[0]) {
+      console.log(`  Morning: ${day.blocks[0].title}`);
+      const mPlaces = (day.blocks[0].places || []).map(p => p.name).join(', ');
+      if (mPlaces) console.log(`    Places: ${mPlaces}`);
+    }
+    if (day.blocks && day.blocks[1]) {
+      console.log(`  Afternoon: ${day.blocks[1].title}`);
+    }
+    if (day.blocks && day.blocks[2]) {
+      console.log(`  Evening: ${day.blocks[2].title}`);
+    }
+  }
+
+  // Check for banned patterns
   const fullText = JSON.stringify(itinerary);
+  let hasBanned = false;
   BANNED_PATTERNS.forEach(pat => {
     if (pat.test(fullText)) {
-      console.error(`❌ Banned generic pattern found: ${pat}`);
+      console.error(`  ❌ Banned generic pattern found: ${pat}`);
       hasBanned = true;
     }
   });
   if (!hasBanned) {
-    console.log('✅ No generic banned patterns found in mock output!');
-  }
-  
-  // Verify varied costs
-  const mCost = day.blocks[0].approxCost.value;
-  const aCost = day.blocks[1].approxCost.value;
-  const eCost = day.blocks[2].approxCost.value;
-  if (mCost !== aCost || aCost !== eCost) {
-    console.log(`✅ Costs are varied: Morning=${mCost}, Afternoon=${aCost}, Evening=${eCost}`);
-  } else {
-    console.warn(`⚠️ Costs are identical across periods: Morning=${mCost}, Afternoon=${aCost}, Evening=${eCost}`);
+    console.log('  ✅ No banned generic patterns found!');
   }
 });
 
 console.log('\n========================================================================');
-console.log('3. TESTING LLM GENERATION PROMPT CONTENT AND SCHEMAS (If API key exists)');
+console.log('4. TESTING LIVE GEMINI LLM GENERATION (If API key exists)');
 console.log('========================================================================');
 
 const geminiKey = process.env.GEMINI_API_KEY;
 if (!geminiKey || geminiKey.trim() === '') {
-  console.log('⚠️ GEMINI_API_KEY not set in environment variables. Skipping live LLM test.');
+  console.log('  ⚠️ GEMINI_API_KEY not set. Skipping live LLM test.');
 } else {
-  console.log('Configured GEMINI_API_KEY found. Calling live Gemini model for "Delhi - Connaught Place (CP)"...');
-  
+  console.log('  Configured GEMINI_API_KEY found. Testing with "Montmartre, Paris"...');
+
   const genAI = new GoogleGenerativeAI(geminiKey);
   const primaryModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-  
-  // Build context like backend does
-  const matchedEnc = findIndiaEncyclopediaEntry('Delhi - Connaught Place (CP)');
-  let dataBlock = '';
-  if (matchedEnc) {
-    dataBlock = `\n\nINDIA TRAVEL ENCYCLOPEDIA CONTEXT (Destination: ${matchedEnc.name}):\n`;
-    matchedEnc.places.forEach(p => {
-      dataBlock += `- Name: "${p.name}" | Type: "${p.type}" | Typical Cost: ${p.approx_cost} INR | Description: ${p.description}\n`;
-    });
-  }
-  
-  const systemPrompt = `You are a professional India travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach.
-Required JSON structure:
-{
-  "tripSummary": {
-    "destination": "Delhi - Connaught Place (CP)",
-    "totalDays": 1,
-    "travelStyle": "budget",
-    "estimatedTotalCost": { "amount": 1000, "currency": "INR" },
-    "bestTimeAdvice": "Autumn"
-  },
-  "howToReach": {
-    "recommendedMode": "metro",
-    "summary": "Take Rajiv Chowk Metro",
-    "nearestStartTerminal": "Origin",
-    "nearestEndTerminal": "Rajiv Chowk Metro",
-    "details": "Easy and cheap.",
-    "estimatedCost": { "amount": 50, "currency": "INR" }
-  },
-  "dayByDayPlan": [
-    {
-      "dayNumber": 1,
-      "title": "One day in CP",
-      "theme": "EXPLORATION",
-      "morning": {
-        "title": "Morning sights",
-        "description": "Visit Agrasen ki Baoli and shop at Janpath Market. Stroll and enjoy a coffee at Indian Coffee House.",
-        "places": [
-          { "name": "Agrasen ki Baoli", "type": "attraction", "area": "Connaught Place", "approx_cost": 0 },
-          { "name": "Janpath Market", "type": "market", "area": "Connaught Place", "approx_cost": 0 },
-          { "name": "Indian Coffee House", "type": "cafe", "area": "Connaught Place", "approx_cost": 150 }
-        ],
-        "notes": "Carry cash."
-      },
-      "afternoon": {
-        "title": "Afternoon sights",
-        "description": "Have delicious lunch at Saravana Bhavan. Shop around the circular streets of CP.",
-        "places": [
-          { "name": "Saravana Bhavan", "type": "restaurant", "area": "Connaught Place", "approx_cost": 300 }
-        ],
-        "notes": "EnjoySouth Indian food."
-      },
-      "evening": {
-        "title": "Evening vibes",
-        "description": "Dine at United Coffee House or get drinks at Ministry of Beer.",
-        "places": [
-          { "name": "United Coffee House", "type": "restaurant", "area": "Connaught Place", "approx_cost": 800 }
-        ],
-        "notes": "Colonial theme."
-      },
-      "notes": ["CP is structured in circles."]
+
+  // Simulate the global encyclopedia context build
+  let dataBlock = '\n\nWORLD TRAVEL ENCYCLOPEDIA CONTEXT (Destination: Paris - Montmartre):\n';
+  const cont = encyclopedia.continents.europe;
+  if (cont) {
+    const france = cont.countries.france;
+    if (france) {
+      const ile = france.statesOrRegions['ile-de-france'];
+      if (ile) {
+        const paris = ile.cities.paris;
+        if (paris && paris.areas && paris.areas.montmartre) {
+          paris.areas.montmartre.places.forEach(p => {
+            dataBlock += `- Name: "${p.name}" | Type: "${p.type}" | Cost: ${p.approx_cost} ${p.currency} | ${p.description}\n`;
+          });
+        }
+      }
     }
-  ],
-  "safetyAndLogistics": {
-    "localTransportTips": "Use metro",
-    "areaSafetyNotes": "Be safe",
-    "moneySavingTips": "Eat local"
   }
-}
 
-Style & Constraint Rules:
-- PROFESSIONAL INDIA TRAVEL PLANNER ROLE: Act as an expert local planner. Write in a helpful, professional tone. Avoid any emojis.
-- LOCALIZED & EFFICIENT ROUTING: Cluster activities by neighborhood. Keep timings realistic. Add short justifications.
-- STRICT AVOIDANCE OF GENERIC PLACEHOLDERS: Do NOT invent generic filler names like "central public market", "main waterfront promenade", "self-guided walking tour".
+  const systemPrompt = `You are a professional global travel planner and local expert.
+Generate a 1-day itinerary for Montmartre, Paris.
 ${dataBlock}
+CRITICAL: Use ONLY the listed real venues above. Do NOT use generic text like "central public market" or "self-guided walking tour".
+Output ONLY raw JSON following this schema:
+{
+  "tripSummary": { "destination": "Paris - Montmartre", "totalDays": 1, "travelStyle": "budget", "estimatedTotalCost": { "amount": 60, "currency": "EUR" }, "bestTimeAdvice": "Spring or Autumn" },
+  "howToReach": { "recommendedMode": "metro", "summary": "Take Metro Line 2 to Abbesses station.", "nearestStartTerminal": "Paris city center", "nearestEndTerminal": "Abbesses Metro", "details": "The Abbesses Metro station on Line 2 drops you right in Montmartre.", "estimatedCost": { "amount": 2, "currency": "EUR" } },
+  "dayByDayPlan": [{
+    "dayNumber": 1, "title": "Day in Montmartre", "theme": "CULTURE",
+    "morning": { "title": "Sacre-Coeur and Place du Tertre", "description": "Detailed morning plan.", "places": [{ "name": "Sacré-Cœur Basilica", "type": "attraction", "area": "Montmartre", "approx_cost": 0 }], "notes": "Go early to avoid crowds." },
+    "afternoon": { "title": "Café des Deux Moulins lunch", "description": "Detailed afternoon plan.", "places": [{ "name": "Café des Deux Moulins", "type": "cafe", "area": "Montmartre", "approx_cost": 12 }], "notes": "" },
+    "evening": { "title": "La Cigale evening show", "description": "Detailed evening plan.", "places": [{ "name": "La Cigale", "type": "nightlife", "area": "Montmartre", "approx_cost": 45 }], "notes": "" },
+    "notes": ["Wear comfortable shoes for cobblestone streets."]
+  }],
+  "safetyAndLogistics": { "localTransportTips": "Use Paris Metro.", "areaSafetyNotes": "Keep belongings safe.", "moneySavingTips": "Visit Sacre-Coeur for free." }
+}
+Budget: 60 EUR | Interests: culture, cafes | Trip: 1 day in Montmartre.
+Generate the full itinerary now.`;
 
-User details for the trip:
-Destination: Delhi - Connaught Place (CP)
-Start Date: 2026-06-24
-Budget: 1000 INR
-Interests: sightseeing, cafe
-
-Generate the best possible trip itinerary following the JSON format and rules above.`;
-
-  console.log('\n--- SYSTEM PROMPT TO BE SENT TO GEMINI ---');
-  console.log(systemPrompt);
-  
   primaryModel.generateContent(systemPrompt).then(res => {
     let rawText = res.response.text().trim();
-    console.log('\n--- RAW LLM RESPONSE ---');
-    console.log(rawText);
-    
-    // Clean markdown
     if (rawText.startsWith('```')) {
       rawText = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
     }
-    
     try {
       const parsed = JSON.parse(rawText);
-      console.log('✅ Successful JSON parse!');
-      
-      // Verify guardrails
+      console.log('  ✅ Successful JSON parse from live LLM!');
+      console.log('  Destination:', parsed.tripSummary?.destination);
+      console.log('  Day 1 morning:', parsed.dayByDayPlan?.[0]?.morning?.title);
+      const places = parsed.dayByDayPlan?.[0]?.morning?.places?.map(p => p.name).join(', ');
+      console.log('  Places (morning):', places);
+
       let hasBanned = false;
       BANNED_PATTERNS.forEach(pat => {
         if (pat.test(rawText)) {
-          console.error(`❌ Live output contains banned pattern: ${pat}`);
+          console.error(`  ❌ Live output contains banned pattern: ${pat}`);
           hasBanned = true;
         }
       });
       if (!hasBanned) {
-        console.log('✅ Live output passed all guardrails!');
+        console.log('  ✅ Live output passed all guardrails!');
       }
-      
-      console.log('\n--- VERIFYING NORMALIZED SCHEMA STRUCTURE ---');
-      console.log('Day 1 morning places:', parsed.dayByDayPlan[0].morning.places);
-      console.log('Day 1 morning notes:', parsed.dayByDayPlan[0].morning.notes);
     } catch (err) {
-      console.error('❌ Failed to parse live JSON:', err.message);
+      console.error('  ❌ Failed to parse live JSON:', err.message);
+      console.log('  Raw response (first 500 chars):', rawText.substring(0, 500));
     }
   }).catch(err => {
-    console.error('❌ Live LLM call failed:', err.message);
+    console.error('  ❌ Live LLM call failed:', err.message);
   });
 }

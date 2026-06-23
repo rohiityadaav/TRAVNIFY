@@ -1,0 +1,326 @@
+{
+  "continents": {
+    "asia": {
+      "countries": {
+        "india": {
+          "statesOrRegions": {
+            "delhi": {
+              "cities": {
+                "delhi": {
+                  "places": [],
+                  "areas": {
+                    "delhi - connaught place (cp)": {
+                      "name": "Delhi - Connaught Place (CP)",
+                      "city": "Delhi",
+                      "neighborhood": "Connaught Place (CP)",
+                      "type": "hub",
+                      "aliases": ["cp", "connaught place", "central park delhi", "rajiv chowk"],
+                      "places": [
+                        { "name": "Agrasen ki Baoli", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "14th-century historic stepwell known for its unique red-stone architecture and peaceful, mysterious vibe right in the middle of Delhi.", "tags": ["historic", "monument"] },
+                        { "name": "Janpath Market", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Lively street market known for inexpensive clothing, Tibetan handicrafts, brass artifacts, and local souvenir shopping.", "tags": ["shopping", "bazaar"] },
+                        { "name": "Central Park", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Sprawling circular park at the center of Inner Circle, featuring a giant national flag, lush lawns, and walking paths.", "tags": ["nature", "park"] },
+                        { "name": "Gurudwara Bangla Sahib", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Prominent Sikh house of worship offering a tranquil pond (Sarovar), beautiful gold domes, and a community kitchen (Langar).", "tags": ["spiritual", "temple"] },
+                        { "name": "Jantar Mantar", "type": "attraction", "approx_cost": 50, "currency": "INR", "description": "Historic equinoctial sundial observatory built by Maharaja Jai Singh II of Jaipur in 1724.", "tags": ["historic", "science"] },
+                        { "name": "Indian Coffee House", "type": "cafe", "approx_cost": 150, "currency": "INR", "description": "Classic, nostalgia-filled cafe in Mohan Singh Place serving filter coffee, masala dosas, and historical charm at low prices.", "tags": ["food", "cafe", "budget"] },
+                        { "name": "Cha Bar", "type": "cafe", "approx_cost": 250, "currency": "INR", "description": "Cozy cafe located inside Oxford Bookstore, offering hundreds of tea varieties, pastries, and a great reading environment.", "tags": ["cafe", "books"] },
+                        { "name": "Wenger's Deli", "type": "cafe", "approx_cost": 200, "currency": "INR", "description": "Historic bakery and deli famous for its mutton pastries, Swiss chocolates, and retro standing-only dining style.", "tags": ["food", "cafe"] },
+                        { "name": "Social Connaught Place", "type": "nightlife", "approx_cost": 800, "currency": "INR", "description": "Energetic co-working space by day and high-energy pub by night, famous for innovative cocktails and quirky food presentation.", "tags": ["nightlife", "bar"] },
+                        { "name": "Ministry of Beer", "type": "nightlife", "approx_cost": 1200, "currency": "INR", "description": "Delhi's first steam-punk themed craft brewery in CP, serving delicious microbrewed beers and multi-cuisine pub bites.", "tags": ["nightlife", "brewery"] },
+                        { "name": "Lord of the Drinks", "type": "nightlife", "approx_cost": 1000, "currency": "INR", "description": "Spacious lounge bar with a grand medieval theme and an outdoor terrace overlooking the circular streets of CP.", "tags": ["nightlife", "lounge"] },
+                        { "name": "Saravana Bhavan", "type": "restaurant", "approx_cost": 300, "currency": "INR", "description": "Vegetarian restaurant serving authentic South Indian filter coffee, giant ghee rava dosas, and standard thalis.", "tags": ["food", "restaurant"] },
+                        { "name": "United Coffee House", "type": "restaurant", "approx_cost": 800, "currency": "INR", "description": "Grand, high-ceilinged colonial era dining lounge serving signature blends, Indian classics, and continental favorites since 1942.", "tags": ["food", "restaurant", "premium"] },
+                        { "name": "Palika Bazaar", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Underground air-conditioned market known for clothes, electronics, and local bargaining experiences.", "tags": ["shopping", "market"] }
+                      ]
+                    },
+                    "delhi - hauz khas": {
+                      "name": "Delhi - Hauz Khas",
+                      "city": "Delhi",
+                      "neighborhood": "Hauz Khas",
+                      "type": "village",
+                      "aliases": ["hauz khas village", "hkv", "hauz kahs", "hauz khas fort"],
+                      "places": [
+                        { "name": "Hauz Khas Fort", "type": "attraction", "approx_cost": 25, "currency": "INR", "description": "13th-century fort ruins with a beautiful reservoir, ancient mosque, tomb, and madrasa, offering sunset views.", "tags": ["historic", "view"] },
+                        { "name": "Deer Park", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Lush green oasis adjoining the fort, featuring spotted deer, peacocks, walking trails, and dense foliage.", "tags": ["nature", "park"] },
+                        { "name": "Hauz Khas Lake", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Historic water reservoir built by Alauddin Khalji, surrounded by paths and popular for bird watching and walking.", "tags": ["nature", "lake"] },
+                        { "name": "Social Hauz Khas", "type": "nightlife", "approx_cost": 700, "currency": "INR", "description": "Lakeside outpost of the famous chain with retro-industrial decor, serving craft beer and creative fusion snacks.", "tags": ["nightlife", "bar"] },
+                        { "name": "Kunzum Travel Cafe", "type": "cafe", "approx_cost": 150, "currency": "INR", "description": "Quirky travel-themed cafe where travelers share stories, browse travel photography, and pay whatever they want for coffee.", "tags": ["cafe", "travel"] },
+                        { "name": "The Tea Room by Blossom Kochhar", "type": "cafe", "approx_cost": 450, "currency": "INR", "description": "Charming, elegant cafe in Hauz Khas Village serving premium organic teas, coffees, and delicious pastries.", "tags": ["cafe", "tea"] },
+                        { "name": "Coast Cafe", "type": "restaurant", "approx_cost": 800, "currency": "INR", "description": "Light-filled coastal restaurant specializing in Kerala-style curry, appams, fish tacos, and great cocktails.", "tags": ["food", "restaurant"] },
+                        { "name": "Yeti - The Himalayan Kitchen", "type": "restaurant", "approx_cost": 900, "currency": "INR", "description": "Acclaimed restaurant serving authentic Tibetan, Nepalese, and Bhutanese dishes like momos, thukpa, and shapta.", "tags": ["food", "restaurant"] },
+                        { "name": "Mia Bella", "type": "restaurant", "approx_cost": 1200, "currency": "INR", "description": "Rooftop dining restaurant overlooking the lake, famous for Italian fare, cocktails, and sunset views.", "tags": ["food", "restaurant", "nightlife"] },
+                        { "name": "Naivedyam", "type": "restaurant", "approx_cost": 300, "currency": "INR", "description": "Beautiful traditional-style restaurant serving high-quality South Indian meals with warm service.", "tags": ["food", "restaurant"] },
+                        { "name": "Summer House Cafe", "type": "nightlife", "approx_cost": 1500, "currency": "INR", "description": "Vibrant bar and nightclub nearby offering live music gigs, rooftop seating, and a bustling weekend nightlife scene.", "tags": ["nightlife", "bar"] },
+                        { "name": "Hauz Khas Village Boutiques", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Labyrinth of narrow lanes filled with independent fashion designer shops, antique stores, and quirky art galleries.", "tags": ["shopping", "market"] }
+                      ]
+                    },
+                    "delhi - safdarjung": {
+                      "name": "Delhi - Safdarjung",
+                      "city": "Delhi",
+                      "neighborhood": "Safdarjung",
+                      "type": "neighborhood",
+                      "aliases": ["safdarjung tomb", "sda market", "safdarjung development area"],
+                      "places": [
+                        { "name": "Safdarjung Tomb", "type": "attraction", "approx_cost": 50, "currency": "INR", "description": "18th-century sandstone and marble mausoleum showcasing the grandeur of Late Mughal architecture.", "tags": ["historic", "monument"] },
+                        { "name": "Safdarjung Development Area (SDA) Market", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Vibrant market hub popular with university students, lined with hip cafes, dessert shops, and street vendors.", "tags": ["shopping", "market"] },
+                        { "name": "The Piano Man Jazz Club", "type": "nightlife", "approx_cost": 1200, "currency": "INR", "description": "Renowned jazz club offering nightly live performances, cozy seating, craft cocktails, and a distinct speakeasy vibe.", "tags": ["nightlife", "jazz"] },
+                        { "name": "Rajinder Da Dhaba", "type": "restaurant", "approx_cost": 400, "currency": "INR", "description": "Iconic local eatery famous for its delicious and spicy North Indian curries, kebabs, and Galouti rolls.", "tags": ["food", "restaurant", "budget"] },
+                        { "name": "What A Comic Show", "type": "cafe", "approx_cost": 350, "currency": "INR", "description": "Charming comic-book themed cafe serving great coffee, burgers, and Italian dishes in a relaxed environment.", "tags": ["cafe", "food"] },
+                        { "name": "Humayunpur Market", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Narrow, bustling lanes famous for Northeast Indian food joints, boutique shopping, and trendy fashion outlets.", "tags": ["shopping", "food"] },
+                        { "name": "Cultured Cafe", "type": "cafe", "approx_cost": 400, "currency": "INR", "description": "Hip coffee shop offering a serene atmosphere, delicious sourdough toasts, and pour-over coffee specialties.", "tags": ["cafe", "coffee"] },
+                        { "name": "Lodi Gardens", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Lush historic park located nearby, dotted with Sayyid and Lodi dynasty tombs, popular for morning jogs.", "tags": ["nature", "park"] },
+                        { "name": "Mizo Diner", "type": "restaurant", "approx_cost": 350, "currency": "INR", "description": "Cozy restaurant in Humayunpur specializing in authentic Mizo cuisine, smoked pork dishes, and bamboo shoot curries.", "tags": ["food", "restaurant"] }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "rajasthan": {
+              "cities": {
+                "jaipur": {
+                  "places": [],
+                  "areas": {
+                    "jaipur - old city": {
+                      "name": "Jaipur - Old City",
+                      "city": "Jaipur",
+                      "neighborhood": "Old City",
+                      "type": "hub",
+                      "aliases": ["hawa mahal", "city palace jaipur", "pink city"],
+                      "places": [
+                        { "name": "Hawa Mahal", "type": "attraction", "approx_cost": 50, "currency": "INR", "description": "The iconic 'Palace of Winds', a five-story pink sandstone pyramid-like facade built in 1799.", "tags": ["historic", "monument"] },
+                        { "name": "City Palace Jaipur", "type": "attraction", "approx_cost": 300, "currency": "INR", "description": "Magnificent royal residence showcasing a blend of Rajput and Mughal architecture, with museums and courtyards.", "tags": ["historic", "palace"] },
+                        { "name": "Jantar Mantar Jaipur", "type": "attraction", "approx_cost": 200, "currency": "INR", "description": "UNESCO World Heritage site featuring nineteen architectural astronomical instruments built by Sawai Jai Singh II.", "tags": ["historic", "science"] },
+                        { "name": "Johri Bazar", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Traditional jewelry market famous for gold, silver, emeralds, and handmade Bandhej block-print textiles.", "tags": ["shopping", "bazaar"] },
+                        { "name": "Bapu Bazar", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Vibrant market lane known for Rajasthani leather shoes (mojris), handicraft home decor, and traditional block prints.", "tags": ["shopping", "bazaar"] },
+                        { "name": "Laxmi Mishthan Bhandar (LMB)", "type": "restaurant", "approx_cost": 450, "currency": "INR", "description": "Legendary sweet shop and dining room famous for its Rajasthani thali, Pyaaz Kachori, and Ghewar sweet.", "tags": ["food", "restaurant"] },
+                        { "name": "Wind View Cafe", "type": "cafe", "approx_cost": 250, "currency": "INR", "description": "Rooftop cafe located directly opposite Hawa Mahal, offering great views of the palace facade and classic masala chai.", "tags": ["cafe", "view"] },
+                        { "name": "Lassiwala", "type": "cafe", "approx_cost": 100, "currency": "INR", "description": "Famous shop on MI Road serving thick, sweet lassi in traditional clay cups (kulhads) since 1944.", "tags": ["cafe", "drink", "budget"] },
+                        { "name": "Bar Palladio", "type": "nightlife", "approx_cost": 1500, "currency": "INR", "description": "Stunning heritage-style restaurant and lounge featuring royal blue interiors and classical Italian food.", "tags": ["nightlife", "bar", "premium"] }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "maharashtra": {
+              "cities": {
+                "mumbai": {
+                  "places": [],
+                  "areas": {
+                    "mumbai - bandra": {
+                      "name": "Mumbai - Bandra",
+                      "city": "Mumbai",
+                      "neighborhood": "Bandra",
+                      "type": "hub",
+                      "aliases": ["bandra west", "bandstand", "carter road", "bandra fort"],
+                      "places": [
+                        { "name": "Bandra-Worli Sea Link", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Stunning cable-stayed bridge spanning the Arabian Sea, best viewed from the Bandra coastline.", "tags": ["sightseeing", "bridge"] },
+                        { "name": "Bandstand Promenade", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Scenic seaside walking pathway popular for sea views, matching breeze, and spotting Bollywood stars' homes.", "tags": ["nature", "walk"] },
+                        { "name": "Mount Mary Church", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Historic Roman Catholic Basilica of Our Lady of the Mount, situated on a hill overlooking the ocean.", "tags": ["historic", "spiritual"] },
+                        { "name": "Bandra Fort", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Castella de Aguada, a historic 17th-century Portuguese watchtower offering panoramic sea views at sunset.", "tags": ["historic", "fort"] },
+                        { "name": "Carter Road Promenade", "type": "attraction", "approx_cost": 0, "currency": "INR", "description": "Lively coastal boulevard featuring a culinary strip, walking tracks, and musical performances.", "tags": ["nature", "walk"] },
+                        { "name": "Linking Road", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Famous shopping street offering a mix of brand outlets, affordable footwear stalls, and local street wear.", "tags": ["shopping", "market"] },
+                        { "name": "Hill Road", "type": "market", "approx_cost": 0, "currency": "INR", "description": "Bustling retail street lined with thrift shops, export-surplus clothing outlets, and local accessories.", "tags": ["shopping", "market"] },
+                        { "name": "Candies", "type": "cafe", "approx_cost": 300, "currency": "INR", "description": "Iconic Portuguese-villa style cafe with multi-level terrace seating, known for chicken rolls, lasagna, and wild berry iced tea.", "tags": ["cafe", "food"] },
+                        { "name": "Salt Water Cafe", "type": "restaurant", "approx_cost": 900, "currency": "INR", "description": "Chic, relaxed restaurant serving European bistro fare, fresh seafood, and outstanding sangrias.", "tags": ["food", "restaurant"] },
+                        { "name": "Toto's Garage", "type": "nightlife", "approx_cost": 1000, "currency": "INR", "description": "Famous VW Beetle-themed pub with auto body parts hanging from the ceiling, playing classic rock and serving chilled beer.", "tags": ["nightlife", "pub"] },
+                        { "name": "Taj Mahal Tea House", "type": "cafe", "approx_cost": 600, "currency": "INR", "description": "Elegant tea lounge set in an old Bandra bungalow, offering high-end artisanal teas, classical music, and local snacks.", "tags": ["cafe", "tea"] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "japan": {
+          "statesOrRegions": {
+            "tokyo": {
+              "cities": {
+                "tokyo": {
+                  "places": [],
+                  "areas": {
+                    "shibuya": {
+                      "name": "Tokyo - Shibuya",
+                      "city": "Tokyo",
+                      "neighborhood": "Shibuya",
+                      "type": "hub",
+                      "aliases": ["shibuya crossing", "shibuya sky", "hachiko"],
+                      "places": [
+                        { "name": "Shibuya Crossing", "type": "attraction", "approx_cost": 0, "currency": "JPY", "description": "The world's busiest pedestrian crossing, an iconic symbol of Tokyo's neon-lit urban energy.", "tags": ["sightseeing", "iconic"] },
+                        { "name": "Meiji Jingu Shrine", "type": "attraction", "approx_cost": 0, "currency": "JPY", "description": "A tranquil Shinto shrine dedicated to Emperor Meiji, located inside a sprawling, dense forest in Shibuya.", "tags": ["historic", "spiritual"] },
+                        { "name": "Shibuya Sky", "type": "attraction", "approx_cost": 2200, "currency": "JPY", "description": "A breathtaking open-air observation deck on top of Shibuya Scramble Square, offering panoramic views of Tokyo and Mount Fuji.", "tags": ["view", "observatory", "premium"] },
+                        { "name": "Ichiran Shibuya", "type": "restaurant", "approx_cost": 1200, "currency": "JPY", "description": "Famous tonkotsu ramen chain where diners eat in individual semi-private booths, customizing their broth and noodles.", "tags": ["food", "restaurant"] },
+                        { "name": "Hachiko Statue", "type": "attraction", "approx_cost": 0, "currency": "JPY", "description": "The bronze statue commemorating the legendary loyal dog Hachiko, located right outside Shibuya Station.", "tags": ["sightseeing", "monument"] },
+                        { "name": "Shibuya Nonbei Yokocho", "type": "nightlife", "approx_cost": 3000, "currency": "JPY", "description": "'Drunkards Alley', a narrow pathway lined with tiny, rustic yakitori bars preserving post-war Tokyo atmosphere.", "tags": ["nightlife", "bar"] },
+                        { "name": "Chatei Hatou", "type": "cafe", "approx_cost": 1000, "currency": "JPY", "description": "An exquisite, old-school kissaten coffee shop renowned for artisanal hand-drip coffee and beautiful hand-chosen ceramic cups.", "tags": ["cafe", "coffee"] }
+                      ]
+                    },
+                    "shinjuku": {
+                      "name": "Tokyo - Shinjuku",
+                      "city": "Tokyo",
+                      "neighborhood": "Shinjuku",
+                      "type": "hub",
+                      "aliases": ["shinjuku gyoen", "golden gai", "kabukicho"],
+                      "places": [
+                        { "name": "Shinjuku Gyoen National Garden", "type": "attraction", "approx_cost": 500, "currency": "JPY", "description": "One of Tokyo's largest parks, blending traditional Japanese, English landscape, and French formal garden styles.", "tags": ["nature", "park"] },
+                        { "name": "Tokyo Metropolitan Government Building", "type": "attraction", "approx_cost": 0, "currency": "JPY", "description": "Dual-tower government building offering free panoramic observatories on the 45th floor, overlooking the Tokyo skyline.", "tags": ["view", "observatory"] },
+                        { "name": "Omoide Yokocho", "type": "restaurant", "approx_cost": 2000, "currency": "JPY", "description": "'Memory Lane', a tiny network of alleys lined with open-grill yakitori stands and rustic noodle shops.", "tags": ["food", "street_food"] },
+                        { "name": "Golden Gai", "type": "nightlife", "approx_cost": 3000, "currency": "JPY", "description": "A collection of six narrow alleys filled with over 200 tiny bars, each seating only a few people, known for their unique themes.", "tags": ["nightlife", "bar"] },
+                        { "name": "Blue Bottle Coffee Shinjuku", "type": "cafe", "approx_cost": 650, "currency": "JPY", "description": "Sleek, minimalist coffee shop serving fresh, custom pour-overs inside the bustling NewoMan shopping complex.", "tags": ["cafe", "coffee"] }
+                      ]
+                    },
+                    "asakusa": {
+                      "name": "Tokyo - Asakusa",
+                      "city": "Tokyo",
+                      "neighborhood": "Asakusa",
+                      "type": "village",
+                      "aliases": ["sensoji", "nakamise", "kamiya bar"],
+                      "places": [
+                        { "name": "Senso-ji Temple", "type": "attraction", "approx_cost": 0, "currency": "JPY", "description": "Tokyo's oldest and most famous Buddhist temple, dedicated to the Bodhisattva Kannon, featuring a grand red lantern gate.", "tags": ["historic", "spiritual"] },
+                        { "name": "Nakamise-dori Shopping Street", "type": "market", "approx_cost": 0, "currency": "JPY", "description": "Bustling, centuries-old market approach to Senso-ji temple, selling traditional snacks (senbei, ningyo-yaki) and souvenirs.", "tags": ["shopping", "market"] },
+                        { "name": "Daikokuya Tempura", "type": "restaurant", "approx_cost": 2200, "currency": "JPY", "description": "Historic restaurant operating since 1887, famous for its dark-sauce tempura bowls served on traditional tatami floors.", "tags": ["food", "restaurant"] },
+                        { "name": "Kamiya Bar", "type": "nightlife", "approx_cost": 2000, "currency": "JPY", "description": "Tokyo's first Western-style bar, open since 1880, famous for its signature potent herbal cocktail 'Denki Bran'.", "tags": ["nightlife", "bar", "historic"] },
+                        { "name": "Suzukien Asakusa", "type": "cafe", "approx_cost": 700, "currency": "JPY", "description": "Matcha specialty shop famous for serving the world's most intense matcha gelato, graded from level 1 to level 7.", "tags": ["cafe", "dessert"] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "europe": {
+      "countries": {
+        "france": {
+          "statesOrRegions": {
+            "ile-de-france": {
+              "cities": {
+                "paris": {
+                  "places": [],
+                  "areas": {
+                    "eiffel tower area": {
+                      "name": "Paris - Eiffel Tower Area",
+                      "city": "Paris",
+                      "neighborhood": "Eiffel Tower Area",
+                      "type": "hub",
+                      "aliases": ["eiffel tower", "tour eiffel", "champ de mars", "trocadero"],
+                      "places": [
+                        { "name": "Eiffel Tower", "type": "attraction", "approx_cost": 29, "currency": "EUR", "description": "The world-famous iron lattice monument, offering panoramic vistas of Paris from its three public viewing platforms.", "tags": ["sightseeing", "monument"] },
+                        { "name": "Champ de Mars", "type": "attraction", "approx_cost": 0, "currency": "EUR", "description": "Large public greenspace directly underneath the Eiffel Tower, perfect for picnics, casual walks, and viewing the evening light show.", "tags": ["nature", "park"] },
+                        { "name": "Rue Cler", "type": "market", "approx_cost": 0, "currency": "EUR", "description": "One of Paris's most famous market streets, lined with cheese shops, bakeries, cafes, and gourmet specialty boutiques.", "tags": ["shopping", "market"] },
+                        { "name": "Café de l'Homme", "type": "cafe", "approx_cost": 30, "currency": "EUR", "description": "Premium terrace cafe at Trocadero, offering elegant bistro snacks and a direct, head-on view of the Eiffel Tower.", "tags": ["cafe", "view", "premium"] },
+                        { "name": "Les Ombres", "type": "restaurant", "approx_cost": 85, "currency": "EUR", "description": "Rooftop restaurant situated on top of the Musée du Quai Branly, serving refined French cuisine under a glass roof.", "tags": ["food", "restaurant", "view"] }
+                      ]
+                    },
+                    "louvre area": {
+                      "name": "Paris - Louvre Area",
+                      "city": "Paris",
+                      "neighborhood": "Louvre Area",
+                      "type": "hub",
+                      "aliases": ["louvre museum", "musee du louvre", "tuileries garden"],
+                      "places": [
+                        { "name": "Louvre Museum", "type": "attraction", "approx_cost": 22, "currency": "EUR", "description": "The world's largest art museum, housing iconic masterpieces like the Mona Lisa and the Venus de Milo within a former royal palace.", "tags": ["historic", "art"] },
+                        { "name": "Tuileries Garden", "type": "attraction", "approx_cost": 0, "currency": "EUR", "description": "Historic formal French garden between the Louvre and Place de la Concorde, featuring fountains, sculpture, and walkways.", "tags": ["nature", "park"] },
+                        { "name": "Café Marly", "type": "cafe", "approx_cost": 25, "currency": "EUR", "description": "Elegant arcade cafe looking directly onto the Louvre's iconic glass pyramid, perfect for espresso or cocktails.", "tags": ["cafe", "view"] },
+                        { "name": "Angelina Paris", "type": "cafe", "approx_cost": 18, "currency": "EUR", "description": "Famous belle-epoque tea room on Rue de Rivoli, renowned for its decadent, thick hot chocolate and Mont-Blanc pastry.", "tags": ["cafe", "dessert"] },
+                        { "name": "Le Meurice Alain Ducasse", "type": "restaurant", "approx_cost": 150, "currency": "EUR", "description": "Two-Michelin-starred restaurant offering exceptional, high-end French gastronomy inside an ornate, palace-style dining room.", "tags": ["food", "restaurant", "premium"] }
+                      ]
+                    },
+                    "montmartre": {
+                      "name": "Paris - Montmartre",
+                      "city": "Paris",
+                      "neighborhood": "Montmartre",
+                      "type": "village",
+                      "aliases": ["sacre coeur", "place du tertre", "moulin rouge"],
+                      "places": [
+                        { "name": "Sacré-Cœur Basilica", "type": "attraction", "approx_cost": 0, "currency": "EUR", "description": "The Roman Catholic basilica crowning the hill of Montmartre, offering outstanding views of the entire Paris skyline.", "tags": ["historic", "spiritual", "view"] },
+                        { "name": "Place du Tertre", "type": "attraction", "approx_cost": 0, "currency": "EUR", "description": "The central artistic square where painters, portraitists, and caricaturists set up their easels daily for tourists.", "tags": ["sightseeing", "art"] },
+                        { "name": "Café des Deux Moulins", "type": "cafe", "approx_cost": 12, "currency": "EUR", "description": "The classic Parisian corner bistro made world-famous as the workplace of Amélie Poulain in the movie 'Amélie'.", "tags": ["cafe", "movie", "budget"] },
+                        { "name": "Le Consulat", "type": "restaurant", "approx_cost": 30, "currency": "EUR", "description": "Iconic, highly photographed historic restaurant on the hill, serving traditional French dishes (escargots, steak frites).", "tags": ["food", "restaurant"] },
+                        { "name": "La Cigale", "type": "nightlife", "approx_cost": 45, "currency": "EUR", "description": "Legendary cabaret-theater and concert hall at the base of the hill, hosting live indie bands and comedy performances.", "tags": ["nightlife", "music"] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "north_america": {
+      "countries": {
+        "usa": {
+          "statesOrRegions": {
+            "new york": {
+              "cities": {
+                "new york city": {
+                  "places": [],
+                  "areas": {
+                    "manhattan": {
+                      "name": "New York - Manhattan",
+                      "city": "New York City",
+                      "neighborhood": "Manhattan",
+                      "type": "hub",
+                      "aliases": ["midtown", "empire state", "chelsea", "high line"],
+                      "places": [
+                        { "name": "Empire State Building", "type": "attraction", "approx_cost": 44, "currency": "USD", "description": "The iconic 102-story Art Deco skyscraper in Midtown, offering 360-degree views of New York City and beyond.", "tags": ["view", "observatory"] },
+                        { "name": "The High Line", "type": "attraction", "approx_cost": 0, "currency": "USD", "description": "A 1.45-mile elevated public park and boardwalk built on a historic, abandoned freight rail line on the West Side.", "tags": ["nature", "park"] },
+                        { "name": "Chelsea Market", "type": "market", "approx_cost": 0, "currency": "USD", "description": "A bustling indoor food hall and retail market in the Meatpacking District, housed inside a former Nabisco factory.", "tags": ["shopping", "food"] },
+                        { "name": "Katz's Delicatessen", "type": "restaurant", "approx_cost": 30, "currency": "USD", "description": "Legendary kosher-style deli on the Lower East Side, famous for its hand-carved, piled-high pastrami sandwiches since 1888.", "tags": ["food", "restaurant"] },
+                        { "name": "Stumptown Coffee Roasters", "type": "cafe", "approx_cost": 7, "currency": "USD", "description": "Hip, specialty coffee shop located in the lobby of the Ace Hotel, serving rich pour-overs and cold brews.", "tags": ["cafe", "coffee"] }
+                      ]
+                    },
+                    "brooklyn": {
+                      "name": "New York - Brooklyn",
+                      "city": "New York City",
+                      "neighborhood": "Brooklyn",
+                      "type": "hub",
+                      "aliases": ["dumbo", "brooklyn bridge", "williamsburg"],
+                      "places": [
+                        { "name": "Brooklyn Bridge", "type": "attraction", "approx_cost": 0, "currency": "USD", "description": "The historic neo-Gothic suspension bridge, offering a scenic walk over the East River with views of the skyline.", "tags": ["sightseeing", "bridge"] },
+                        { "name": "DUMBO Waterfront", "type": "attraction", "approx_cost": 0, "currency": "USD", "description": "Waterfront park and streets offering the classic framed view of the Manhattan Bridge between red-brick warehouses.", "tags": ["sightseeing", "view"] },
+                        { "name": "Brooklyn Roasting Company", "type": "cafe", "approx_cost": 6, "currency": "USD", "description": "Spacious, industrial-style coffee roaster in DUMBO serving excellent espresso blends and local pastries.", "tags": ["cafe", "coffee"] },
+                        { "name": "Grimaldi's Pizzeria", "type": "restaurant", "approx_cost": 25, "currency": "USD", "description": "Famous coal-fired brick-oven pizzeria underneath the Brooklyn Bridge, known for its thin-crust Neapolitan pies.", "tags": ["food", "pizza"] },
+                        { "name": "Brooklyn Flea", "type": "market", "approx_cost": 0, "currency": "USD", "description": "A massive outdoor flea market featuring hundreds of vendors selling vintage clothing, furniture, and local crafts.", "tags": ["shopping", "market"] }
+                      ]
+                    },
+                    "times square": {
+                      "name": "New York - Times Square",
+                      "city": "New York City",
+                      "neighborhood": "Times Square",
+                      "type": "hub",
+                      "aliases": ["broadway", "theater district", "midtown west"],
+                      "places": [
+                        { "name": "Times Square Red Steps", "type": "attraction", "approx_cost": 0, "currency": "USD", "description": "The iconic red stairs on top of the TKTS booth, offering a prime vantage point of the flashing billboard canyon.", "tags": ["sightseeing", "iconic"] },
+                        { "name": "Broadway Theater District", "type": "nightlife", "approx_cost": 120, "currency": "USD", "description": "The world-famous cluster of professional theaters hosting award-winning musicals and dramatic plays.", "tags": ["nightlife", "theater", "premium"] },
+                        { "name": "Junior's Restaurant", "type": "restaurant", "approx_cost": 25, "currency": "USD", "description": "Classic diner famous for its legendary, dense New York cheesecake, Reuben sandwiches, and extensive diner menu.", "tags": ["food", "restaurant"] },
+                        { "name": "Ellen's Stardust Diner", "type": "restaurant", "approx_cost": 30, "currency": "USD", "description": "Retro 1950s-themed diner featuring a world-famous staff of singing waiters who perform Broadway hits during service.", "tags": ["food", "restaurant", "musical"] }
+                      ]
+                    },
+                    "central park": {
+                      "name": "New York - Central Park",
+                      "city": "New York City",
+                      "neighborhood": "Central Park",
+                      "type": "hub",
+                      "aliases": ["bethesda terrace", "sheep meadow", "ramble"],
+                      "places": [
+                        { "name": "Bethesda Fountain & Terrace", "type": "attraction", "approx_cost": 0, "currency": "USD", "description": "The heart of Central Park, featuring a grand neoclassical terrace, lakeside underpass acoustic vault, and fountain.", "tags": ["nature", "park"] },
+                        { "name": "Central Park Zoo", "type": "attraction", "approx_cost": 20, "currency": "USD", "description": "Charming, historic zoological park located near the southeast corner of the park, housing penguins, seals, and snow leopards.", "tags": ["nature", "zoo"] },
+                        { "name": "The Loeb Boathouse Cafe", "type": "cafe", "approx_cost": 18, "currency": "USD", "description": "Lakeside cafe and deck where you can watch rowboats glide by while enjoying coffee and pastries.", "tags": ["cafe", "view"] },
+                        { "name": "Tavern on the Green", "type": "restaurant", "approx_cost": 55, "currency": "USD", "description": "A historic, upscale restaurant set inside a former sheep fold, offering elegant American fare and garden seating.", "tags": ["food", "restaurant", "premium"] }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

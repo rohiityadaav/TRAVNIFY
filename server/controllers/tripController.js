@@ -18,6 +18,18 @@ function captureUnexpectedException(req, error) {
 const fs = require('fs');
 const path = require('path');
 
+function normalizeCountry(c) {
+  if (!c) return '';
+  const low = c.toLowerCase().trim();
+  if (low === 'usa' || low === 'united states' || low === 'united states of america' || low === 'u.s.a.' || low === 'u.s.') {
+    return 'united states';
+  }
+  if (low === 'uk' || low === 'united kingdom' || low === 'u.k.') {
+    return 'united kingdom';
+  }
+  return low;
+}
+
 // Load known cities database
 let knownCitiesDb = { cities: {}, regions: {} };
 try {
@@ -46,65 +58,372 @@ function getKnownCitiesDb() {
   return knownCitiesDb;
 }
 
-// Load India travel encyclopedia
-let indiaEncyclopedia = {};
+const COUNTRY_TO_CONTINENT = {
+  "india": "asia",
+  "japan": "asia",
+  "china": "asia",
+  "south korea": "asia",
+  "singapore": "asia",
+  "thailand": "asia",
+  "vietnam": "asia",
+  "malaysia": "asia",
+  "indonesia": "asia",
+  "philippines": "asia",
+  "nepal": "asia",
+  "pakistan": "asia",
+  "bangladesh": "asia",
+  "sri lanka": "asia",
+  "saudi arabia": "asia",
+  "uae": "asia",
+  "united arab emirates": "asia",
+  "qatar": "asia",
+  "turkey": "asia",
+  "france": "europe",
+  "united kingdom": "europe",
+  "uk": "europe",
+  "germany": "europe",
+  "italy": "europe",
+  "spain": "europe",
+  "netherlands": "europe",
+  "switzerland": "europe",
+  "austria": "europe",
+  "greece": "europe",
+  "sweden": "europe",
+  "norway": "europe",
+  "denmark": "europe",
+  "finland": "europe",
+  "ireland": "europe",
+  "belgium": "europe",
+  "portugal": "europe",
+  "united states": "north_america",
+  "usa": "north_america",
+  "canada": "north_america",
+  "mexico": "north_america",
+  "brazil": "south_america",
+  "argentina": "south_america",
+  "chile": "south_america",
+  "colombia": "south_america",
+  "peru": "south_america",
+  "australia": "oceania",
+  "new zealand": "oceania",
+  "egypt": "africa",
+  "south africa": "africa",
+  "kenya": "africa",
+  "morocco": "africa",
+  "nigeria": "africa"
+};
+
+const COUNTRY_TO_CURRENCY = {
+  "india": "INR",
+  "japan": "JPY",
+  "france": "EUR",
+  "germany": "EUR",
+  "italy": "EUR",
+  "spain": "EUR",
+  "netherlands": "EUR",
+  "switzerland": "CHF",
+  "austria": "EUR",
+  "greece": "EUR",
+  "sweden": "SEK",
+  "norway": "NOK",
+  "denmark": "DKK",
+  "finland": "EUR",
+  "ireland": "EUR",
+  "belgium": "EUR",
+  "portugal": "EUR",
+  "united kingdom": "GBP",
+  "uk": "GBP",
+  "united states": "USD",
+  "usa": "USD",
+  "canada": "CAD",
+  "mexico": "MXN",
+  "brazil": "BRL",
+  "argentina": "ARS",
+  "chile": "CLP",
+  "colombia": "COP",
+  "peru": "PEN",
+  "australia": "AUD",
+  "new zealand": "NZD",
+  "egypt": "EGP",
+  "south africa": "ZAR",
+  "kenya": "KES",
+  "morocco": "MAD",
+  "nigeria": "NGN",
+  "singapore": "SGD",
+  "thailand": "THB",
+  "vietnam": "VND",
+  "malaysia": "MYR",
+  "indonesia": "IDR",
+  "philippines": "PHP",
+  "nepal": "NPR",
+  "pakistan": "PKR",
+  "bangladesh": "BDT",
+  "sri lanka": "LKR",
+  "saudi arabia": "SAR",
+  "uae": "AED",
+  "united arab emirates": "AED",
+  "qatar": "QAR",
+  "turkey": "TRY"
+};
+
+// Load World travel encyclopedia and merge with geo dataset
+let worldEncyclopedia = { continents: {} };
 try {
-  const encPath = path.join(__dirname, '../data/india_travel_encyclopedia.json');
+  const encPath = path.join(__dirname, '../data/world_travel_encyclopedia.json');
   if (fs.existsSync(encPath)) {
-    indiaEncyclopedia = JSON.parse(fs.readFileSync(encPath, 'utf8'));
-    console.log(`Loaded India travel encyclopedia: ${Object.keys(indiaEncyclopedia).length} entries.`);
+    worldEncyclopedia = JSON.parse(fs.readFileSync(encPath, 'utf8'));
+    console.log(`Loaded World travel encyclopedia database.`);
   } else {
-    console.warn(`WARNING: india_travel_encyclopedia.json not found at ${encPath}.`);
+    console.warn(`WARNING: world_travel_encyclopedia.json not found at ${encPath}.`);
   }
 } catch (err) {
-  console.error('Failed to load India travel encyclopedia:', err);
+  console.error('Failed to load World travel encyclopedia:', err);
 }
 
-// Find encyclopedia entry by name (smart matching with aliases and typos)
-function findIndiaEncyclopediaEntry(destName) {
-  if (!destName) return null;
-  const cleanDest = destName.toLowerCase().trim();
-  
-  // 1. Direct exact key match
-  if (indiaEncyclopedia[cleanDest]) {
-    return indiaEncyclopedia[cleanDest];
+// Merge known_cities.json into worldEncyclopedia for global coverage
+try {
+  const dbInstance = getKnownCitiesDb();
+  if (dbInstance && dbInstance.cities) {
+    let mergedCount = 0;
+    const continents = worldEncyclopedia.continents = worldEncyclopedia.continents || {};
+    
+    for (const [cityKey, cityData] of Object.entries(dbInstance.cities)) {
+      const normCountry = normalizeCountry(cityData.country);
+      const continentKey = COUNTRY_TO_CONTINENT[normCountry] || 'other';
+      
+      // Ensure hierarchy exists
+      continents[continentKey] = continents[continentKey] || { countries: {} };
+      continents[continentKey].countries = continents[continentKey].countries || {};
+      continents[continentKey].countries[normCountry] = continents[continentKey].countries[normCountry] || { statesOrRegions: {} };
+      
+      const states = continents[continentKey].countries[normCountry].statesOrRegions = continents[continentKey].countries[normCountry].statesOrRegions || {};
+      const stateKey = (cityData.state || 'general').toLowerCase().trim();
+      states[stateKey] = states[stateKey] || { cities: {} };
+      
+      const cities = states[stateKey].cities = states[stateKey].cities || {};
+      
+      // Only merge if not already defined in the curated database
+      if (!cities[cityKey]) {
+        const countryCurrency = COUNTRY_TO_CURRENCY[normCountry] || 'USD';
+        
+        // Dynamically build places from landmarks, food, activities, shopping
+        const places = [];
+        if (Array.isArray(cityData.landmarks)) {
+          cityData.landmarks.forEach(name => {
+            places.push({
+              name,
+              type: 'attraction',
+              approx_cost: 0,
+              currency: countryCurrency,
+              description: `Iconic landmark to visit in ${cityData.name}.`,
+              tags: ['landmark', 'sightseeing']
+            });
+          });
+        }
+        if (Array.isArray(cityData.food)) {
+          cityData.food.forEach(name => {
+            places.push({
+              name,
+              type: 'restaurant',
+              approx_cost: 0,
+              currency: countryCurrency,
+              description: `Recommended local food/dining experience in ${cityData.name}.`,
+              tags: ['food', 'dining']
+            });
+          });
+        }
+        if (Array.isArray(cityData.activities)) {
+          cityData.activities.forEach(name => {
+            places.push({
+              name,
+              type: 'attraction',
+              approx_cost: 0,
+              currency: countryCurrency,
+              description: `Top activity to experience in ${cityData.name}.`,
+              tags: ['activity']
+            });
+          });
+        }
+        if (Array.isArray(cityData.shopping)) {
+          cityData.shopping.forEach(name => {
+            places.push({
+              name,
+              type: 'market',
+              approx_cost: 0,
+              currency: countryCurrency,
+              description: `Popular local shopping spot in ${cityData.name}.`,
+              tags: ['shopping', 'market']
+            });
+          });
+        }
+        if (Array.isArray(cityData.culture)) {
+          cityData.culture.forEach(name => {
+            places.push({
+              name,
+              type: 'attraction',
+              approx_cost: 0,
+              currency: countryCurrency,
+              description: `Cultural and heritage site in ${cityData.name}.`,
+              tags: ['culture']
+            });
+          });
+        }
+
+        cities[cityKey] = {
+          name: cityData.name,
+          places: places,
+          areas: {}
+        };
+        mergedCount++;
+      }
+    }
+    console.log(`Merged ${mergedCount} cities from geo dataset into World Travel Encyclopedia.`);
   }
+} catch (mergeErr) {
+  console.error('Failed to merge known cities geo dataset into World travel encyclopedia:', mergeErr);
+}
+
+// Find global destination entry by name (smart matching with aliases and typos across the hierarchy)
+function findGlobalDestination({ country, city, area, queryText }) {
+  if (!worldEncyclopedia || !worldEncyclopedia.continents) return null;
   
-  // 2. Scan and find matches based on aliases, names, and neighborhoods
-  for (const [key, data] of Object.entries(indiaEncyclopedia)) {
-    const nameLower = (data.name || '').toLowerCase();
-    const nhLower = (data.neighborhood || '').toLowerCase();
-    const cityLower = (data.city || '').toLowerCase();
-    
-    if (cleanDest === nameLower || cleanDest === nhLower) {
-      return data;
+  const qText = (queryText || '').toLowerCase().trim();
+  const qCity = (city || '').toLowerCase().trim();
+  const qCountry = normalizeCountry(country);
+  const qArea = (area || '').toLowerCase().trim();
+  
+  if (!qText && !qCity) return null;
+
+  let bestCityMatch = null;
+  let bestCityData = null;
+  let matchedCountryName = '';
+
+  const continents = worldEncyclopedia.continents || {};
+  for (const [contKey, continent] of Object.entries(continents)) {
+    const countries = continent.countries || {};
+    for (const [countryKey, countryData] of Object.entries(countries)) {
+      const cName = countryKey.toLowerCase().trim();
+      const normCName = normalizeCountry(cName);
+      
+      const states = countryData.statesOrRegions || {};
+      for (const [stateKey, stateData] of Object.entries(states)) {
+        const cities = stateData.cities || {};
+        for (const [cityKey, cityData] of Object.entries(cities)) {
+          const cityName = cityKey.toLowerCase().trim();
+          
+          let isCityMatch = false;
+          if (qCity && cityName === qCity) {
+            if (!qCountry || normCName === qCountry) {
+              isCityMatch = true;
+            }
+          }
+          if (!isCityMatch && qText) {
+            if (qText === cityName || qText.includes(cityName)) {
+              if (qText.includes(cName) || qText.includes(normCName) || !qCountry || normCName === qCountry) {
+                isCityMatch = true;
+              }
+            }
+          }
+
+          if (isCityMatch) {
+            bestCityMatch = cityKey;
+            bestCityData = cityData;
+            matchedCountryName = countryKey;
+            
+            const areas = cityData.areas || {};
+            for (const [areaKey, areaData] of Object.entries(areas)) {
+              const areaName = (areaData.name || areaKey).toLowerCase().trim();
+              const areaNeighborhood = (areaData.neighborhood || '').toLowerCase().trim();
+              const aliases = (areaData.aliases || []).map(a => a.toLowerCase().trim());
+              
+              if (qArea && (areaName.includes(qArea) || areaNeighborhood.includes(qArea) || aliases.includes(qArea))) {
+                return { ...areaData, city: cityKey, country: countryKey, matchType: 'area' };
+              }
+              
+              if (qText && (qText === areaName || qText === areaNeighborhood || qText.includes(areaName) || qText.includes(areaNeighborhood) || aliases.includes(qText) || aliases.some(a => qText.includes(a)))) {
+                return { ...areaData, city: cityKey, country: countryKey, matchType: 'area' };
+              }
+              
+              if (qText) {
+                if (areaName.includes('connaught') && (qText.includes('connaught') || /\bcp\b/.test(qText))) {
+                  return { ...areaData, city: cityKey, country: countryKey, matchType: 'area' };
+                }
+                if (areaName.includes('hauz') && (qText.includes('hauz khas') || qText.includes('hauz kahs'))) {
+                  return { ...areaData, city: cityKey, country: countryKey, matchType: 'area' };
+                }
+              }
+            }
+          }
+        }
+      }
     }
-    
-    if (cleanDest.includes(nhLower) && cleanDest.includes(cityLower)) {
-      return data;
-    }
-    
-    // Check for Connaught Place or CP (special boundary case)
-    if (nhLower.includes('connaught place') && (cleanDest.includes('connaught place') || /\bcp\b/.test(cleanDest))) {
-      return data;
-    }
-    
-    // Check for Hauz Khas / Hauz Khas Village / Hauz Kahs (handling user's typos like 'hauz kahs')
-    if (nhLower.includes('hauz khas')) {
-      if (cleanDest.includes('hauz khas') || cleanDest.includes('hauz kahs')) {
-        return data;
+  }
+
+  if (bestCityData) {
+    let allPlaces = [...(bestCityData.places || [])];
+    const areas = bestCityData.areas || {};
+    for (const areaData of Object.values(areas)) {
+      if (areaData.places && Array.isArray(areaData.places)) {
+        allPlaces.push(...areaData.places);
       }
     }
     
-    // Generic substring match if name is long enough
-    if (nameLower.length > 5 && cleanDest.includes(nameLower)) {
-      return data;
-    }
-    if (nhLower.length > 5 && cleanDest.includes(nhLower)) {
-      return data;
+    const seen = new Set();
+    allPlaces = allPlaces.filter(p => {
+      const k = p.name.toLowerCase().trim();
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+
+    return {
+      name: bestCityData.name || bestCityMatch,
+      city: bestCityMatch,
+      country: matchedCountryName,
+      places: allPlaces,
+      matchType: 'city'
+    };
+  }
+
+  if (qText) {
+    // Secondary pass: check areas by neighborhood name (exact or partial) and aliases
+    for (const [contKey, continent] of Object.entries(continents)) {
+      const countries = continent.countries || {};
+      for (const [countryKey, countryData] of Object.entries(countries)) {
+        const states = countryData.statesOrRegions || {};
+        for (const [stateKey, stateData] of Object.entries(states)) {
+          const cities = stateData.cities || {};
+          for (const [cityKey, cityData] of Object.entries(cities)) {
+            const areas = cityData.areas || {};
+            for (const [areaKey, areaData] of Object.entries(areas)) {
+              const areaName = (areaData.name || areaKey).toLowerCase().trim();
+              const areaNeighborhood = (areaData.neighborhood || '').toLowerCase().trim();
+              const aliases = (areaData.aliases || []).map(a => a.toLowerCase().trim());
+              // Bidirectional check: qText contains area OR area contains qText (for standalone neighborhood names)
+              const nameMatch = qText.includes(areaName) || areaName.includes(qText) ||
+                (areaNeighborhood && (qText === areaNeighborhood || qText.includes(areaNeighborhood) || areaNeighborhood.includes(qText)));
+              const aliasMatch = aliases.some(a => qText.includes(a) || a.includes(qText));
+              if (nameMatch || aliasMatch) {
+                return { ...areaData, city: cityKey, country: countryKey, matchType: 'area' };
+              }
+            }
+          }
+        }
+      }
     }
   }
+
   return null;
+}
+
+function findIndiaEncyclopediaEntry(destName) {
+  const resolved = resolveCityAndCountry(destName);
+  return findGlobalDestination({
+    country: resolved.country,
+    city: resolved.city,
+    area: resolved.area,
+    queryText: destName
+  });
 }
 
 
@@ -1017,18 +1336,6 @@ function matchDestinationInDb(destName) {
   return { matchedCity, matchedRegion };
 }
 
-function normalizeCountry(c) {
-  if (!c) return '';
-  const low = c.toLowerCase().trim();
-  if (low === 'usa' || low === 'united states' || low === 'united states of america' || low === 'u.s.a.' || low === 'u.s.') {
-    return 'united states';
-  }
-  if (low === 'uk' || low === 'united kingdom' || low === 'u.k.') {
-    return 'united kingdom';
-  }
-  return low;
-}
-
 function isKnownCountry(countryName) {
   if (!countryName) return false;
   const dbInstance = getKnownCitiesDb();
@@ -1207,9 +1514,17 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
   const safeInterests = Array.isArray(interests) && interests.length > 0 ? interests : ['landmarks', 'culture', 'nature', 'shopping', 'food', 'nightlife'];
   const activeInterest = safeInterests[0];
 
-  // Check if destination matches any India Travel Encyclopedia entries
-  const matchedEnc = findIndiaEncyclopediaEntry(destName);
+  // Check if destination matches any World Travel Encyclopedia entries
+  const resolvedForMock = resolveCityAndCountry(destName);
+  const matchedEnc = findGlobalDestination({
+    country: resolvedForMock.country,
+    city: resolvedForMock.city,
+    area: resolvedForMock.area,
+    queryText: destName
+  });
   if (matchedEnc) {
+    const areaLabel = matchedEnc.neighborhood || matchedEnc.name || destName;
+    const encCurr = (matchedEnc.places && matchedEnc.places[0] && matchedEnc.places[0].currency) ? matchedEnc.places[0].currency : curr;
     const places = matchedEnc.places || [];
     const attractions = places.filter(p => p.type === 'attraction');
     const cafes = places.filter(p => p.type === 'cafe');
@@ -1223,24 +1538,27 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
 
-      // Select specific places dynamically (rotate lists)
-      const att1 = attractions[i % attractions.length] || { name: `${matchedEnc.neighborhood} Landmark`, type: "attraction", approx_cost: 0, description: `Explore the beautiful areas around ${matchedEnc.neighborhood}.` };
-      const att2 = attractions[(i + 1) % attractions.length] || attractions[0] || { name: `${matchedEnc.neighborhood} Sight`, type: "attraction", approx_cost: 0, description: `Enjoy sightseeing in the historical locality of ${matchedEnc.neighborhood}.` };
-      const cafe1 = cafes[i % cafes.length] || { name: `Local Café in ${matchedEnc.neighborhood}`, type: "cafe", approx_cost: 200, description: `Relax and grab a beverage at a cozy café.` };
-      const mkt1 = markets[i % markets.length] || { name: `${matchedEnc.neighborhood} Market`, type: "market", approx_cost: 0, description: `Stroll through the local shops and boutique stores.` };
-      const rest1 = restaurants[i % restaurants.length] || { name: `Popular Restaurant in ${matchedEnc.neighborhood}`, type: "restaurant", approx_cost: 400, description: `Savor regional specialties at a highly recommended dining spot.` };
-      const bar1 = nightlife[i % nightlife.length] || { name: `Lounge bar in ${matchedEnc.neighborhood}`, type: "nightlife", approx_cost: 800, description: `Unwind at a popular night spot or bar with local atmosphere.` };
+      // Determine area label for descriptions and fallbacks
+      const areaForDesc = areaLabel;
 
-      // Build periods based on CP / Hauz Khas / Safdarjung templates if matching, else generic data-driven template
+      // Select specific places dynamically (rotate lists)
+      const att1 = attractions[i % attractions.length] || { name: `${areaLabel} Landmark`, type: "attraction", approx_cost: 0, description: `Explore the beautiful areas around ${areaLabel}.` };
+      const att2 = attractions[(i + 1) % attractions.length] || attractions[0] || { name: `${areaLabel} Sight`, type: "attraction", approx_cost: 0, description: `Enjoy sightseeing in ${areaLabel}.` };
+      const cafe1 = cafes[i % cafes.length] || { name: `Local Café in ${areaLabel}`, type: "cafe", approx_cost: 200, description: `Relax and grab a beverage at a cozy café.` };
+      const mkt1 = markets[i % markets.length] || { name: `${areaLabel} Market`, type: "market", approx_cost: 0, description: `Stroll through the local shops and boutique stores.` };
+      const rest1 = restaurants[i % restaurants.length] || { name: `Popular Restaurant in ${areaLabel}`, type: "restaurant", approx_cost: 400, description: `Savor regional specialties at a highly recommended dining spot.` };
+      const bar1 = nightlife[i % nightlife.length] || { name: `Lounge bar in ${areaLabel}`, type: "nightlife", approx_cost: 800, description: `Unwind at a popular night spot or bar with local atmosphere.` };
+
+      // Build periods based on neighborhood templates if matching, else generic data-driven template
       let title = '';
       let morning = {};
       let afternoon = {};
       let evening = {};
       let notes = [];
 
-      const isCP = matchedEnc.neighborhood.toLowerCase().includes('connaught');
-      const isHK = matchedEnc.neighborhood.toLowerCase().includes('hauz');
-      const isSJ = matchedEnc.neighborhood.toLowerCase().includes('safdarjung');
+      const isCP = areaLabel.toLowerCase().includes('connaught');
+      const isHK = areaLabel.toLowerCase().includes('hauz');
+      const isSJ = areaLabel.toLowerCase().includes('safdarjung');
 
       if (isCP) {
         title = `Explore Connaught Place - Day ${i + 1}`;
@@ -1248,9 +1566,9 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Visit ${att2.name} and explore ${mkt1.name}`,
           description: `Start your morning by visiting ${att2.name} to admire its unique historical architecture, followed by a walk through the lively stalls of ${mkt1.name}. Enjoy a traditional filter coffee or snack at ${cafe1.name}.`,
           places: [
-            { name: att2.name, type: att2.type, area: matchedEnc.neighborhood, approx_cost: att2.approx_cost },
-            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
-            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+            { name: att2.name, type: att2.type, area: areaLabel, approx_cost: att2.approx_cost },
+            { name: mkt1.name, type: mkt1.type, area: areaLabel, approx_cost: mkt1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: areaLabel, approx_cost: cafe1.approx_cost }
           ],
           notes: `Janpath Market is great for bargaining and buy local items.`
         };
@@ -1258,8 +1576,8 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Lunch at ${rest1.name} and shopping in CP Inner Circle`,
           description: `Have a delicious lunch at the iconic ${rest1.name} in Connaught Place. Spend the afternoon exploring the circular streets and shopping colonnades, visiting ${att1.name} at the center of the hub.`,
           places: [
-            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost },
-            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost }
+            { name: rest1.name, type: rest1.type, area: areaLabel, approx_cost: rest1.approx_cost },
+            { name: att1.name, type: att1.type, area: areaLabel, approx_cost: att1.approx_cost }
           ],
           notes: `Rajiv Chowk metro station is the central hub here.`
         };
@@ -1267,7 +1585,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Evening drinks at ${bar1.name} overlooking CP`,
           description: `As dusk falls, head to ${bar1.name} for drinks and dinner. Enjoy a fantastic view over CP and soak in the lively nightlife and cosmopolitan vibe.`,
           places: [
-            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+            { name: bar1.name, type: bar1.type, area: areaLabel, approx_cost: bar1.approx_cost }
           ],
           notes: `Advance reservations are recommended on weekends.`
         };
@@ -1278,8 +1596,8 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Morning walk at ${att1.name} and ${att2.name}`,
           description: `Begin your morning walking through the ancient 13th-century ruins of ${att1.name} next to the lake, then wander into the lush greenery of ${att2.name} to see the spotted deer in their natural habitat.`,
           places: [
-            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost },
-            { name: att2.name, type: att2.type, area: matchedEnc.neighborhood, approx_cost: att2.approx_cost }
+            { name: att1.name, type: att1.type, area: areaLabel, approx_cost: att1.approx_cost },
+            { name: att2.name, type: att2.type, area: areaLabel, approx_cost: att2.approx_cost }
           ],
           notes: `Early morning has the coolest weather for walking.`
         };
@@ -1287,8 +1605,8 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Boutique shopping and coffee at ${cafe1.name}`,
           description: `Explore the narrow lanes of Hauz Khas Village, browsing unique designer fashion shops at ${mkt1.name}. Take a rest and enjoy lunch or coffee at the cozy ${cafe1.name}.`,
           places: [
-            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
-            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+            { name: mkt1.name, type: mkt1.type, area: areaLabel, approx_cost: mkt1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: areaLabel, approx_cost: cafe1.approx_cost }
           ],
           notes: `Look for art galleries hidden in upper floors.`
         };
@@ -1296,8 +1614,8 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Dine at ${rest1.name} and nightlife at ${bar1.name}`,
           description: `Enjoy authentic dinner at ${rest1.name} with views of the fort. Spend the night experiencing the lively nightlife, music, and cocktail scene at ${bar1.name} in Hauz Khas.`,
           places: [
-            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost },
-            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+            { name: rest1.name, type: rest1.type, area: areaLabel, approx_cost: rest1.approx_cost },
+            { name: bar1.name, type: bar1.type, area: areaLabel, approx_cost: bar1.approx_cost }
           ],
           notes: `Cabs can be boarded right outside the village gate.`
         };
@@ -1308,7 +1626,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Visit the majestic ${att1.name}`,
           description: `Start your day by visiting the famous ${att1.name} to admire its sandstone and marble Mughal architecture. Walk through the quiet gardens and enjoy the serene morning breeze.`,
           places: [
-            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost }
+            { name: att1.name, type: att1.type, area: areaLabel, approx_cost: att1.approx_cost }
           ],
           notes: `Carry camera for beautiful monument pictures.`
         };
@@ -1316,9 +1634,9 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Lunch at ${rest1.name} and SDA Market stroll`,
           description: `For lunch, head over to ${rest1.name} to enjoy delicious spicy North Indian curries. Spend your afternoon wandering through ${mkt1.name} and grab a special dessert at ${cafe1.name}.`,
           places: [
-            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost },
-            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
-            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+            { name: rest1.name, type: rest1.type, area: areaLabel, approx_cost: rest1.approx_cost },
+            { name: mkt1.name, type: mkt1.type, area: areaLabel, approx_cost: mkt1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: areaLabel, approx_cost: cafe1.approx_cost }
           ],
           notes: `SDA market is a popular student hub with lively vibes.`
         };
@@ -1326,38 +1644,38 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
           title: `Live music at ${bar1.name} in Safdarjung`,
           description: `Spend your evening experiencing outstanding live music performances and cocktails at ${bar1.name}. Enjoy the cozy speakeasy ambiance and premium dining menu.`,
           places: [
-            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+            { name: bar1.name, type: bar1.type, area: areaLabel, approx_cost: bar1.approx_cost }
           ],
           notes: `Booking a table in advance is highly recommended.`
         };
         notes = [`Safdarjung area features a mix of quiet residential lanes and hip markets.`, `Public transport is easily accessible near SDA.`];
       } else {
-        // Generic but DATA-DRIVEN template using matchedEnc data for any other area (Safdarjung, Bandra, Jaipur Old City, etc.)
-        title = `Explore ${matchedEnc.name} - Day ${i + 1}`;
+        // Generic but DATA-DRIVEN template using world encyclopedia data for any matched area/city (Paris, Tokyo, NYC, Bandra, Jaipur Old City, etc.)
+        title = `Explore ${matchedEnc.name || areaLabel} - Day ${i + 1}`;
         morning = {
           title: `Morning exploration of ${att1.name}`,
           description: `Start your day by visiting the famous ${att1.name} to take photos and explore the site. Head over to ${cafe1.name} for breakfast or local specialty coffee.`,
           places: [
-            { name: att1.name, type: att1.type, area: matchedEnc.neighborhood, approx_cost: att1.approx_cost },
-            { name: cafe1.name, type: cafe1.type, area: matchedEnc.neighborhood, approx_cost: cafe1.approx_cost }
+            { name: att1.name, type: att1.type, area: areaLabel, approx_cost: att1.approx_cost },
+            { name: cafe1.name, type: cafe1.type, area: areaLabel, approx_cost: cafe1.approx_cost }
           ],
           notes: `Check entry rules and fees before visiting.`
         };
         afternoon = {
-          title: `Shopping walk through ${mkt1.name} and lunch`,
+          title: `Shopping walk through ${mkt1.name} and lunch at ${rest1.name}`,
           description: `Spend your afternoon exploring the local culture and shopping lanes of ${mkt1.name}. For lunch, dine at ${rest1.name} and try authentic local recipes.`,
           places: [
-            { name: mkt1.name, type: mkt1.type, area: matchedEnc.neighborhood, approx_cost: mkt1.approx_cost },
-            { name: rest1.name, type: rest1.type, area: matchedEnc.neighborhood, approx_cost: rest1.approx_cost }
+            { name: mkt1.name, type: mkt1.type, area: areaLabel, approx_cost: mkt1.approx_cost },
+            { name: rest1.name, type: rest1.type, area: areaLabel, approx_cost: rest1.approx_cost }
           ],
-          notes: `Bargaining is common in these local markets.`
+          notes: `Bargaining may be common in local markets.`
         };
         evening = {
           title: `Evening leisure at ${att2.name} and nightlife at ${bar1.name}`,
           description: `Stroll through the scenic area of ${att2.name} as the weather cools down. Later, enjoy dinner and drinks at the popular local venue ${bar1.name}.`,
           places: [
-            { name: att2.name, type: att2.type, area: matchedEnc.neighborhood, approx_cost: att2.approx_cost },
-            { name: bar1.name, type: bar1.type, area: matchedEnc.neighborhood, approx_cost: bar1.approx_cost }
+            { name: att2.name, type: att2.type, area: areaLabel, approx_cost: att2.approx_cost },
+            { name: bar1.name, type: bar1.type, area: areaLabel, approx_cost: bar1.approx_cost }
           ],
           notes: `Reserve tables in advance on weekends.`
         };
@@ -1376,31 +1694,33 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
       });
     }
 
+    const encCostTotal = dayByDayPlan.reduce((sum, d) => {
+        const mCost = (d.morning.places || []).reduce((s, p) => s + (p.approx_cost || 0), 0);
+        const aCost = (d.afternoon.places || []).reduce((s, p) => s + (p.approx_cost || 0), 0);
+        const eCost = (d.evening.places || []).reduce((s, p) => s + (p.approx_cost || 0), 0);
+        return sum + mCost + aCost + eCost;
+      }, 0);
+
     const rawMock = {
       tripSummary: {
-        destination: matchedEnc.name,
+        destination: matchedEnc.name || areaLabel,
         totalDays: totalDays,
         travelStyle: budgetTier,
         estimatedTotalCost: {
-          amount: dayByDayPlan.reduce((sum, d) => {
-            const mCost = d.morning.places.reduce((s, p) => s + p.approx_cost, 0);
-            const aCost = d.afternoon.places.reduce((s, p) => s + p.approx_cost, 0);
-            const eCost = d.evening.places.reduce((s, p) => s + p.approx_cost, 0);
-            return sum + mCost + aCost + eCost;
-          }, 0),
-          currency: curr
+          amount: encCostTotal || totalBudget,
+          currency: encCurr
         },
-        bestTimeAdvice: "Best visited during October to March when the weather is pleasant."
+        bestTimeAdvice: "Best visited during the shoulder season for pleasant weather and fewer crowds."
       },
       howToReach: {
         recommendedMode: "local transit",
-        summary: "Take metro, auto-rickshaw, or app-based cab directly to the area.",
+        summary: `Take local transit directly to ${areaLabel}.`,
         nearestStartTerminal: "Local station",
-        nearestEndTerminal: `${matchedEnc.neighborhood}`,
-        details: `Reaching ${matchedEnc.neighborhood} is very easy via the city's metro network or using app-based taxi options depending on your location.`,
+        nearestEndTerminal: `${areaLabel}`,
+        details: `Reaching ${areaLabel} is easy via the city's local metro, bus, or taxi network depending on your starting location.`,
         estimatedCost: {
-          amount: 150,
-          currency: curr
+          amount: Math.round(150 * (INR_TO_CURRENCY[encCurr] || 1)),
+          currency: encCurr
         }
       },
       dayByDayPlan,
@@ -1466,7 +1786,6 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
       let afternoonDesc = '';
       let eveningDesc = '';
 
-      // Replaced banned/generic templates: "self-guided walking tour", "central public market", "waterfront promenade"
       if (budgetTier === 'low') {
         morningDesc = `Begin the morning with an exploratory walk around ${city.landmarks[lmIdx1]} and wandering through the ${city.neighborhoods[nhIdx1]} neighborhood. Visit the free-entry cultural site of ${city.culture[cultIdx]}.`;
         afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for budget-friendly local market shopping. For lunch, sample local street eats or taste ${city.food[foodIdx]} at an affordable neighborhood diner.`;
@@ -1495,15 +1814,27 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
         title: `Explore ${city.name} - Day ${i + 1}`,
         theme: activeInterest.toUpperCase(),
         morning: {
+          title: `Explore ${city.landmarks[lmIdx1]}`,
           description: morningDesc,
+          places: [
+            { name: city.landmarks[lmIdx1], type: 'attraction', area: city.neighborhoods[nhIdx1] || city.name, approx_cost: 0 }
+          ],
           estimatedCost: { amount: Math.round(avgDaily * 0.3), currency: curr }
         },
         afternoon: {
+          title: `Lunch and Shopping in ${city.neighborhoods[nhIdx1]}`,
           description: afternoonDesc,
+          places: [
+            { name: city.shopping[shopIdx], type: 'market', area: city.neighborhoods[nhIdx1] || city.name, approx_cost: 0 }
+          ],
           estimatedCost: { amount: Math.round(avgDaily * 0.3), currency: curr }
         },
         evening: {
+          title: `Evening ${city.activities[actIdx]}`,
           description: eveningDesc,
+          places: [
+            { name: city.activities[actIdx], type: 'attraction', area: city.neighborhoods[nhIdx2] || city.name, approx_cost: 0 }
+          ],
           estimatedCost: { amount: Math.round(avgDaily * 0.4), currency: curr }
         },
         notes: [
@@ -1538,7 +1869,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
         },
         {
           morning: `Join a guided walking tour through ${destName}'s oldest neighborhood to see the classic architecture and learn about local heritage.`,
-          afternoon: `Browse the artisan workshops and local craft boutiques in the creative arts district of ${destName}. Have lunch at a cozy courtyard cafe.`,
+          afternoon: `Browse the artisan workshops and local craft boutiques in the creative arts district of ${destName}. Have a cozy courtyard cafe lunch.`,
           evening: `Experience the local evening vibe at a popular street food lane or central square in ${destName}, tasting authentic local street eats.`
         }
       ];
@@ -1560,10 +1891,6 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
 
       const plan = syntheticPlans[i % syntheticPlans.length];
       const notesPool = [
-        `Use authorized local transport or walk to get the most authentic feel of ${destName}.`,
-        `Keep small changes in local currency handy for street shopping in ${destName}.`,
-        `Dress respectfully when visiting religious and heritage sites in ${destName}.`,
-        `Ask locals for food recommendations; they know the best hidden culinary spots in ${destName}.`,
         `Start your days early in ${destName} to beat the mid-day crowd at popular spots.`,
         `Keep a water bottle and comfortable walking shoes ready for exploring ${destName}.`
       ];
@@ -1574,15 +1901,21 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
         title: `Discover ${destName} - Day ${i + 1}`,
         theme: activeInterest.toUpperCase(),
         morning: {
+          title: `Morning in ${destName}`,
           description: plan.morning,
+          places: [{ name: `Local Sights in ${destName}`, type: 'attraction', area: destName, approx_cost: 0 }],
           estimatedCost: { amount: Math.round(avgDaily * 0.3), currency: curr }
         },
         afternoon: {
+          title: `Afternoon in ${destName}`,
           description: plan.afternoon,
+          places: [{ name: `Local Market in ${destName}`, type: 'market', area: destName, approx_cost: 0 }],
           estimatedCost: { amount: Math.round(avgDaily * 0.3), currency: curr }
         },
         evening: {
+          title: `Evening in ${destName}`,
           description: plan.evening,
+          places: [{ name: `Dining in ${destName}`, type: 'restaurant', area: destName, approx_cost: 0 }],
           estimatedCost: { amount: Math.round(avgDaily * 0.4), currency: curr }
         },
         notes: [
@@ -1809,28 +2142,39 @@ async function generateTrip(req, res) {
       simplifiedInstruction = "\n- SIMPLIFIED MODE ACTIVATED: Keep all descriptions under 10 words. Propose simple, well-known locations only. Minimize nesting complexity.";
     }
 
-    // --- Resolve destination against India Travel Encyclopedia or fallback database ---
+    // --- Resolve destination against World Travel Encyclopedia or fallback known-cities database ---
     let destinationDataBlock = '';
-    const matchedEnc = findIndiaEncyclopediaEntry(preprocessed.destination);
+    let isUnlistedCity = false;
+
+    // 1. Try world travel encyclopedia first (curated data with specific venues)
+    const resolvedForPrompt = resolveCityAndCountry(preprocessed.destination);
+    const matchedEnc = findGlobalDestination({
+      country: resolvedForPrompt.country,
+      city: resolvedForPrompt.city,
+      area: resolvedForPrompt.area,
+      queryText: preprocessed.destination
+    });
 
     if (matchedEnc) {
-      destinationDataBlock = `\n\nINDIA TRAVEL ENCYCLOPEDIA CONTEXT (Destination: ${matchedEnc.name}):
-You are planning a trip to a highly specific neighborhood/area of India: "${matchedEnc.name}".
-You MUST construct the itinerary using the following real, physically existing venues, attractions, cafes, markets, and nightlife spots from our verified India database. Do NOT invent other names.
+      const encCurrency = (matchedEnc.places && matchedEnc.places[0] && matchedEnc.places[0].currency) ? matchedEnc.places[0].currency : displayCurrency;
+      destinationDataBlock = `\n\nWORLD TRAVEL ENCYCLOPEDIA CONTEXT (Destination: ${matchedEnc.name || preprocessed.destination}):
+You are planning a trip to a specific neighborhood/area: "${matchedEnc.name || preprocessed.destination}" in ${matchedEnc.country || resolvedForPrompt.country || 'the destination country'}.
+You MUST construct the itinerary using the following real, physically existing venues, attractions, cafes, markets, and nightlife spots from our verified global database. Do NOT invent other names.
 
 Available real venues in this locality:
 `;
-      matchedEnc.places.forEach(place => {
-        destinationDataBlock += `- Name: "${place.name}" | Type: "${place.type}" | Typical Cost: ${place.approx_cost} INR | Description: ${place.description}\n`;
+      (matchedEnc.places || []).forEach(place => {
+        destinationDataBlock += `- Name: "${place.name}" | Type: "${place.type}" | Typical Cost: ${place.approx_cost} ${place.currency || encCurrency} | Description: ${place.description}\n`;
       });
-      
+
       destinationDataBlock += `\nCRITICAL AI INSTRUCTIONS FOR THIS MATCHED AREA:
-1. You MUST use these real venues and names. Do not invent any generic landmarks or places.
+1. You MUST use these real venues and names as the primary source. Do not invent any generic landmarks or places.
 2. In each time slot (morning, afternoon, evening), mention at least one of the real place names listed above.
 3. Keep timings and spatial routing highly localized to this neighborhood to avoid unnecessary travel across the city.
+4. Use the local currency (${encCurrency}) for all cost estimates in places[].approx_cost.
 `;
     } else {
-      // Build destination data block for Gemini prompt using standard matchDestinationInDb
+      // 2. Try known-cities database as secondary source
       const { matchedCity: matchedDbCity, matchedRegion: matchedDbRegion } = matchDestinationInDb(preprocessed.destination);
       if (matchedDbRegion) {
         const dbInstance = getKnownCitiesDb();
@@ -1862,10 +2206,21 @@ Available real venues in this locality:
         destinationDataBlock += `Real Shopping: ${(matchedDbCity.shopping || []).join(', ')}\n`;
         destinationDataBlock += `Real Culture: ${(matchedDbCity.culture || []).join(', ')}\n`;
         destinationDataBlock += `\nCRITICAL: Use the real place names listed above as your primary guide, but you are highly encouraged to supplement them with other real-world, physically existing landmarks, restaurants, cultural spots, and markets in this city to create a highly detailed, immersive itinerary. Do not invent or make up any place names under any circumstances.`;
+      } else {
+        // 3. Unlisted city — rely entirely on LLM's own world knowledge
+        isUnlistedCity = true;
+        destinationDataBlock = `\n\nLLM WORLD KNOWLEDGE MODE — Destination "${preprocessed.destination}" is not in our curated database.
+You MUST use your own knowledge of real-world places to construct a rich, specific itinerary for this destination.
+CRITICAL RULES:
+- Only use real, verifiable venue names, landmarks, streets, restaurants, and neighborhoods that you are confident exist.
+- If you are not certain a place exists, describe the category (e.g. "visit a local fish market") instead of inventing a specific name.
+- Do NOT use generic fillers like "central public market", "main waterfront promenade", or "self-guided walking tour".
+- Mention specific street names, famous landmarks, and authentic local dishes wherever possible.
+`;
       }
     }
 
-    const systemPrompt = `You are a professional India travel planner and local guide who creates highly detailed, realistic, destination-aware itineraries that feel like a personal travel coach.
+    const systemPrompt = `You are a professional global travel planner and local expert who creates highly detailed, realistic, destination-aware itineraries that feel like a premium personal travel coach for any destination in the world.
 
 Your goals:
 - Always return a complete, day‑by‑day itinerary.
@@ -1941,7 +2296,7 @@ JSON structure:
 }
 
 Style & Constraint Rules:
-- PROFESSIONAL INDIA TRAVEL PLANNER ROLE: Act as an expert local planner. Write in a helpful, professional tone. Avoid any emojis in the final stored data (icons will be handled in the UI).
+- PROFESSIONAL GLOBAL TRAVEL PLANNER ROLE: Act as an expert local travel planner and cultural guide for any country. Write in a helpful, professional tone. Avoid any emojis in the final stored data (icons will be handled in the UI).
 - LOCALIZED & EFFICIENT ROUTING: Cluster activities by neighborhood to prevent unnecessary cross-city travel. Keep timings realistic, ensuring only 2-4 key activities/places are planned per day. Add short justifications in descriptions explaining why a place is suitable for a particular time of day (e.g. cooler in morning, lively vibe in evening).
 - STRICT AVOIDANCE OF GENERIC PLACEHOLDERS: Do NOT invent generic filler names like "central public market", "main waterfront promenade", "self-guided walking tour through the historic streets of [area]" under any circumstances. Mention real venue names, landmarks, and streets. Every morning, afternoon, and evening slot must reference at least one concrete place.
 - GEOLOCATION TRANSPORT RECOMMENDATION: The user is starting their trip from ${startCity || 'their home city'}, ${startCountry || 'their home country'} (Coordinates: ${userLat || 'unknown'}, ${userLng || 'unknown'}). You MUST recommend the best travel mode to reach the destination based on starting location, distance, and budget tier (${budgetTier}) using this 3-level rule set:
@@ -1949,7 +2304,7 @@ Style & Constraint Rules:
   2) Inter-city, same country trips (startCountry == destCountry AND startCity != destCity): Recommend bus, train, or flight. Distance guidelines: Short (< 300-400 km) -> bus or train, avoid flights. Medium (400-800 km) -> low budget uses train (sleeper/AC) or overnight bus; high budget uses flight (optional). Long (> 800-1000 km) -> high/medium budget uses flight; low budget uses train (sleeper) or bus. Budget: low budget -> prefer train/bus (flights only as optional/more expensive); mid budget -> AC trains or budget flights; high budget -> flights for long distances.
   3) International trips (startCountry != destCountry): Flights are the primary mode. Suggest direct or 1-stop flights from nearest international airport of startCity to destination airport. After the flight, recommend local transfer modes at destination (airport train/metro/bus/taxi).
   * Populate the "howToReach" block with recommendedMode, summary (1-2 lines), details (3-5 sentences), nearestStartTerminal, nearestEndTerminal, and estimatedCost.
-  * For matched encyclopedia entries in India, recommend standard local travel modes.
+  * For matched encyclopedia entries (India, Japan, France, USA, etc.), recommend standard local travel modes appropriate to that city.
 - HIGH DETAIL IMMERSIVE EXPERIENCE: Provide rich, detailed, and highly descriptive plans for each time slot (morning, afternoon, evening). Each description block MUST be at least 30 to 60 words. Do not use short summaries; describe the sights, history, atmosphere, specific dishes to order, and scenic spots to make the user feel like they have a premium local travel guide.
 - GLOBAL PLACE DETECTION: Detect what the destination is and structure the itinerary accordingly.
 - BALANCED DEFAULT (NO SPECIFIC INTERESTS): If no specific interests or vibes are chosen, you MUST automatically output a "Best of the Destination" itinerary. Each day must include a balanced mix of:
@@ -2069,6 +2424,14 @@ Based on all this, generate the best possible trip itinerary following the JSON 
     }
     
     if (isGeneric) {
+      if (isUnlistedCity) {
+        // For completely unlisted cities, if LLM keeps returning generic output after retry,
+        // return an honest, short fallback instead of fake data
+        console.warn(`[AI Guardrails] Retried response for unlisted city "${preprocessed.destination}" is still generic. Returning honest fallback.`);
+        const honestFallback = generateMockItinerary(preprocessed.destination, parsedBudget, activeCurrency, daysCount, Array.isArray(interests) ? interests : [], startDate, startCity, startCountry, userLat, userLng, resolvedDestCity, resolvedDestCountry, destLat, destLng);
+        const freshUser2 = activeUser ? await db.users.findById(activeUser.id) : null;
+        return res.json({ itinerary: honestFallback, user: authController.formatUserProfile(freshUser2), engineVersion: "itinerary-v2-global-encyclopedia", notice: "This destination is not yet in our curated database. The itinerary was generated using general travel knowledge." });
+      }
       console.warn(`[AI Guardrails] Retried response is still generic. Falling back to deterministic mock generator.`);
       return await fallbackResponse();
     }
@@ -2399,5 +2762,7 @@ module.exports = {
   saveTrip,
   deleteTrip,
   downloadTripPDF,
-  generateMockItinerary
+  generateMockItinerary,
+  // Public aliases for testing
+  findGlobalDestinationPublic: (queryText) => findGlobalDestination({ queryText })
 };
