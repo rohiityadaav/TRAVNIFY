@@ -22,7 +22,7 @@ function setRefreshTokenCookie(res, refreshToken, maxAge = 30 * 24 * 60 * 60 * 1
 }
 
 // Helper to check and reset rolling 24h credits window if expired
-function checkAndResetCreditsWindow(user) {
+async function checkAndResetCreditsWindow(user) {
   if (!user) return null;
   if (user.isPremium) return user;
   
@@ -34,7 +34,7 @@ function checkAndResetCreditsWindow(user) {
     
     if (remainingMs <= 0) {
       console.log(`[DEBUG Auth] Rolling 24h credit window expired for user ${user.id}. Resetting dailyCreditsUsed to 0.`);
-      return db.users.update(user.id, {
+      return await db.users.update(user.id, {
         dailyCreditsUsed: 0,
         creditsWindowStartedAt: null
       });
@@ -129,7 +129,7 @@ async function signup(req, res) {
     }
 
     // Check if user already exists
-    const existingUser = db.users.findByEmail(email);
+    const existingUser = await db.users.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: 'Email is already registered.' });
     }
@@ -168,7 +168,7 @@ async function signup(req, res) {
     };
 
     // Save to DB
-    const savedUser = db.users.create(newUser);
+    const savedUser = await db.users.create(newUser);
 
     // Send verification email
     sendVerificationEmail(savedUser.email, verificationToken);
@@ -181,7 +181,7 @@ async function signup(req, res) {
     const refreshTokenExpiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
 
     // Save refresh token to user DB record
-    db.users.update(savedUser.id, {
+    await db.users.update(savedUser.id, {
       refreshToken,
       refreshTokenExpiresAt
     });
@@ -236,7 +236,7 @@ function formatUserProfile(user) {
 // Get Profile Info
 async function getMe(req, res) {
   try {
-    const user = db.users.findById(req.userId);
+    const user = await db.users.findById(req.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -248,10 +248,10 @@ async function getMe(req, res) {
       updates.currency = activeUser.currency || getCurrencyForCountry(updates.country);
     }
     if (Object.keys(updates).length > 0) {
-      activeUser = db.users.update(activeUser.id, updates);
+      activeUser = await db.users.update(activeUser.id, updates);
     }
     
-    activeUser = checkAndResetCreditsWindow(activeUser);
+    activeUser = await checkAndResetCreditsWindow(activeUser);
 
     return res.json(formatUserProfile(activeUser));
   } catch (error) {
@@ -261,7 +261,7 @@ async function getMe(req, res) {
 }
 
 // Authentication Middleware — verifies JWT, attaches req.user and req.userId
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -272,7 +272,7 @@ function authenticateToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);
     // Look up user to get latest role from DB (roles can change without re-login)
-    const dbUser = db.users.findById(decoded.userId);
+    const dbUser = await db.users.findById(decoded.userId);
     if (!dbUser) {
       return res.status(401).json({ error: 'Authentication required' });
     }
@@ -302,7 +302,7 @@ function requireRole(...roles) {
 }
 
 // Optional Authentication Middleware (populates req.userId/req.user if token present, does not fail if not)
-function optionalAuthenticateToken(req, res, next) {
+async function optionalAuthenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -312,7 +312,7 @@ function optionalAuthenticateToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, config.JWT_SECRET);
-    const dbUser = db.users.findById(decoded.userId);
+    const dbUser = await db.users.findById(decoded.userId);
     if (dbUser) {
       req.userId = dbUser.id;
       req.user = { id: dbUser.id, email: dbUser.email, role: dbUser.role || 'user' };
@@ -338,7 +338,7 @@ async function firebaseSync(req, res) {
     const userPreferredCurrency = preferredCurrency || userCurrency || 'INR';
 
     // Check if user already exists in local database
-    let user = db.users.findByEmail(email);
+    let user = await db.users.findByEmail(email);
     
     // Determine verification status: if sent, use it; otherwise default to false for new users
     const isVerified = emailVerified !== undefined ? emailVerified : false;
@@ -368,14 +368,14 @@ async function firebaseSync(req, res) {
         emailVerificationToken: isVerified ? '' : verificationToken,
         emailVerificationExpiresAt: isVerified ? 0 : verificationExpiry
       };
-      user = db.users.create(newUser);
+      user = await db.users.create(newUser);
 
       if (!isVerified) {
         // Send verification email
         sendVerificationEmail(user.email, verificationToken);
       }
     } else {
-      user = checkAndResetCreditsWindow(user);
+      user = await checkAndResetCreditsWindow(user);
       // Update country and currency if provided or if they are missing
       const updates = {};
       if (country && user.country !== country) {
@@ -401,7 +401,7 @@ async function firebaseSync(req, res) {
       }
 
       if (Object.keys(updates).length > 0) {
-        user = db.users.update(user.id, updates);
+        user = await db.users.update(user.id, updates);
       }
     }
 
@@ -413,7 +413,7 @@ async function firebaseSync(req, res) {
     const refreshTokenExpiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
 
     // Save refresh token to user DB record
-    db.users.update(user.id, {
+    await db.users.update(user.id, {
       refreshToken,
       refreshTokenExpiresAt
     });
@@ -542,7 +542,8 @@ async function verifyEmail(req, res) {
       return res.status(400).send(renderStatusPage(false, 'Missing verification token.'));
     }
 
-    const user = db.users.findAll().find(u => u.emailVerificationToken === token);
+    const allUsers = await db.users.findAll();
+    const user = allUsers.find(u => u.emailVerificationToken === token);
     
     if (!user) {
       return res.status(400).send(renderStatusPage(false, 'Invalid verification token. The link may be broken or already used.'));
@@ -552,7 +553,7 @@ async function verifyEmail(req, res) {
       return res.status(400).send(renderStatusPage(false, 'Verification link has expired. Please log in and request a new verification link.'));
     }
 
-    db.users.update(user.id, {
+    await db.users.update(user.id, {
       emailVerified: true,
       emailVerificationToken: '',
       emailVerificationExpiresAt: 0
@@ -574,7 +575,7 @@ async function resendVerification(req, res) {
       return res.status(400).json({ error: 'Email is required.' });
     }
 
-    const user = db.users.findByEmail(email);
+    const user = await db.users.findByEmail(email);
 
     if (!user) {
       return res.status(200).json({ message: 'Verification email sent again. Please check your inbox.' });
@@ -587,7 +588,7 @@ async function resendVerification(req, res) {
     const token = crypto.randomBytes(32).toString('hex');
     const expiry = Date.now() + 24 * 60 * 60 * 1000;
 
-    db.users.update(user.id, {
+    await db.users.update(user.id, {
       emailVerificationToken: token,
       emailVerificationExpiresAt: expiry
     });
@@ -604,7 +605,7 @@ async function resendVerification(req, res) {
 // Update Profile Controller (PATCH /api/auth/profile)
 async function updateProfile(req, res) {
   try {
-    const user = db.users.findById(req.userId);
+    const user = await db.users.findById(req.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -622,7 +623,7 @@ async function updateProfile(req, res) {
       return res.status(400).json({ error: 'No valid fields to update.' });
     }
 
-    const updatedUser = db.users.update(user.id, updates);
+    const updatedUser = await db.users.update(user.id, updates);
     return res.json(formatUserProfile(updatedUser));
   } catch (error) {
     console.error('Update profile error:', error);
@@ -643,7 +644,8 @@ async function refresh(req, res) {
     }
 
     // Find user with matching refresh token
-    let user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
+    const allUsers = await db.users.findAll();
+    let user = allUsers.find(u => u.refreshToken === tokenFromCookie);
     if (!user) {
       // Clear cookie on mismatch
       res.cookie('refreshToken', '', {
@@ -655,12 +657,12 @@ async function refresh(req, res) {
       return res.status(401).json({ error: 'Invalid refresh token.' });
     }
 
-    user = checkAndResetCreditsWindow(user);
+    user = await checkAndResetCreditsWindow(user);
 
     // Check expiration
     if (user.refreshTokenExpiresAt && user.refreshTokenExpiresAt < Date.now()) {
       // Revoke token and clear cookie
-      db.users.update(user.id, { refreshToken: null, refreshTokenExpiresAt: 0 });
+      await db.users.update(user.id, { refreshToken: null, refreshTokenExpiresAt: 0 });
       res.cookie('refreshToken', '', {
         httpOnly: true,
         secure: true,
@@ -679,7 +681,7 @@ async function refresh(req, res) {
     const remainingMaxAge = Math.max(0, newRefreshTokenExpiresAt - Date.now());
 
     // Update DB
-    const updatedUser = db.users.update(user.id, {
+    const updatedUser = await db.users.update(user.id, {
       refreshToken: newRefreshToken,
       refreshTokenExpiresAt: newRefreshTokenExpiresAt
     });
@@ -706,10 +708,11 @@ async function logout(req, res) {
     }
     
     if (tokenFromCookie) {
-      const user = db.users.findAll().find(u => u.refreshToken === tokenFromCookie);
+      const allUsers = await db.users.findAll();
+      const user = allUsers.find(u => u.refreshToken === tokenFromCookie);
       if (user) {
         // Revoke token in DB
-        db.users.update(user.id, {
+        await db.users.update(user.id, {
           refreshToken: null,
           refreshTokenExpiresAt: 0
         });
@@ -738,7 +741,7 @@ async function logout(req, res) {
 // GET /api/admin/users — list all users (admin only)
 async function getAllUsers(req, res) {
   try {
-    const allUsers = db.users.findAll();
+    const allUsers = await db.users.findAll();
     const safeUsers = allUsers.map(u => ({
       id: u.id,
       name: u.name,
@@ -768,12 +771,12 @@ async function updateUserRole(req, res) {
       return res.status(400).json({ error: 'Invalid role. Must be "user" or "admin".' });
     }
 
-    const target = db.users.findById(id);
+    const target = await db.users.findById(id);
     if (!target) {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    const updated = db.users.update(id, { role });
+    const updated = await db.users.update(id, { role });
     return res.json({
       message: `Role updated to "${role}" for ${updated.email}`,
       user: { id: updated.id, email: updated.email, role: updated.role }
@@ -787,7 +790,7 @@ async function updateUserRole(req, res) {
 // GET /api/admin/stats — site-level statistics (admin only)
 async function getAdminStats(req, res) {
   try {
-    const allUsers = db.users.findAll();
+    const allUsers = await db.users.findAll();
     const allTrips = db.trips.findAll();
     const admins = allUsers.filter(u => u.role === 'admin');
     const premiumUsers = allUsers.filter(u => u.isPremium);

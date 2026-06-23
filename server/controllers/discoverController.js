@@ -23,7 +23,7 @@ if (config.GEMINI_API_KEY) {
 
 // POST /api/discover/hidden-gems
 exports.getHiddenGems = async (req, res) => {
-  const user = req.userId ? db.users.findById(req.userId) : null;
+  const user = req.userId ? await db.users.findById(req.userId) : null;
   const query = req.body.query || req.query.query;
 
   console.log(`[POST /api/discover/hidden-gems] Received search query: "${query}"`);
@@ -232,7 +232,7 @@ exports.getBestForActivity = async (req, res) => {
   // Heuristic check for nonsense query
   if (isLikelyNonsense(query)) {
     console.log(`[POST /api/discover/best-for-activity] Nonsense query detected: "${query}". Returning empty array.`);
-    const activeUser = req.userId ? db.users.findById(req.userId) : null;
+    const activeUser = req.userId ? await db.users.findById(req.userId) : null;
     return res.json({
       places: [],
       user: authController.formatUserProfile(activeUser)
@@ -240,12 +240,12 @@ exports.getBestForActivity = async (req, res) => {
   }
 
   // Consume credit before processing
-  let activeUser = req.userId ? db.users.findById(req.userId) : null;
+  let activeUser = req.userId ? await db.users.findById(req.userId) : null;
   if (req.userId) {
-    const creditStatus = db.users.consumeCredit(req.userId);
+    const creditStatus = await db.users.consumeCredit(req.userId);
     if (!creditStatus.allowed) {
       console.log(`[POST /api/discover/best-for-activity] User credits exhausted for ID ${req.userId}`);
-      const freshUser = db.users.findById(req.userId);
+      const freshUser = await db.users.findById(req.userId);
       return res.status(403).json({
         code: 'FREE_LIMIT_REACHED',
         error: 'You have used your 5 free credits for today. Upgrade to Premium for unlimited AI planning and explorer features!',
@@ -253,7 +253,7 @@ exports.getBestForActivity = async (req, res) => {
       });
     }
     // Refresh user state after consumption
-    activeUser = db.users.findById(req.userId);
+    activeUser = await db.users.findById(req.userId);
   }
 
   const preferredCurrency = req.body.preferredCurrency || (activeUser && activeUser.preferredCurrency) || 'INR';

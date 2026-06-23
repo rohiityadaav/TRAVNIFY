@@ -75,7 +75,7 @@ async function createOrder(req, res) {
     if (planId === 'premium_monthly') planId = 'premiumMonthly';
     if (planId === 'premium_yearly') planId = 'premiumYearly';
 
-    const user = db.users.findById(req.userId);
+    const user = await db.users.findById(req.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -166,7 +166,7 @@ async function verifyPayment(req, res) {
       return res.status(400).json({ error: 'Order ID is required.' });
     }
 
-    const user = db.users.findById(req.userId);
+    const user = await db.users.findById(req.userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
@@ -199,7 +199,7 @@ async function verifyPayment(req, res) {
       });
 
       // Unlock Premium features for local profile
-      const updatedUser = db.users.update(user.id, {
+      const updatedUser = await db.users.update(user.id, {
         isPremium: true,
         subscriptionType: billingPeriod || 'monthly',
         subscriptionStart: startDate.toISOString(),
@@ -261,7 +261,7 @@ async function verifyPayment(req, res) {
     });
 
     // Update User premium privileges
-    const updatedUser = db.users.update(user.id, {
+    const updatedUser = await db.users.update(user.id, {
       isPremium: true,
       subscriptionType: billingPeriod || 'monthly',
       subscriptionStart: startDate.toISOString(),

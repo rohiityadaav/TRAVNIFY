@@ -1503,7 +1503,7 @@ async function generateTrip(req, res) {
     let activeUser = null;
     let isPremium = false;
     if (req.userId) {
-      activeUser = db.users.findById(req.userId);
+      activeUser = await db.users.findById(req.userId);
       if (activeUser && activeUser.isPremium) {
         isPremium = true;
       }
@@ -1521,7 +1521,7 @@ async function generateTrip(req, res) {
 
     // Check user limit if logged in (free user)
     if (activeUser && !isPremium) {
-      const creditStatus = db.users.consumeCredit(req.userId);
+      const creditStatus = await db.users.consumeCredit(req.userId);
       if (!creditStatus.allowed) {
         return res.status(403).json({
           code: 'FREE_LIMIT_REACHED',
@@ -1545,15 +1545,15 @@ async function generateTrip(req, res) {
       budgetTier = 'high';
     }
 
-    fallbackResponse = () => {
+    fallbackResponse = async () => {
       console.log('[AI Trip Generation] Fallback triggered. Generating server-side mock itinerary.');
       const safeInterests = Array.isArray(interests) ? interests : [];
       const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate, startCity, startCountry, userLat, userLng, resolvedDestCity, resolvedDestCountry, destLat, destLng);
       
       if (activeUser && !isPremium) {
-        db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
+        await db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
       }
-      const freshUser = activeUser ? db.users.findById(activeUser.id) : null;
+      const freshUser = activeUser ? await db.users.findById(activeUser.id) : null;
       return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
     };
 
@@ -1564,7 +1564,7 @@ async function generateTrip(req, res) {
 
     if (!genAI) {
       console.warn('[AI Service Warning] GEMINI_API_KEY is missing on server.');
-      return fallbackResponse();
+      return await fallbackResponse();
     }
 
     // Try primary model first, fallback to a higher-quota secondary model
@@ -1778,7 +1778,7 @@ Based on all this, generate the best possible trip itinerary following the JSON 
         console.log(`[AI LLM Raw Response (gemini-2.5-flash-lite fallback)]:\n${textResponse}`);
       } catch (fallbackError) {
         console.error(`[AI Trip Generation] Both models failed. Primary: ${primaryError.message}. Fallback: ${fallbackError.message}. Using mock itinerary.`);
-        return fallbackResponse();
+        return await fallbackResponse();
       }
     }
 
@@ -1816,7 +1816,7 @@ Please reformat the last answer into the required JSON schema only. Respond with
         parsedJson = JSON.parse(cleanText(reformatText));
       } catch (retryError) {
         console.error('[AI Trip Generation] Reformatting attempt failed or timed out. Falling back.', retryError.message);
-        return fallbackResponse();
+        return await fallbackResponse();
       }
     }
 
@@ -1832,21 +1832,21 @@ Please reformat the last answer into the required JSON schema only. Respond with
       destLng
     });
     if (!itinerary) {
-      return fallbackResponse();
+      return await fallbackResponse();
     }
 
     if (activeUser && !isPremium) {
-      db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
+      await db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
     }
 
     const duration = Date.now() - startTime;
     console.log(`[AI Trip Generation Success] Total endpoint latency: ${duration}ms`);
-    const freshUser = activeUser ? db.users.findById(activeUser.id) : null;
+    const freshUser = activeUser ? await db.users.findById(activeUser.id) : null;
     return res.json({ itinerary, user: authController.formatUserProfile(freshUser) });
 
   } catch (error) {
     console.error(`[AI Trip Generation Fatal Error] Error:`, error);
-    return fallbackResponse();
+    return await fallbackResponse();
   }
 }
 
@@ -1862,7 +1862,7 @@ async function refineTrip(req, res) {
     }
 
     // Only Premium users can use refinement
-    const activeUser = db.users.findById(req.userId);
+    const activeUser = await db.users.findById(req.userId);
     if (!activeUser || !activeUser.isPremium) {
       return res.status(403).json({ 
         code: 'PREMIUM_REQUIRED',
@@ -2064,7 +2064,7 @@ async function deleteTrip(req, res) {
 
 async function downloadTripPDF(req, res) {
   try {
-    const activeUser = db.users.findById(req.userId);
+    const activeUser = await db.users.findById(req.userId);
     if (!activeUser || !activeUser.isPremium) {
       return res.status(403).json({
         code: 'PREMIUM_REQUIRED',
