@@ -944,15 +944,15 @@ export default function App() {
         let eveningDesc = '';
 
         if (budgetTier === 'low') {
-          morningDesc = `Begin the morning with a self-guided walking tour exploring ${city.landmarks[lmIdx1]} and wandering through the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the free-entry cultural site of ${city.culture[cultIdx]}.`;
+          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and walking through the ${city.neighborhoods[nhIdx1]} neighborhood. Visit the free-entry cultural site of ${city.culture[cultIdx]}.`;
           afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for budget-friendly window shopping. For lunch, sample local street eats or taste ${city.food[foodIdx]} at an affordable neighborhood diner.`;
-          eveningDesc = `Enjoy a relaxed evening activity of ${city.activities[actIdx]} (utilizing cheap local transport). Afterwards, dine at a pocket-friendly cafe in the lively ${city.neighborhoods[nhIdx2]} district.`;
+          eveningDesc = `Enjoy a relaxed evening activity of ${city.activities[actIdx]} (utilizing cheap local transport). Afterwards, dine at a local cafe in the lively ${city.neighborhoods[nhIdx2]} district.`;
         } else if (budgetTier === 'high') {
-          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} with a private guide, followed by a personalized tour of the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the premier cultural exhibition at ${city.culture[cultIdx]}.`;
+          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} with a private guide, followed by a personalized tour of the ${city.neighborhoods[nhIdx1]} neighborhood. Visit the premier cultural exhibition at ${city.culture[cultIdx]}.`;
           afternoonDesc = `Head to the upscale boutiques in the ${city.shopping[shopIdx]} area for premium shopping. Enjoy a gourmet lunch featuring refined preparations of ${city.food[foodIdx]} at a highly-acclaimed signature restaurant.`;
           eveningDesc = `Indulge in a premium evening experience of ${city.activities[actIdx]} via private transport. Afterwards, unwind with a multi-course dinner at a top-tier restaurant in the exclusive ${city.neighborhoods[nhIdx2]} district.`;
         } else {
-          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and taking a guided stroll around the historic ${city.neighborhoods[nhIdx1]} neighborhood. Visit the nearby cultural site of ${city.culture[cultIdx]}.`;
+          morningDesc = `Begin the morning exploring ${city.landmarks[lmIdx1]} and walking through the ${city.neighborhoods[nhIdx1]} neighborhood. Visit the nearby cultural site of ${city.culture[cultIdx]}.`;
           afternoonDesc = `Head to the vibrant ${city.shopping[shopIdx]} area for shopping and sightseeing. Have a delicious local lunch tasting ${city.food[foodIdx]} at a well-rated local diner.`;
           eveningDesc = `Enjoy the evening activity of ${city.activities[actIdx]}. Afterwards, relax and dine at a cozy restaurant in the lively ${city.neighborhoods[nhIdx2]} district.`;
         }
@@ -991,9 +991,9 @@ export default function App() {
         // Unknown destination: generic but realistic descriptions
         const lowBudgetPlans = [
           {
-            morning: `Take a self-guided walking tour through the historic streets of ${destName}, exploring the main public plazas and taking photos from a free scenic city overlook.`,
-            afternoon: `Wander through the bustling central public market of ${destName} to browse budget-friendly local stalls. Enjoy a budget lunch at a popular street food joint or local eatery.`,
-            evening: `Take a relaxing evening stroll along the main waterfront promenade or central plaza of ${destName}, and enjoy a pocket-friendly dinner at a casual neighborhood restaurant.`
+            morning: `Take a morning walk through the streets of ${destName}, exploring the main public plazas and taking photos from a free scenic viewpoint.`,
+            afternoon: `Wander through the bustling market streets of ${destName} to browse budget-friendly local stalls. Enjoy a budget lunch at a popular street food joint or local eatery.`,
+            evening: `Take a relaxing evening stroll along the central plaza of ${destName}, and enjoy a dinner at a casual neighborhood restaurant.`
           },
           {
             morning: `Join a free walking tour through ${destName}'s oldest residential neighborhood to see the historic architecture and learn about local heritage.`,
@@ -1029,9 +1029,9 @@ export default function App() {
 
         const midBudgetPlans = [
           {
-            morning: `Explore the central historic quarter of ${destName}, walking down the main heritage streets, visiting the municipal museum, and stopping at a scenic city overlook.`,
+            morning: `Explore the central quarter of ${destName}, walking down the main heritage streets, visiting the municipal museum, and stopping at a scenic city viewpoint.`,
             afternoon: `Visit the central market square of ${destName} to explore local stalls. Have a traditional local lunch at a popular family-run restaurant nearby.`,
-            evening: `Take an evening walk along the main waterfront promenade or central plaza of ${destName}, and enjoy dinner at a highly-rated local eatery serving regional specialties.`
+            evening: `Take an evening walk along the central plaza of ${destName}, and enjoy dinner at a highly-rated local eatery serving regional specialties.`
           },
           {
             morning: `Join a guided walking tour through ${destName}'s oldest neighborhood to see the historic architecture and learn about local heritage.`,
@@ -1453,10 +1453,10 @@ export default function App() {
         setActiveItinerary(null);
       }, 5000);
 
-      // Start 10-second timer for fallback (skeleton never visible > 5s)
-      console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 10-second fallbackTimer`);
+      // Start 50-second timer for fallback (gives Render/AI pipeline ample time to complete)
+      console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 50-second fallbackTimer`);
       fallbackTimerRef.current = setTimeout(() => {
-        console.log(`[DEBUG Loading] [${new Date().toISOString()}] 10-second fallbackTimer fired - aborting active request and loading fallback`);
+        console.log(`[DEBUG Loading] [${new Date().toISOString()}] 50-second fallbackTimer fired - aborting active request and loading fallback`);
         isAbortedByTimeout = true;
         if (activeAbortControllerRef.current) {
           activeAbortControllerRef.current.abort();
@@ -1469,7 +1469,7 @@ export default function App() {
         fallbackItinerary.generationSource = 'client_fallback';
         setActiveItinerary(fallbackItinerary);
         setFallbackWarning("We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.");
-      }, 10000);
+      }, 50000);
 
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
@@ -1481,7 +1481,7 @@ export default function App() {
 
         const timeoutId = setTimeout(() => {
           controller.abort();
-        }, isSimplified ? 15000 : 20000); // Backstop timeout inside request
+        }, 45000); // Align with backend's 45-second timeout
 
         try {
           const userLat = localStorage.getItem('userLat');
@@ -1508,7 +1508,9 @@ export default function App() {
             signal: controller.signal
           });
           clearTimeout(timeoutId);
-          return await response.json();
+          const responseJson = await response.json();
+          console.log("generateTrip response", responseJson);
+          return responseJson;
         } catch (err) {
           clearTimeout(timeoutId);
           throw err;

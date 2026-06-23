@@ -338,6 +338,27 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
                           </span>
                         </div>
                         <p className="slot-desc">{block.description}</p>
+                        {block.places && block.places.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.6rem', marginBottom: '0.4rem' }}>
+                            {block.places.map((place, pIdx) => (
+                              <span key={pIdx} style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                background: '#FFF',
+                                border: '1px solid #E2E8F0',
+                                color: '#475569',
+                                fontSize: '0.78rem',
+                                fontWeight: '600',
+                                padding: '0.2rem 0.6rem',
+                                borderRadius: '6px',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+                              }}>
+                                📍 {place.name}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         {block.approxCost && (typeof block.approxCost === 'object' ? block.approxCost.value > 0 : parseInt(block.approxCost) > 0) && (
                           <div className="slot-cost">
                             <span>Cost: ~ {typeof block.approxCost === 'object' ? `${getCurrencySymbol(block.approxCost.currency)}${block.approxCost.value}` : block.approxCost}</span>
