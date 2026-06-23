@@ -147,6 +147,60 @@ app.get('/api/debug-gemini', async (req, res) => {
   }
 });
 
+// Diagnostic Endpoint for Supabase connectivity (public — remove after debugging)
+app.get('/api/debug-supabase', async (req, res) => {
+  const { supabase, isConfigured } = require('./supabaseClient');
+  const url = process.env.SUPABASE_URL;
+  const keySet = !!process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const keyLen = process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.length : 0;
+
+  const report = {
+    env: {
+      SUPABASE_URL_set: !!url,
+      SUPABASE_URL_host: url ? (() => { try { return new URL(url).hostname; } catch(_) { return 'MALFORMED_URL'; } })() : null,
+      SUPABASE_SERVICE_ROLE_KEY_set: keySet,
+      SUPABASE_SERVICE_ROLE_KEY_length: keyLen,
+      SUPABASE_SERVICE_ROLE_KEY_prefix: keySet ? process.env.SUPABASE_SERVICE_ROLE_KEY.substring(0, 10) + '...' : null,
+      isConfigured
+    },
+    probe: null
+  };
+
+  if (!isConfigured) {
+    report.probe = { status: 'skipped', reason: 'env vars not set' };
+    return res.json(report);
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+
+    if (error) {
+      report.probe = {
+        status: 'FAILED',
+        supabase_error_message: error.message,
+        supabase_error_code: error.code,
+        supabase_error_hint: error.hint,
+        supabase_error_details: error.details
+      };
+    } else {
+      report.probe = {
+        status: 'PASSED',
+        rows_returned: (data || []).length
+      };
+    }
+  } catch (err) {
+    report.probe = {
+      status: 'EXCEPTION',
+      message: err.message
+    };
+  }
+
+  return res.json(report);
+});
+
 // Sentry Error Handler MUST be before any other error middleware and after all controllers
 if (process.env.SENTRY_DSN) {
   Sentry.setupExpressErrorHandler(app);
