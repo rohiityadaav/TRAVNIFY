@@ -1,3 +1,6 @@
+// Load .env relative to this file's location (works regardless of CWD)
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
+
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;

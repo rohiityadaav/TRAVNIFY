@@ -1,0 +1,54 @@
+# render.yaml — Infrastructure-as-Code for Render.com
+# This file locks in the service configuration so there is no ambiguity
+# about which service runs the Express API.
+#
+# IMPORTANT: Secret values are NOT stored here.
+# Set actual values in the Render dashboard → Environment tab for this service.
+
+services:
+  - type: web
+    name: travnify-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      # Supabase — user database (REQUIRED)
+      - key: SUPABASE_URL
+        sync: false        # value must be set manually in Render dashboard
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false        # value must be set manually in Render dashboard
+
+      # JWT signing (REQUIRED)
+      - key: JWT_SECRET
+        sync: false
+
+      # AI services
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+
+      # Payments
+      - key: RAZORPAY_LIVE_KEY_ID
+        sync: false
+      - key: RAZORPAY_LIVE_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_TEST_KEY_ID
+        sync: false
+      - key: RAZORPAY_TEST_KEY_SECRET
+        sync: false
+
+      # Monitoring & Analytics
+      - key: SENTRY_DSN
+        sync: false
+      - key: POSTHOG_API_KEY
+        sync: false
+      - key: POSTHOG_HOST
+        sync: false
+
+      # Runtime
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
