@@ -74,62 +74,279 @@ function getCityTerminals(cityName) {
   };
 }
 
-function computeHowToReachFallback(startCity, destName, budgetTier, currency) {
-  const currencySymbol = currency || 'INR';
-  const start = startCity || (currency === 'INR' ? 'Delhi' : 'London');
-  const dest = destName || 'Destination';
+const cityCoords = {
+  "delhi": { lat: 28.6139, lng: 77.2090 },
+  "new delhi": { lat: 28.6139, lng: 77.2090 },
+  "mumbai": { lat: 19.0760, lng: 72.8777 },
+  "bengaluru": { lat: 12.9716, lng: 77.5946 },
+  "bangalore": { lat: 12.9716, lng: 77.5946 },
+  "kolkata": { lat: 22.5726, lng: 88.3639 },
+  "chennai": { lat: 13.0827, lng: 80.2707 },
+  "hyderabad": { lat: 17.3850, lng: 78.4867 },
+  "pune": { lat: 18.5204, lng: 73.8567 },
+  "jaipur": { lat: 26.9124, lng: 75.7873 },
+  "agra": { lat: 27.1767, lng: 78.0081 },
+  "goa": { lat: 15.2993, lng: 74.1240 },
+  "shimla": { lat: 31.1048, lng: 77.1734 },
+  "manali": { lat: 32.2396, lng: 77.1887 },
+  "paris": { lat: 48.8566, lng: 2.3522 },
+  "london": { lat: 51.5074, lng: -0.1278 },
+  "new york": { lat: 40.7128, lng: -74.0060 },
+  "tokyo": { lat: 35.6762, lng: 139.6503 },
+  "dubai": { lat: 25.2048, lng: 55.2708 },
+  "edinburgh": { lat: 55.9533, lng: -3.1883 },
+  "bali": { lat: -8.4095, lng: 115.1889 },
+  "singapore": { lat: 1.3521, lng: 103.8198 },
+  "bangkok": { lat: 13.7563, lng: 100.5018 },
+  "sydney": { lat: -33.8688, lng: 151.2093 }
+};
+
+function getHaversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // radius of Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return Math.round(R * c);
+}
+
+function parseDestinationString(destStr) {
+  if (!destStr) return { city: '', country: '' };
+  const parts = destStr.split(',').map(s => s.trim());
+  const city = parts[0] || '';
+  const country = parts[1] || parts[0] || '';
+  return { city, country };
+}
+
+function estimateDistance(startCity, startCountry, destCity, destCountry, startLat, startLng) {
+  const startCityClean = (startCity || '').toLowerCase().trim();
+  const destCityClean = (destCity || '').toLowerCase().trim();
   
-  if (start.toLowerCase().trim() === dest.toLowerCase().trim()) {
-    return {
-      recommendedMode: "local transit",
-      nearestStartTerminal: "Local transit stop",
-      nearestEndTerminal: "Local transit destination",
-      details: `Since you are already starting from ${dest}, utilize the local metro, public bus system, or local taxis for convenient and fast travel inside the city.`,
-      estimatedCost: { amount: 150, currency: currencySymbol }
-    };
+  if (startCityClean === destCityClean && startCityClean !== '') {
+    return 0;
   }
 
-  const startTerminals = getCityTerminals(start);
-  const destTerminals = getCityTerminals(dest);
-
-  // Heuristic: check if different country
-  const isDifferentCountry = (currency === 'INR' && !['delhi', 'mumbai', 'bengaluru', 'kolkata', 'shimla', 'manali', 'amritsar', 'jaipur', 'udaipur', 'jaisalmer', 'jodhpur', 'pushkar', 'ranthambore', 'agra', 'varanasi', 'lucknow', 'mathura', 'vrindavan', 'ayodhya', 'rishikesh', 'haridwar', 'nainital', 'mussoorie', 'auli', 'indore', 'khajuraho', 'bhopal', 'ahmedabad', 'somnath', 'dwarka', 'pune', 'lonavala', 'goa', 'hampi', 'mysore', 'coorg', 'gokarna', 'kochi', 'alleppey', 'munnar', 'wayanad', 'varkala', 'chennai', 'madurai', 'mahabalipuram', 'ooty', 'rameswaram', 'hyderabad', 'warangal', 'tirupati', 'vizag', 'vijayawada', 'patna', 'ranchi', 'raipur', 'guwahati', 'shillong', 'tawang', 'kohima', 'imphal', 'aizawl', 'agartala', 'gangtok', 'port blair', 'havelock', 'diu', 'daman', 'silvassa', 'kavaratti', 'pondicherry', 'auroville'].includes(dest.toLowerCase().trim()));
-
-  if (isDifferentCountry) {
-    const cost = budgetTier === 'low' ? 7000 : (budgetTier === 'high' ? 25000 : 12000);
-    return {
-      recommendedMode: "flight",
-      nearestStartTerminal: startTerminals.airport,
-      nearestEndTerminal: destTerminals.airport,
-      details: `Board an international flight from ${startTerminals.airport} to ${destTerminals.airport}. We recommend checking airline rates early and comparing budget carriers for flight transfers.`,
-      estimatedCost: { amount: cost, currency: currencySymbol }
-    };
+  // Resolve starting coordinates
+  let sLat = Number(startLat);
+  let sLng = Number(startLng);
+  if (isNaN(sLat) || isNaN(sLng) || !startLat || !startLng) {
+    const coords = cityCoords[startCityClean];
+    if (coords) {
+      sLat = coords.lat;
+      sLng = coords.lng;
+    }
   }
 
-  // Domestic
-  if (budgetTier === 'low') {
+  // Resolve destination coordinates
+  let dLat = null;
+  let dLng = null;
+  const coords = cityCoords[destCityClean];
+  if (coords) {
+    dLat = coords.lat;
+    dLng = coords.lng;
+  }
+
+  // If we have both sets of coordinates, compute Haversine distance
+  if (sLat !== null && sLng !== null && !isNaN(sLat) && !isNaN(sLng) && dLat !== null && dLng !== null) {
+    return getHaversineDistance(sLat, sLng, dLat, dLng);
+  }
+
+  // Heuristic-based distance estimation if coords are missing
+  const startCountryClean = (startCountry || '').toLowerCase().trim();
+  const destCountryClean = (destCountry || '').toLowerCase().trim();
+
+  if (startCountryClean === destCountryClean && startCountryClean !== '') {
+    const largeCountries = ['india', 'united states', 'usa', 'china', 'australia', 'canada', 'brazil', 'russia'];
+    if (largeCountries.includes(startCountryClean)) {
+      return 600;
+    }
+    return 250;
+  }
+
+  return 3000; // International default
+}
+
+function computeHowToReach(startCity, startCountry, destCity, destCountry, distanceKm, budgetTier, currency) {
+  const currencySymbol = currency || 'INR';
+  const rate = INR_TO_CURRENCY[currencySymbol] || 1.0;
+  const startC = startCity || 'Origin';
+  const startCo = startCountry || 'Origin Country';
+  const destC = destCity || 'Destination';
+  const destCo = destCountry || 'Destination Country';
+  const budget = (budgetTier || 'mid').toLowerCase();
+
+  const startTerminals = getCityTerminals(startC);
+  const destTerminals = getCityTerminals(destC);
+
+  const getCost = (inrAmount) => {
     return {
-      recommendedMode: "bus",
-      nearestStartTerminal: startTerminals.bus,
-      nearestEndTerminal: destTerminals.bus,
-      details: `Board an intercity bus or take a sleeper-class train from ${startTerminals.bus} to ${destTerminals.bus} for a cost-effective overland journey.`,
-      estimatedCost: { amount: 650, currency: currencySymbol }
+      amount: Math.round(inrAmount * rate),
+      currency: currencySymbol
     };
-  } else if (budgetTier === 'high') {
+  };
+
+  // 1) Same-city / local trips
+  if (startC.toLowerCase().trim() === destC.toLowerCase().trim() && startC !== '') {
+    if (distanceKm <= 3) {
+      return {
+        recommendedMode: "walking",
+        summary: `Walking or quick local transport recommended in ${destC}.`,
+        details: `Since you’re already in ${destC}, you don’t need a flight or train. The best way to reach your destination is walking, which takes just a few minutes. For a more comfortable trip or if carrying luggage, a short auto/e-rickshaw or app-based cab ride is also easily available.`,
+        nearestStartTerminal: "Local transit stop",
+        nearestEndTerminal: "Local transit destination",
+        estimatedCost: getCost(budget === 'low' ? 0 : (budget === 'high' ? 150 : 60))
+      };
+    } else if (distanceKm <= 10) {
+      let mode = "metro / public bus";
+      if (budget === 'mid') mode = "metro + cab/auto";
+      if (budget === 'high') mode = "cab / taxi";
+
+      return {
+        recommendedMode: mode,
+        summary: `Local metro, bus, or cab ride recommended in ${destC}.`,
+        details: `Since you’re already in ${destC}, you don’t need a flight or train. The best way to reach your destination is using the local metro/subway or tram network for a quick, traffic-free transit. Alternatively, you can take a direct app-based taxi or taxi cab for door-to-door comfort, especially if your budget allows.`,
+        nearestStartTerminal: "Local transit stop",
+        nearestEndTerminal: "Local transit destination",
+        estimatedCost: getCost(budget === 'low' ? 50 : (budget === 'high' ? 250 : 120))
+      };
+    } else {
+      let mode = "metro / city bus";
+      if (budget === 'mid') mode = "metro + cab/auto";
+      if (budget === 'high') mode = "cab / taxi";
+
+      return {
+        recommendedMode: mode,
+        summary: `Cross-city transit via metro or direct cab in ${destC}.`,
+        details: `Since you’re already in ${destC}, you don’t need a flight or train. The best way to reach the other side of the city is taking the metro/subway for the main stretch to bypass traffic, then hailing a short cab or auto for the last mile. If you prefer comfort and are on a higher budget, a direct app-based taxi is highly convenient.`,
+        nearestStartTerminal: "Local transit stop",
+        nearestEndTerminal: "Local transit destination",
+        estimatedCost: getCost(budget === 'low' ? 80 : (budget === 'high' ? 500 : 200))
+      };
+    }
+  }
+
+  // 2) Same country inter-city
+  if (startCo.toLowerCase().trim() === destCo.toLowerCase().trim() && startCo !== '') {
+    if (distanceKm <= 350) {
+      if (budget === 'low') {
+        return {
+          recommendedMode: "bus / sleeper train",
+          summary: `Budget-friendly bus or sleeper train from ${startC} to ${destC}.`,
+          details: `Since ${startC} and ${destC} are relatively close, a train or bus is the most cost-effective way to travel; flights are not necessary here. Taking an intercity bus or booking a sleeper-class train ticket from ${startTerminals.bus || startC} is ideal for keeping expenses low. The journey is relatively short and scenic, letting you relax along the way.`,
+          nearestStartTerminal: startTerminals.bus,
+          nearestEndTerminal: destTerminals.bus,
+          estimatedCost: getCost(500)
+        };
+      } else if (budget === 'high') {
+        return {
+          recommendedMode: "private cab / express train",
+          summary: `Premium express train or private cab from ${startC} to ${destC}.`,
+          details: `Since ${startC} and ${destC} are relatively close, a train or bus is the most cost-effective way to travel; flights are not necessary here. Hailing a private intercity cab offers the ultimate convenience with door-to-door service and flexible departure times. Alternatively, a premium high-speed express train or chair-car class provides a very fast and comfortable ride.`,
+          nearestStartTerminal: startTerminals.station,
+          nearestEndTerminal: destTerminals.station,
+          estimatedCost: getCost(4000)
+        };
+      } else {
+        return {
+          recommendedMode: "AC train / express bus",
+          summary: `Comfortable AC train or express bus from ${startC} to ${destC}.`,
+          details: `Since ${startC} and ${destC} are relatively close, a train or bus is the most cost-effective way to travel; flights are not necessary here. Booking a seat on an AC express train or a premium intercity Volvo bus offers a great balance of comfort and value. The journey takes only a few hours, arriving directly near the city center.`,
+          nearestStartTerminal: startTerminals.station,
+          nearestEndTerminal: destTerminals.station,
+          estimatedCost: getCost(1200)
+        };
+      }
+    } else if (distanceKm <= 800) {
+      if (budget === 'low') {
+        return {
+          recommendedMode: "sleeper train / overnight bus",
+          summary: `Sleeper train or overnight bus from ${startC} to ${destC}.`,
+          details: `For the medium distance between ${startC} and ${destC}, a sleeper-class train or overnight bus is the most cost-effective option. This lets you save on a night's accommodation while traveling. A budget flight is optional but would be significantly more expensive for your low budget.`,
+          nearestStartTerminal: startTerminals.bus,
+          nearestEndTerminal: destTerminals.bus,
+          estimatedCost: getCost(700)
+        };
+      } else if (budget === 'high') {
+        return {
+          recommendedMode: "flight / premium AC train",
+          summary: `Direct flight or premium AC train from ${startC} to ${destC}.`,
+          details: `From ${startC} to ${destC}, a direct flight is the most comfortable and fast option for your budget, taking around 1-2 hours. Upon arrival at the destination airport, you can take a pre-booked private transfer or taxi to your hotel. If you prefer a scenic journey, a premium first-class AC sleeper train is also a very relaxing option.`,
+          nearestStartTerminal: startTerminals.airport,
+          nearestEndTerminal: destTerminals.airport,
+          estimatedCost: getCost(5500)
+        };
+      } else {
+        return {
+          recommendedMode: "AC train / budget flight",
+          summary: `Comfortable AC train or budget flight from ${startC} to ${destC}.`,
+          details: `From ${startC} to ${destC}, the distance is long enough that an AC train (such as 3-Tier or 2-Tier) is a highly comfortable and popular option. Alternatively, a budget flight is a great time-saving alternative if booked in advance. This combination gives you the best mix of cost and convenience for your travel budget.`,
+          nearestStartTerminal: startTerminals.station,
+          nearestEndTerminal: destTerminals.station,
+          estimatedCost: getCost(2200)
+        };
+      }
+    } else {
+      if (budget === 'low') {
+        return {
+          recommendedMode: "sleeper train",
+          summary: `Sleeper train from ${startC} to ${destC}.`,
+          details: `The distance between ${startC} and ${destC} is long, so a flight is the fastest mode, but for a low budget, a sleeper-class train or long-distance bus is the primary option. The train journey will take a significant amount of time, so bring snacks and entertainment. A flight remains optional but is much more expensive.`,
+          nearestStartTerminal: startTerminals.station,
+          nearestEndTerminal: destTerminals.station,
+          estimatedCost: getCost(1000)
+        };
+      } else if (budget === 'high') {
+        return {
+          recommendedMode: "flight",
+          summary: `Direct flight from ${startC} to ${destC}.`,
+          details: `From ${startC} to ${destC}, the distance is long enough that a flight is the most comfortable option for your budget. We recommend booking a direct flight to save time and ensure a premium travel experience. Once you land, a private cab or express airport train will take you straight to your hotel in comfort.`,
+          nearestStartTerminal: startTerminals.airport,
+          nearestEndTerminal: destTerminals.airport,
+          estimatedCost: getCost(7500)
+        };
+      } else {
+        return {
+          recommendedMode: "flight / express train",
+          summary: `Budget flight or AC train from ${startC} to ${destC}.`,
+          details: `From ${startC} to ${destC}, the distance is long enough that a flight is the most comfortable option to save time. Look for budget carriers early to get the best deals. If you prefer to avoid flying, an express train with AC sleeper coaches is a good alternative that offers a comfortable overnight journey.`,
+          nearestStartTerminal: startTerminals.airport,
+          nearestEndTerminal: destTerminals.airport,
+          estimatedCost: getCost(4500)
+        };
+      }
+    }
+  }
+
+  // 3) International trips (startCo !== destCo)
+  if (budget === 'low') {
     return {
-      recommendedMode: "flight",
+      recommendedMode: "flight + public transit",
+      summary: `International flight and public transit from ${startC} to ${destC}.`,
+      details: `From ${startC}, the best way to reach ${destC} is by international flight. To keep costs low, compare budget airlines and book one-stop flights in advance. Once you arrive at the destination airport, use the local airport train, metro, or public bus system as they are the most economical ways to reach your hotel.`,
       nearestStartTerminal: startTerminals.airport,
       nearestEndTerminal: destTerminals.airport,
-      details: `Take a direct flight from ${startTerminals.airport} to ${destTerminals.airport} for the fastest and most premium transit. Upon arrival, use private terminal transfers.`,
-      estimatedCost: { amount: 6000, currency: currencySymbol }
+      estimatedCost: getCost(12000)
+    };
+  } else if (budget === 'high') {
+    return {
+      recommendedMode: "direct flight + private cab",
+      summary: `Direct flight and private airport transfer from ${startC} to ${destC}.`,
+      details: `From ${startC}, the best way to reach ${destC} is by a direct international flight for maximum speed and comfort. We recommend booking premium economy or business class for a relaxed journey. Once you arrive at the airport, a pre-arranged private cab or premium transfer service will meet you and drive you directly to your hotel.`,
+      nearestStartTerminal: startTerminals.airport,
+      nearestEndTerminal: destTerminals.airport,
+      estimatedCost: getCost(55000)
     };
   } else {
     return {
-      recommendedMode: "train",
-      nearestStartTerminal: startTerminals.station,
-      nearestEndTerminal: destTerminals.station,
-      details: `Book an AC 3-Tier or 2-Tier train ticket from ${startTerminals.station} to ${destTerminals.station} for a comfortable and scenic mid-budget journey.`,
-      estimatedCost: { amount: 1800, currency: currencySymbol }
+      recommendedMode: "flight + airport train",
+      summary: `Direct/1-stop flight and express airport train from ${startC} to ${destC}.`,
+      details: `From ${startC}, the best way to reach ${destC} is by international flight to the destination's primary airport. Look for direct or quick 1-stop flights to balance budget and transit time. After landing, take the airport express train or a licensed taxi for a comfortable and efficient transfer to your hotel.`,
+      nearestStartTerminal: startTerminals.airport,
+      nearestEndTerminal: destTerminals.airport,
+      estimatedCost: getCost(25000)
     };
   }
 }
@@ -498,7 +715,7 @@ const INR_TO_CURRENCY = {
   MAD: 0.12,    BGN: 0.021,   IQD: 15.7,    TWD: 0.39,
 };
 
-function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate, startCity = '', userLat = null, userLng = null) {
+function generateMockItinerary(destination, budget, currency, daysCount, interests, startDate, startCity = '', startCountry = '', userLat = null, userLng = null) {
   const destName = destination || 'Selected Destination';
   const totalDays = Number(daysCount) || 3;
   const totalBudget = Number(budget) || 15000;
@@ -792,7 +1009,7 @@ function generateMockItinerary(destination, budget, currency, daysCount, interes
     }
   };
 
-  return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays, { startCity, userLat, userLng, budgetTier });
+  return normalizeItinerary(rawMock, startDate, totalBudget, curr, totalDays, { startCity, startCountry, userLat, userLng, budgetTier });
 }
 
 // ----------------------------------------------------
@@ -937,7 +1154,7 @@ async function generateTrip(req, res) {
     const fallbackResponse = () => {
       console.log('[AI Trip Generation] Fallback triggered. Generating server-side mock itinerary.');
       const safeInterests = Array.isArray(interests) ? interests : [];
-      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate, startCity, userLat, userLng);
+      const itinerary = generateMockItinerary(destination, parsedBudget, activeCurrency, daysCount, safeInterests, startDate, startCity, startCountry, userLat, userLng);
       
       if (activeUser && !isPremium) {
         db.users.update(activeUser.id, { freeTripsGenerated: activeUser.freeTripsGenerated + 1 });
@@ -1041,10 +1258,11 @@ JSON structure:
     "bestTimeAdvice": "string"
   },
   "howToReach": {
-    "recommendedMode": "bus / train / flight",
+    "recommendedMode": "string (e.g. metro + cab, sleeper train, flight)",
+    "summary": "string (1-2 lines summarizing the transport recommendation)",
     "nearestStartTerminal": "string",
     "nearestEndTerminal": "string",
-    "details": "string explaining how to travel from start city to destination based on budget and distance",
+    "details": "string (3-5 sentences explaining why this mode is best for this distance and budget, naming key stations/airports if possible)",
     "estimatedCost": {
       "amount": number,
       "currency": "${displayCurrency}"
@@ -1090,12 +1308,11 @@ JSON structure:
 }
 
 Style & Constraint Rules:
-- GEOLOCATION TRANSPORT RECOMMENDATION: The user is starting their trip from ${startCity || 'their home city'} (Coordinates: ${userLat || 'unknown'}, ${userLng || 'unknown'}). You MUST recommend the best travel mode (bus, train, or flight) to reach the destination based on their starting city, distance, and budget tier (${budgetTier}):
-  * Calculate the approximate distance.
-  * If distance is short (e.g. < 300km) or budget is low: recommend "bus" or "train" (sleeper/general).
-  * If distance is medium and budget is mid: recommend "train" (AC class) or "flight" (budget).
-  * If distance is long and budget is high: recommend "flight" or the fastest option.
-  * Populate the "howToReach" block with the recommendedMode, the nearest start terminal in the starting city (specific named station or airport), the nearest end terminal in the destination, a 2-3 sentence travel details path, and the estimated cost for transport.
+- GEOLOCATION TRANSPORT RECOMMENDATION: The user is starting their trip from ${startCity || 'their home city'}, ${startCountry || 'their home country'} (Coordinates: ${userLat || 'unknown'}, ${userLng || 'unknown'}). You MUST recommend the best travel mode to reach the destination based on starting location, distance, and budget tier (${budgetTier}) using this 3-level rule set:
+  1) Same-city / local trips (startCity == destCity): Suggest local city transport only (walking, cab/taxi/app-based taxi, auto/e-rickshaw/tuk-tuk, metro/subway/tram, city buses). Do NOT suggest flights or intercity trains. Distance guidelines: Very short (0-3 km) -> walking + optional auto/taxi. Short/medium (3-10 km) -> metro/subway/tram + short auto/taxi, or direct cab. Long cross-city (10+ km) -> metro + cab/auto, or full cab if budget is high. Budget: low budget -> prioritize metro/subway/bus/tram; mid budget -> metro + cab/auto mix; high budget -> cabs/app taxis.
+  2) Inter-city, same country trips (startCountry == destCountry AND startCity != destCity): Recommend bus, train, or flight. Distance guidelines: Short (< 300-400 km) -> bus or train, avoid flights. Medium (400-800 km) -> low budget uses train (sleeper/AC) or overnight bus; high budget uses flight (optional). Long (> 800-1000 km) -> high/medium budget uses flight; low budget uses train (sleeper) or bus. Budget: low budget -> prefer train/bus (flights only as optional/more expensive); mid budget -> AC trains or budget flights; high budget -> flights for long distances.
+  3) International trips (startCountry != destCountry): Flights are the primary mode. Suggest direct or 1-stop flights from nearest international airport of startCity to destination airport. After the flight, recommend local transfer modes at destination (airport train/metro/bus/taxi).
+  * Populate the "howToReach" block with recommendedMode, summary (1-2 lines), details (3-5 sentences), nearestStartTerminal, nearestEndTerminal, and estimatedCost.
 - HIGH DETAIL IMMERSIVE EXPERIENCE: Provide rich, detailed, and highly descriptive plans for each time slot (morning, afternoon, evening). Each description block MUST be at least 30 to 60 words. Do not use short summaries; describe the sights, history, atmosphere, specific dishes to order, and scenic spots to make the user feel like they have a premium local travel guide.
 - GLOBAL PLACE DETECTION: Detect what the destination is and structure the itinerary accordingly:
   * If it is a Landmark/Famous Spot (e.g. "Taj Mahal", "Eiffel Tower"): Structure the plan around that landmark and its surrounding city/neighborhood.
@@ -1209,7 +1426,7 @@ Please reformat the last answer into the required JSON schema only. Respond with
       }
     }
 
-    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount, { startCity, userLat, userLng, budgetTier });
+    const itinerary = normalizeItinerary(parsedJson, startDate, parsedBudget, activeCurrency, daysCount, { startCity, startCountry, userLat, userLng, budgetTier });
     if (!itinerary) {
       return fallbackResponse();
     }

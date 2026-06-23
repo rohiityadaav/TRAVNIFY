@@ -209,9 +209,20 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
               </div>
             </div>
           </div>
-          <p style={{ fontSize: '0.88rem', color: '#334155', marginTop: '0.8rem', borderTop: '1px solid #E2E8F0', paddingTop: '0.6rem', lineHeight: '1.5', margin: 0 }}>
-            {itinerary.howToReach.details}
-          </p>
+          {itinerary.howToReach.summary ? (
+            <>
+              <div style={{ fontSize: '0.92rem', fontWeight: '600', color: '#1E293B', marginTop: '0.8rem', borderTop: '1px solid #E2E8F0', paddingTop: '0.6rem' }}>
+                {itinerary.howToReach.summary}
+              </div>
+              <p style={{ fontSize: '0.88rem', color: '#334155', marginTop: '0.4rem', lineHeight: '1.5', margin: 0 }}>
+                {itinerary.howToReach.details}
+              </p>
+            </>
+          ) : (
+            <p style={{ fontSize: '0.88rem', color: '#334155', marginTop: '0.8rem', borderTop: '1px solid #E2E8F0', paddingTop: '0.6rem', lineHeight: '1.5', margin: 0 }}>
+              {itinerary.howToReach.details}
+            </p>
+          )}
         </div>
       )}
 
