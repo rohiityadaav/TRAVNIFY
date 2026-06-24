@@ -20,6 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
     "nodemailer": "^9.0.0",
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.19.1",
     "posthog-node": "^5.38.2",
     "razorpay": "^2.9.6"
   }

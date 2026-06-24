@@ -398,6 +398,7 @@ export default function App() {
   const [activeTripDetails, setActiveTripDetails] = useState(null);
   const [savedTrips, setSavedTrips] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showShareTooltip, setShowShareTooltip] = useState(false);
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [tripError, setTripError] = useState(null);
@@ -1791,7 +1792,10 @@ export default function App() {
 
   // 6. View saved trip trigger
   const handleViewSavedTrip = (trip) => {
-    setActiveItinerary(trip.itinerary);
+    setActiveItinerary({
+      ...trip.itinerary,
+      id: trip.id
+    });
     setActiveTripDetails({
       destination: trip.destination,
       budget: trip.budget,
@@ -1800,6 +1804,7 @@ export default function App() {
       endDate: trip.endDate,
       interests: trip.interests
     });
+    setShowShareTooltip(false);
   };
 
   // 7. Template Customization Select
@@ -1808,6 +1813,7 @@ export default function App() {
     setActiveItinerary(null);
     setTripError(null);
     setFallbackWarning(null);
+    setShowShareTooltip(false);
 
     const today = new Date().toISOString().split('T')[0];
     const threeDaysLater = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -1832,123 +1838,62 @@ export default function App() {
 
     try {
       const token = localStorage.getItem('token');
-      const tripId = activeItinerary.id || 'new';
+      let tripId = activeItinerary.id;
 
-      // Verify PDF download privilege with the backend API
-      await safeFetch(`/api/trips/${tripId}/pdf`, {
-        method: 'POST',
+      // If it's not saved yet, autosave in background first
+      if (!tripId) {
+        const saveRes = await safeFetch('/api/trips', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            destination: activeTripDetails?.destination || activeItinerary.summary.destination,
+            budget: activeTripDetails?.budget || activeItinerary.summary.approxTotalCost,
+            currency: activeTripDetails?.currency || activeItinerary.summary.currency,
+            startDate: activeTripDetails?.startDate || '',
+            endDate: activeTripDetails?.endDate || '',
+            interests: activeTripDetails?.interests || [],
+            itinerary: activeItinerary
+          })
+        });
+        const savedTrip = await saveRes.json();
+        tripId = savedTrip.id;
+        
+        // Update activeItinerary with the new id so subsequent clicks don't re-save
+        setActiveItinerary(prev => ({ ...prev, id: tripId }));
+        
+        // Refresh saved trips list in background
+        fetchSavedTrips(token);
+      }
+
+      // Now download the PDF from the backend GET endpoint
+      const response = await fetch(`/api/trip/${tripId}/pdf`, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         }
       });
-
-      // Proceed with PDF generation since authorized
-      const { summary, days } = activeItinerary;
-      const doc = new jsPDF();
-      
-      const currencySymbol = getCurrencySymbol(summary.currency);
-      
-      // Design Styles
-      doc.setFillColor(242, 100, 48); // Primary Coral color
-      doc.rect(0, 0, 210, 40, 'F');
-
-      // Title Block
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(22);
-      doc.text('TRAVNIFY PREMIUM TRAVEL MAP', 15, 18);
-      
-      doc.setFontSize(10);
-      doc.setFont('Helvetica', 'normal');
-      doc.text('AI-Generated Day-by-Day Complete Travel Itinerary', 15, 26);
-      doc.text(`User Account: ${user.email}`, 15, 32);
-
-      // Summary Section
-      doc.setTextColor(30, 41, 59);
-      doc.setFont('Helvetica', 'bold');
-      doc.setFontSize(14);
-      doc.text(`Destination: ${summary.destination}`, 15, 52);
-      
-      doc.setFont('Helvetica', 'normal');
-      doc.setFontSize(11);
-      doc.text(`Duration: ${summary.totalDays} Days`, 15, 60);
-      doc.text(`Total Estimated Budget: ${currencySymbol} ${summary.approxTotalCost.toLocaleString()}`, 15, 66);
-      doc.text(`Average Daily Budget: ${currencySymbol} ${summary.dailyAverageCost.toLocaleString()}`, 15, 72);
-
-      let yOffset = 88;
-
-      // Day loop
-      days.forEach((day, dIdx) => {
-        // Check if we need a page break
-        if (yOffset > 240) {
-          doc.addPage();
-          yOffset = 20;
-        }
-
-        doc.setFont('Helvetica', 'bold');
-        doc.setFontSize(13);
-        doc.setTextColor(242, 100, 48); // Coral Day tags
-        const dateStr = day.date ? ` (${day.date})` : '';
-        doc.text(`DAY ${day.dayNumber}: ${day.location || 'Explore City'}${dateStr}`, 15, yOffset);
-        doc.line(15, yOffset + 2, 195, yOffset + 2);
-        
-        yOffset += 10;
-
-        // Event blocks loop
-        day.blocks.forEach((block, bIdx) => {
-          if (yOffset > 250) {
-            doc.addPage();
-            yOffset = 20;
-          }
-
-          doc.setFont('Helvetica', 'bold');
-          doc.setFontSize(10);
-          doc.setTextColor(30, 41, 59);
-          doc.text(`[${block.timeWindow || 'Time Slot'}] ${block.title}`, 18, yOffset);
-
-          doc.setFont('Helvetica', 'normal');
-          doc.setFontSize(9.5);
-          doc.setTextColor(71, 85, 105);
-          
-          const splitDescription = doc.splitTextToSize(block.description, 175);
-          doc.text(splitDescription, 18, yOffset + 5);
-
-          yOffset += (splitDescription.length * 5) + 6;
-
-          const hasCost = block.approxCost && (typeof block.approxCost === 'object' ? block.approxCost.value > 0 : parseInt(block.approxCost) > 0);
-          if (hasCost) {
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(9);
-            doc.setTextColor(242, 100, 48);
-            const costStr = typeof block.approxCost === 'object' ? `${getCurrencySymbol(block.approxCost.currency)}${block.approxCost.value}` : block.approxCost;
-            doc.text(`Estimated Cost: ~ ${costStr}`, 18, yOffset - 1);
-            yOffset += 6;
-          }
-          
-          yOffset += 4;
-        });
-
-        yOffset += 8;
-      });
-
-      // Add final disclaimer on last page
-      if (yOffset > 250) {
-        doc.addPage();
-        yOffset = 20;
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Failed to download PDF');
       }
-      yOffset += 5;
-      doc.setFont('Helvetica', 'oblique');
-      doc.setFontSize(8.5);
-      doc.setTextColor(148, 163, 184);
-      doc.text('Disclaimer: All times and costs are estimates. Please verify schedules and pricing before traveling.', 15, yOffset);
-      doc.text('TRAVNIFY takes no responsibility for availability, schedules, or pricing variances.', 15, yOffset + 5);
 
-      // Save
-      doc.save(`travnify_itinerary_${summary.destination.toLowerCase().replace(/ /g, '_')}.pdf`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'itinerary_travnify.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      // Show sharing tooltip/message
+      setShowShareTooltip(true);
     } catch (err) {
       console.error('PDF download error:', err);
-      if (err.code === 'PREMIUM_REQUIRED' || err.status === 403) {
+      if (err.status === 403) {
         setPricingModalOpen(true);
       } else {
         alert(err.message || 'An error occurred during PDF generation.');
@@ -2087,9 +2032,12 @@ export default function App() {
                       setActiveItinerary(null);
                       setFallbackWarning(null);
                       setShowSkeleton(false);
+                      setShowShareTooltip(false);
                     }}
                     openPricingModal={openPricingModal}
                     openAuthModal={openAuthModal}
+                    showShareTooltip={showShareTooltip}
+                    setShowShareTooltip={setShowShareTooltip}
                   />
                 </>
               ) : (

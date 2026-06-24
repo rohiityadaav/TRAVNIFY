@@ -59,7 +59,7 @@ app.use(express.json());
 
 // Resource-level middleware: allow if user owns the trip OR is admin
 function tripOwnerOrAdmin(req, res, next) {
-  const tripId = req.params.id;
+  const tripId = req.params.id || req.params.tripId;
   if (!tripId) return next(); // no id param, let controller handle
   const trip = db.trips.findById(tripId);
   if (!trip) return res.status(404).json({ error: 'Trip not found.' });
@@ -93,6 +93,8 @@ app.post('/api/trips', authController.authenticateToken, tripController.saveTrip
 app.delete('/api/trips/:id', authController.authenticateToken, tripOwnerOrAdmin, tripController.deleteTrip);
 app.post('/api/trips/pdf', authController.authenticateToken, tripController.downloadTripPDF);
 app.post('/api/trips/:id/pdf', authController.authenticateToken, tripOwnerOrAdmin, tripController.downloadTripPDF);
+app.get('/api/trip/:tripId/pdf', authController.authenticateToken, tripOwnerOrAdmin, tripController.downloadTripPDF);
+app.get('/api/trips/:tripId/pdf', authController.authenticateToken, tripOwnerOrAdmin, tripController.downloadTripPDF);
 
 // Admin Routes — require login + admin role
 app.get('/api/admin/stats',      authController.authenticateToken, authController.requireRole('admin'), authController.getAdminStats);

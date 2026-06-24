@@ -17,6 +17,8 @@ function captureUnexpectedException(req, error) {
 }
 const fs = require('fs');
 const path = require('path');
+const PDFDocument = require('pdfkit');
+const { PDFDocument: LibPDFDocument, rgb, degrees, StandardFonts } = require('pdf-lib');
 
 function normalizeCountry(c) {
   if (!c) return '';
@@ -2750,6 +2752,191 @@ async function deleteTrip(req, res) {
   }
 }
 
+function getCurrencySymbol(currencyCode) {
+  switch (currencyCode) {
+    case 'USD': return '$';
+    case 'EUR': return '€';
+    case 'GBP': return '£';
+    case 'INR': return '₹';
+    default: return currencyCode || '₹';
+  }
+}
+
+function generatePDFBuffer(trip, userEmail) {
+  return new Promise((resolve, reject) => {
+    try {
+      const doc = new PDFDocument({ size: 'A4', margin: 40 });
+      const chunks = [];
+      doc.on('data', chunk => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', err => reject(err));
+
+      const itinerary = trip.itinerary;
+      const { summary, days } = itinerary;
+      const currencySymbol = getCurrencySymbol(summary.currency);
+
+      // Design Header Banner (Primary Coral color)
+      // A4 dimensions: 595.28 x 841.89 pt
+      doc.rect(0, 0, 595.28, 110).fill('#F26430');
+
+      // Title Block
+      doc.fillColor('#FFFFFF')
+         .font('Helvetica-Bold')
+         .fontSize(22)
+         .text('TRAVNIFY PREMIUM TRAVEL MAP', 40, 25);
+      
+      doc.font('Helvetica')
+         .fontSize(10)
+         .text('AI-Generated Day-by-Day Complete Travel Itinerary', 40, 55);
+      
+      doc.text(`User Account: ${userEmail}`, 40, 75);
+
+      // Reset text color to slate
+      doc.fillColor('#1E293B');
+
+      // Summary Section
+      doc.font('Helvetica-Bold')
+         .fontSize(16)
+         .text(`Destination: ${summary.destination}`, 40, 130);
+      
+      doc.font('Helvetica')
+         .fontSize(11)
+         .text(`Duration: ${summary.totalDays} Days`, 40, 155)
+         .text(`Total Estimated Budget: ${currencySymbol} ${summary.approxTotalCost.toLocaleString()}`, 40, 172)
+         .text(`Average Daily Budget: ${currencySymbol} ${summary.dailyAverageCost.toLocaleString()}`, 40, 189);
+
+      let yOffset = 220;
+
+      // Day loop
+      days.forEach((day) => {
+        // Check if we need a page break before day heading
+        if (yOffset > 700) {
+          doc.addPage();
+          yOffset = 40;
+        }
+
+        // Draw Day Header
+        const dateStr = day.date ? ` (${day.date})` : '';
+        doc.fillColor('#F26430')
+           .font('Helvetica-Bold')
+           .fontSize(13)
+           .text(`DAY ${day.dayNumber}: ${day.location || 'Explore City'}${dateStr}`, 40, yOffset);
+
+        // Draw line separator below day header
+        yOffset += 18;
+        doc.strokeColor('#E2E8F0')
+           .lineWidth(1)
+           .moveTo(40, yOffset)
+           .lineTo(555.28, yOffset)
+           .stroke();
+
+        yOffset += 12;
+
+        // Blocks loop
+        if (day.blocks && Array.isArray(day.blocks)) {
+          day.blocks.forEach((block) => {
+            // Check page break
+            if (yOffset > 720) {
+              doc.addPage();
+              yOffset = 40;
+            }
+
+            // Block Title
+            doc.fillColor('#1E293B')
+               .font('Helvetica-Bold')
+               .fontSize(10)
+               .text(`[${block.timeWindow || 'Time Slot'}] ${block.title}`, 45, yOffset);
+
+            yOffset = doc.y + 4;
+
+            // Block Description
+            doc.fillColor('#475569')
+               .font('Helvetica')
+               .fontSize(9.5)
+               .text(block.description || '', 45, yOffset, { width: 510 });
+
+            yOffset = doc.y + 6;
+
+            // Block Cost
+            const hasCost = block.approxCost && (
+              typeof block.approxCost === 'object' 
+                ? block.approxCost.value > 0 
+                : parseInt(block.approxCost) > 0
+            );
+            if (hasCost) {
+              const costStr = typeof block.approxCost === 'object' 
+                ? `${getCurrencySymbol(block.approxCost.currency)}${block.approxCost.value}` 
+                : block.approxCost;
+              
+              doc.fillColor('#F26430')
+                 .font('Helvetica-Bold')
+                 .fontSize(9)
+                 .text(`Estimated Cost: ~ ${costStr}`, 45, yOffset);
+              
+              yOffset = doc.y + 8;
+            }
+
+            yOffset += 4;
+          });
+        }
+
+        yOffset += 10;
+      });
+
+      // Disclaimer on last page
+      if (yOffset > 740) {
+        doc.addPage();
+        yOffset = 40;
+      }
+
+      yOffset += 10;
+      doc.fillColor('#94A3B8')
+         .font('Helvetica-Oblique')
+         .fontSize(8.5)
+         .text('Disclaimer: All times and costs are estimates. Please verify schedules and pricing before traveling.', 40, yOffset);
+      
+      doc.text('TRAVNIFY takes no responsibility for availability, schedules, or pricing variances.', 40, doc.y + 4);
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function watermarkPDF(pdfBuffer) {
+  const pdfDoc = await LibPDFDocument.load(pdfBuffer);
+  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const pages = pdfDoc.getPages();
+
+  for (const page of pages) {
+    const { width, height } = page.getSize();
+
+    // Draw diagonal text watermark
+    page.drawText('Made by Travnify', {
+      x: width / 2 - 140,
+      y: height / 2 - 20,
+      size: 40,
+      font: font,
+      color: rgb(0.85, 0.85, 0.85),
+      rotate: degrees(45),
+      opacity: 0.25,
+    });
+
+    // Draw footer watermark
+    page.drawText('Made by Travnify - travnify.com', {
+      x: width - 200,
+      y: 20,
+      size: 9,
+      font: font,
+      color: rgb(0.6, 0.6, 0.6),
+      opacity: 0.6,
+    });
+  }
+
+  return await pdfDoc.save();
+}
+
 async function downloadTripPDF(req, res) {
   try {
     const activeUser = await db.users.findById(req.userId);
@@ -2759,11 +2946,51 @@ async function downloadTripPDF(req, res) {
         message: 'PDF download is available only for Premium users.'
       });
     }
-    return res.json({ success: true, message: 'PDF download authorized.' });
+
+    // For POST requests, just return authorized status (backward compatibility)
+    if (req.method === 'POST') {
+      return res.json({ success: true, message: 'PDF download authorized.' });
+    }
+
+    // For GET requests, perform PDF generation and watermarking
+    const tripId = req.params.tripId || req.params.id;
+    if (!tripId) {
+      return res.status(400).json({ error: 'Trip ID is required.' });
+    }
+
+    const trip = db.trips.findById(tripId);
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found.' });
+    }
+
+    // Generate the PDF
+    const pdfBuffer = await generatePDFBuffer(trip, activeUser.email);
+
+    // Apply watermark
+    const watermarkedBuffer = await watermarkPDF(pdfBuffer);
+
+    // Write to a temporary file
+    const os = require('os');
+    const tempFilePath = path.join(os.tmpdir(), `itinerary_travnify_${Date.now()}.pdf`);
+    await fs.promises.writeFile(tempFilePath, Buffer.from(watermarkedBuffer));
+
+    // Send file to client
+    res.download(tempFilePath, 'itinerary_travnify.pdf', (err) => {
+      if (err) {
+        console.error('File download callback error:', err);
+      }
+      // Clean up the temp file
+      fs.unlink(tempFilePath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error('Temp file cleanup error:', unlinkErr);
+        }
+      });
+    });
+
   } catch (error) {
-    console.error('Verify PDF download error:', error);
+    console.error('PDF download/generation error:', error);
     captureUnexpectedException(req, error);
-    return res.status(500).json({ error: 'An error occurred verifying PDF download permission.' });
+    return res.status(500).json({ error: 'An error occurred during PDF generation.' });
   }
 }
 

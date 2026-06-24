@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, Clock, Tag, Compass, FileDown, Save, ShieldAlert, ArrowLeft, RefreshCw, Plane, Train, Bus, MapPin } from 'lucide-react';
 import { getCurrencySymbol } from '../lib/currency';
 
-export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onBack, onDownloadPDF, openPricingModal, openAuthModal, isRefining }) {
+export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onBack, onDownloadPDF, openPricingModal, openAuthModal, isRefining, showShareTooltip, setShowShareTooltip }) {
   const [openDays, setOpenDays] = useState({ 0: true }); // Open Day 1 by default
 
   const toggleDay = (idx) => {
@@ -432,7 +432,7 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
         </div>
 
         {/* Right Side: Save & PDF actions */}
-        <div style={{ display: 'flex', gap: '0.6rem', width: 'auto' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', width: 'auto', flexWrap: 'wrap' }}>
           <button 
             className="btn btn-secondary btn-sm" 
             onClick={() => user ? onSave() : openAuthModal('signup')}
@@ -446,13 +446,76 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
             className="btn btn-primary btn-sm"
             onClick={() => user?.isPremium ? onDownloadPDF() : openPricingModal()}
             style={{ fontSize: '0.82rem' }}
-            title={user?.isPremium ? 'Download PDF' : 'Upgrade to unlock PDF download'}
+            title={user?.isPremium ? 'Download PDF (Made by Travnify watermark)' : 'Upgrade to unlock PDF download'}
           >
             <FileDown size={14} />
-            <span>Download PDF</span>
+            <span>Download PDF (Made by Travnify watermark)</span>
           </button>
         </div>
       </div>
+
+      {/* WhatsApp Share Guide Card */}
+      {showShareTooltip && (
+        <div style={{
+          marginTop: '1.5rem',
+          background: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(34, 197, 94, 0.3)',
+          borderRadius: '16px',
+          padding: '1.25rem',
+          textAlign: 'left',
+          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.06)',
+          position: 'relative'
+        }}>
+          <button 
+            onClick={() => setShowShareTooltip(false)}
+            style={{
+              position: 'absolute',
+              top: '0.75rem',
+              right: '0.75rem',
+              background: 'none',
+              border: 'none',
+              color: '#94a3b8',
+              fontSize: '1.2rem',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              lineHeight: '1',
+              padding: '0.25rem'
+            }}
+            title="Close"
+          >
+            ×
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span style={{ fontSize: '1.25rem' }}>💚</span>
+            <h4 style={{ margin: 0, fontSize: '0.98rem', fontWeight: '700', color: '#166534' }}>
+              Itinerary Ready to Share!
+            </h4>
+          </div>
+          
+          <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.86rem', color: '#475569', lineHeight: '1.4' }}>
+            Your premium PDF with the watermark has been downloaded. Follow these quick steps to send it to friends or family:
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div style={{ background: 'rgba(34, 197, 94, 0.08)', padding: '0.75rem', borderRadius: '8px', borderLeft: '3px solid #22c55e' }}>
+              <div style={{ fontWeight: '600', fontSize: '0.82rem', color: '#15803d', marginBottom: '0.25rem' }}>📱 Mobile Sharing</div>
+              <div style={{ fontSize: '0.8rem', color: '#1e293b', lineHeight: '1.3' }}>
+                Open WhatsApp &rarr; choose your chat &rarr; tap Attach (plus icon) &rarr; Document &rarr; select the downloaded PDF.
+              </div>
+            </div>
+            
+            <div style={{ background: 'rgba(59, 130, 246, 0.08)', padding: '0.75rem', borderRadius: '8px', borderLeft: '3px solid #3b82f6' }}>
+              <div style={{ fontWeight: '600', fontSize: '0.82rem', color: '#1d4ed8', marginBottom: '0.25rem' }}>💻 Desktop Sharing (WhatsApp Web)</div>
+              <div style={{ fontSize: '0.8rem', color: '#1e293b', lineHeight: '1.3' }}>
+                You can also use WhatsApp Web (<a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb', textDecoration: 'underline', fontWeight: '500' }}>web.whatsapp.com</a>), open your chat, click the attachment icon, choose Document, and select this PDF.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mandatory Disclaimer footer, matching PRD */}
       <p className="disclaimer-text">
