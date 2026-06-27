@@ -75,7 +75,9 @@ function mapToJS(profile) {
     refreshToken: profile.refresh_token,
     refreshTokenExpiresAt: profile.refresh_token_expires_at ? Number(profile.refresh_token_expires_at) : null,
     createdAt: profile.created_at,
-    updatedAt: profile.updated_at
+    updatedAt: profile.updated_at,
+    razorpaySubscriptionId: profile.razorpay_subscription_id,
+    subscriptionStatus: profile.subscription_status
   };
 }
 
@@ -102,6 +104,8 @@ function mapToDB(user) {
   if (user.emailVerificationExpiresAt !== undefined) profile.email_verification_expires_at = user.emailVerificationExpiresAt;
   if (user.refreshToken !== undefined) profile.refresh_token = user.refreshToken;
   if (user.refreshTokenExpiresAt !== undefined) profile.refresh_token_expires_at = user.refreshTokenExpiresAt;
+  if (user.razorpaySubscriptionId !== undefined) profile.razorpay_subscription_id = user.razorpaySubscriptionId;
+  if (user.subscriptionStatus !== undefined) profile.subscription_status = user.subscriptionStatus;
   return profile;
 }
 
@@ -128,7 +132,20 @@ const users = {
       console.error('Supabase findById error:', error);
       throw error;
     }
-    return mapToJS(data);
+    const mapped = mapToJS(data);
+    if (mapped && mapped.isPremium && mapped.subscriptionEnd) {
+      const now = new Date();
+      const end = new Date(mapped.subscriptionEnd);
+      if (now > end) {
+        console.log(`[Database] Premium subscription expired for user ${mapped.id}. Auto-downgrading profile.`);
+        mapped.isPremium = false;
+        mapped.subscriptionStatus = 'expired';
+        users.update(mapped.id, { isPremium: false, subscriptionStatus: 'expired' }).catch(err => {
+          console.error('[Database] Failed to auto-downgrade expired user:', err.message);
+        });
+      }
+    }
+    return mapped;
   },
   findByEmail: async (email) => {
     if (!email) return null;
@@ -139,6 +156,19 @@ const users = {
       .maybeSingle();
     if (error) {
       console.error('Supabase findByEmail error:', error);
+      throw error;
+    }
+    return mapToJS(data);
+  },
+  findBySubscriptionId: async (subscriptionId) => {
+    if (!subscriptionId) return null;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('razorpay_subscription_id', subscriptionId)
+      .maybeSingle();
+    if (error) {
+      console.error('Supabase findBySubscriptionId error:', error);
       throw error;
     }
     return mapToJS(data);
@@ -164,17 +194,38 @@ const users = {
     if (!id || !isValidUUID(id)) return null;
     const dbUpdates = mapToDB(updates);
     delete dbUpdates.id;
-    const { data, error } = await supabase
-      .from('profiles')
-      .update(dbUpdates)
-      .eq('id', id)
-      .select()
-      .maybeSingle();
-    if (error) {
-      console.error('Supabase update error:', error);
-      throw error;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .maybeSingle();
+      if (error) {
+        if (error.code === '42703') {
+          console.warn('[Database] Supabase profiles missing subscription columns. Retrying update without subscription fields.');
+          delete dbUpdates.razorpay_subscription_id;
+          delete dbUpdates.subscription_status;
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('profiles')
+            .update(dbUpdates)
+            .eq('id', id)
+            .select()
+            .maybeSingle();
+          if (fallbackError) {
+            console.error('Supabase fallback update error:', fallbackError);
+            throw fallbackError;
+          }
+          return mapToJS(fallbackData);
+        }
+        console.error('Supabase update error:', error);
+        throw error;
+      }
+      return mapToJS(data);
+    } catch (err) {
+      console.error('Supabase update exception:', err.message);
+      throw err;
     }
-    return mapToJS(data);
   },
   consumeCredit: async (id) => {
     if (!id || !isValidUUID(id)) return { allowed: false, error: 'Invalid or missing user ID.' };

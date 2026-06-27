@@ -504,27 +504,46 @@ export function ActivityExplorer({
         <p className="section-subtitle" style={{ textAlign: 'left', marginBottom: '0.8rem' }}>
           Discover the best places in the world for the activities you love.
         </p>
-        {user && !user.isPremium && (
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.35rem 0.9rem',
-            background: '#F1F5F9',
-            color: '#475569',
-            borderRadius: '99px',
-            fontSize: '0.8rem',
-            fontWeight: '600',
-            marginTop: '0.2rem',
-            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
-          }}>
-            <span>
-              ⚡ Daily AI Credits: {user.dailyCreditsUsed || 0} / 5 used
-              {user.dailyCreditsUsed >= 5 && user.freeCreditsResetInMinutes > 0 && (
-                ` (Resets in ${Math.floor(user.freeCreditsResetInMinutes / 60)}h ${user.freeCreditsResetInMinutes % 60}m)`
-              )}
-            </span>
-          </div>
+        {user && (
+          user.isPremium ? (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.35rem 0.9rem',
+              background: '#FFF7ED',
+              color: '#C2410C',
+              border: '1px solid rgba(249, 115, 22, 0.2)',
+              borderRadius: '99px',
+              fontSize: '0.8rem',
+              fontWeight: '700',
+              marginTop: '0.2rem',
+              boxShadow: '0 1px 2px rgba(249, 115, 22, 0.05)'
+            }}>
+              <span>⭐ Travnify Premium Active</span>
+            </div>
+          ) : (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.35rem 0.9rem',
+              background: '#F1F5F9',
+              color: '#475569',
+              borderRadius: '99px',
+              fontSize: '0.8rem',
+              fontWeight: '600',
+              marginTop: '0.2rem',
+              boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
+            }}>
+              <span>
+                ⚡ Daily AI Credits: {user.dailyCreditsUsed || 0} / 5 used
+                {user.dailyCreditsUsed >= 5 && user.freeCreditsResetInMinutes > 0 && (
+                  ` (Resets in ${Math.floor(user.freeCreditsResetInMinutes / 60)}h ${user.freeCreditsResetInMinutes % 60}m)`
+                )}
+              </span>
+            </div>
+          )
         )}
       </div>
 

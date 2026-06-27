@@ -35,41 +35,39 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
   const handleUpgrade = async () => {
     setIsLoading(true);
     try {
-      // 1. Create order on the backend (pass preferredCurrency)
+      // 1. Create subscription on the backend
       const token = localStorage.getItem('token');
-      const orderResponse = await safeFetch('/api/payments/create-order', {
+      const orderResponse = await safeFetch('/api/billing/create-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ 
-          planId: activePlanId,
-          currency: prefCurrency
+          plan: billingPeriod
         })
       });
 
       const orderData = await orderResponse.json();
       if (!orderResponse.ok) {
-        throw new Error(orderData.error || 'Failed to initialize payment.');
+        throw new Error(orderData.error || 'Failed to initialize subscription.');
       }
 
       if (orderData.sandbox) {
         // --- DEVELOPMENT SANDBOX MOCK CODE BLOCK ---
         setTimeout(async () => {
           try {
-            const verifyRes = await safeFetch('/api/payments/verify', {
+            const verifyRes = await safeFetch('/api/billing/verify-subscription', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
-                razorpay_order_id: orderData.orderId,
+                razorpay_subscription_id: orderData.subscription_id,
                 razorpay_payment_id: `pay_sandbox_${Math.random().toString(36).substring(2, 10)}`,
                 razorpay_signature: '',
-                planId: activePlanId,
-                billingPeriod
+                plan: billingPeriod
               })
             });
 
@@ -80,22 +78,24 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
 
             onUpgradeSuccess(verifyData.user);
             onClose();
-            alert('🚀 Congratulations! Your TRAVNIFY Premium Membership is now ACTIVE.');
+            alert('🚀 Congratulations! Your TRAVNIFY Premium Pass is now ACTIVE.');
           } catch (err) {
-            alert('Payment verification failed: ' + err.message);
+            alert('Subscription activation failed: ' + err.message);
           } finally {
             setIsLoading(false);
           }
         }, 1500);
       } else {
         // --- PRODUCTION RAZORPAY CODE BLOCK ---
+        if (typeof window.Razorpay === 'undefined') {
+          throw new Error('Razorpay Checkout SDK failed to load. Please check your internet connection.');
+        }
         const options = {
           key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
+          subscription_id: orderData.subscription_id,
+          recurring: 1,
           name: "TRAVNIFY Premium",
-          description: `Upgrade to Premium (${billingPeriod})`,
-          order_id: orderData.orderId,
+          description: `Premium Subscription (${billingPeriod})`,
           prefill: {
             name: user?.name || '',
             email: user?.email || ''
@@ -105,30 +105,29 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
           },
           handler: async function (response) {
             try {
-              const verifyRes = await safeFetch('/api/payments/verify', {
+              const verifyRes = await safeFetch('/api/billing/verify-subscription', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_subscription_id: response.razorpay_subscription_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  planId: activePlanId,
-                  billingPeriod
+                  plan: billingPeriod
                 })
               });
               const verifyData = await verifyRes.json();
               if (verifyRes.ok) {
                 onUpgradeSuccess(verifyData.user);
                 onClose();
-                alert('🚀 Congratulations! Your TRAVNIFY Premium Membership is now ACTIVE.');
+                alert('🚀 Congratulations! Your TRAVNIFY Premium Pass is now ACTIVE.');
               } else {
-                alert('Payment verification failed: ' + (verifyData.error || 'Unknown error'));
+                alert('Subscription verification failed: ' + (verifyData.error || 'Unknown error'));
               }
             } catch (err) {
-              alert('Payment verification error: ' + err.message);
+              alert('Subscription verification error: ' + err.message);
             } finally {
               setIsLoading(false);
             }
@@ -293,11 +292,23 @@ export default function PricingModal({ isOpen, onClose, user, onUpgradeSuccess }
               className={`btn btn-primary premium-cta-btn ${isLoading ? 'btn-disabled' : ''}`}
               onClick={handleUpgrade}
               disabled={isLoading}
-              style={{ width: '100%', height: '48px', fontSize: '1.02rem' }}
+              style={{ width: '100%', height: '48px', fontSize: '1.02rem', marginBottom: '0.6rem' }}
             >
               {isLoading ? <RefreshCw size={18} className="animate-spin" /> : null}
               <span>{isLoading ? 'Activating...' : `Get Premium – ${displayPriceStr} / ${periodLabel}`}</span>
             </button>
+
+            {/* Compliance Disclaimer */}
+            <p style={{
+              fontSize: '0.74rem',
+              color: '#64748B',
+              textAlign: 'center',
+              lineHeight: '1.4',
+              margin: '0 auto',
+              maxWidth: '380px'
+            }}>
+              Renews automatically every {periodLabel}. You can cancel anytime from your account settings or payment app.
+            </p>
           </div>
         </div>
       </div>

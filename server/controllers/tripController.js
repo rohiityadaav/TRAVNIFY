@@ -772,6 +772,92 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
   let grandTotal = 0;
 
   const dayByDayPlan = [];
+
+  let travelTotal = 0;
+  let foodTotal = 0;
+  let stayTotal = 0;
+  let activitiesTotal = 0;
+  let shoppingTotal = 0;
+
+  function getBlockCategory(block) {
+    if (!block) return 'activities';
+    const text = `${block.title || ''} ${block.description || ''} ${block.activity || ''}`.toLowerCase();
+    if (text.includes('hotel') || text.includes('stay') || text.includes('hostel') || text.includes('check-in') || text.includes('check in') || text.includes('overnight') || text.includes('lodging') || text.includes('accommodation') || text.includes('resort')) {
+      return 'stay';
+    }
+    if (text.includes('transit') || text.includes('travel') || text.includes('board') || text.includes('bus') || text.includes('train') || text.includes('flight') || text.includes('airport') || text.includes('cab') || text.includes('taxi') || text.includes('metro') || text.includes('drive') || text.includes('reach') || text.includes('transfer')) {
+      return 'travel';
+    }
+    if (text.includes('food') || text.includes('lunch') || text.includes('dinner') || text.includes('breakfast') || text.includes('cafe') || text.includes('restaurant') || text.includes('delicacies') || text.includes('tasting') || text.includes('bistro') || text.includes('barbecue') || text.includes('eat') || text.includes('dining')) {
+      return 'food';
+    }
+    if (text.includes('market') || text.includes('shopping') || text.includes('souvenir') || text.includes('mall') || text.includes('store') || text.includes('bazaar') || text.includes('shop') || text.includes('bazar') || text.includes('boutique') || text.includes('handicraft')) {
+      return 'shopping';
+    }
+    return 'activities';
+  }
+
+  function getCategoryForPlace(place) {
+    if (!place) return 'activities';
+    const type = (place.type || '').toLowerCase();
+    const tags = (place.tags || []).map(t => String(t).toLowerCase());
+    const name = (place.name || '').toLowerCase();
+    const desc = (place.description || '').toLowerCase();
+    const allText = `${type} ${name} ${desc} ${tags.join(' ')}`;
+
+    if (type === 'restaurant' || type === 'cafe' || type === 'streetfood' || type === 'street_food' || tags.includes('food') || tags.includes('restaurant') || tags.includes('cafe') || allText.includes('restaurant') || allText.includes('cafe') || allText.includes('dining') || allText.includes('food') || allText.includes('streetfood')) {
+      return 'food';
+    }
+    if (type === 'hotel' || type === 'stay' || tags.includes('hotel') || tags.includes('stay') || tags.includes('accommodation') || tags.includes('hostel') || tags.includes('resort') || allText.includes('hotel') || allText.includes('resort') || allText.includes('homestay') || allText.includes('hostel')) {
+      return 'stay';
+    }
+    if (
+      type === 'market' || type === 'shopping' || tags.includes('shopping') ||
+      tags.includes('bazaar') || tags.includes('mall') || tags.includes('market') || tags.includes('bazar') ||
+      allText.includes('market') || allText.includes('shopping') || allText.includes('bazaar') || allText.includes('mall') || allText.includes('shop') || allText.includes('store') || allText.includes('bazar') || allText.includes('souvenir') || allText.includes('handicraft') || allText.includes('boutique')
+    ) {
+      return 'shopping';
+    }
+    if (
+      type === 'attraction' || type === 'fort' || type === 'museum' ||
+      type === 'park' || type === 'nightlife' || tags.includes('activity') || tags.includes('attraction') ||
+      allText.includes('attraction') || allText.includes('fort') || allText.includes('museum') || allText.includes('park') || allText.includes('sightseeing') || allText.includes('view') || allText.includes('monument') || allText.includes('temple') || allText.includes('palace') || allText.includes('nightlife')
+    ) {
+      return 'activities';
+    }
+    return 'activities';
+  }
+
+  function addCategoryAmount(category, amount) {
+    if (category === 'travel') travelTotal += amount;
+    else if (category === 'food') foodTotal += amount;
+    else if (category === 'stay') stayTotal += amount;
+    else if (category === 'shopping') shoppingTotal += amount;
+    else activitiesTotal += amount;
+  }
+
+  const allocateCostForBlock = (rawBlock, processedBlock) => {
+    const blockCategory = getBlockCategory(rawBlock);
+    const totalAmount = processedBlock.estimatedCost.amount;
+
+    if (rawBlock.places && Array.isArray(rawBlock.places) && rawBlock.places.length > 0) {
+      let allocatedPlacesSum = 0;
+      rawBlock.places.forEach((p) => {
+        const placeCost = Number(p.approx_cost || p.approxCost || p.approx_value || p.approxValue) || 0;
+        allocatedPlacesSum += placeCost;
+        const cat = getCategoryForPlace(p);
+        addCategoryAmount(cat, placeCost);
+      });
+
+      const remainder = totalAmount - allocatedPlacesSum;
+      if (remainder > 0) {
+        addCategoryAmount(blockCategory, remainder);
+      }
+    } else {
+      addCategoryAmount(blockCategory, totalAmount);
+    }
+  };
+
   for (let idx = 0; idx < totalDays; idx++) {
     const rawDay = rawDays[idx] || {};
     const dayNumber = Number(rawDay.dayNumber || rawDay.dayIndex || (idx + 1));
@@ -808,15 +894,15 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
         if (matched) currency = matched[0].toUpperCase();
       }
 
+      const rawBlockCat = getBlockCategory(block);
       let type = 'activity';
-      const text = `${description}`.toLowerCase();
-      if (text.includes('hotel') || text.includes('stay') || text.includes('hostel') || text.includes('check-in') || text.includes('check in') || text.includes('overnight') || text.includes('lodging')) {
+      if (rawBlockCat === 'stay') {
         type = 'stay';
         totalStay += amount;
-      } else if (text.includes('transit') || text.includes('travel') || text.includes('board') || text.includes('bus') || text.includes('train') || text.includes('flight') || text.includes('airport') || text.includes('cab') || text.includes('taxi') || text.includes('metro') || text.includes('drive')) {
+      } else if (rawBlockCat === 'travel') {
         type = 'travel';
         totalTransport += amount;
-      } else if (text.includes('food') || text.includes('lunch') || text.includes('dinner') || text.includes('breakfast') || text.includes('cafe') || text.includes('restaurant') || text.includes('delicacies') || text.includes('tasting') || text.includes('bistro') || text.includes('barbecue') || text.includes('eat')) {
+      } else if (rawBlockCat === 'food') {
         type = 'food';
         totalFood += amount;
       } else {
@@ -834,9 +920,15 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       };
     };
 
+
+
     const morning = processBlock(rawMorning, 'Morning sightseeing and exploring.');
     const afternoon = processBlock(rawAfternoon, 'Afternoon local lunch and walk.');
     const evening = processBlock(rawEvening, 'Evening dinner and relaxation.');
+
+    allocateCostForBlock(rawMorning, morning);
+    allocateCostForBlock(rawAfternoon, afternoon);
+    allocateCostForBlock(rawEvening, evening);
 
     const d = new Date(baseDate);
     d.setDate(d.getDate() + idx);
@@ -855,25 +947,6 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       notes
     });
   }
-
-  let transportPercent = 25;
-  let stayPercent = 35;
-  let foodPercent = 20;
-  let activitiesPercent = 20;
-
-  if (grandTotal > 0) {
-    transportPercent = Math.round((totalTransport / grandTotal) * 100);
-    stayPercent = Math.round((totalStay / grandTotal) * 100);
-    foodPercent = Math.round((totalFood / grandTotal) * 100);
-    activitiesPercent = 100 - (transportPercent + stayPercent + foodPercent);
-  }
-
-  const budgetBreakdown = {
-    transportPercent,
-    stayPercent,
-    foodPercent,
-    activitiesPercent
-  };
 
   const rawSL = itinerary.safetyAndLogistics || {};
   const safetyAndLogistics = {
@@ -1075,6 +1148,52 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     }
   }
 
+  // Add fixed travel component (howToReach estimated cost) to travelTotal
+  let fixedTravelCost = 0;
+  if (howToReach && howToReach.estimatedCost) {
+    fixedTravelCost = Number(howToReach.estimatedCost.amount || howToReach.estimatedCost.value) || 0;
+  }
+  travelTotal += fixedTravelCost;
+
+  const calculatedTotalCost = travelTotal + foodTotal + stayTotal + activitiesTotal + shoppingTotal;
+  const averageDailyBudget = totalDays > 0 ? Math.round(calculatedTotalCost / totalDays) : 0;
+
+  let travelPercent = 0;
+  let foodPercent = 0;
+  let stayPercent = 0;
+  let activitiesPercent = 0;
+  let shoppingPercent = 0;
+
+  if (calculatedTotalCost > 0) {
+    travelPercent = Math.round((travelTotal / calculatedTotalCost) * 100);
+    foodPercent = Math.round((foodTotal / calculatedTotalCost) * 100);
+    stayPercent = Math.round((stayTotal / calculatedTotalCost) * 100);
+    activitiesPercent = Math.round((activitiesTotal / calculatedTotalCost) * 100);
+    shoppingPercent = 100 - (travelPercent + foodPercent + stayPercent + activitiesPercent);
+
+    if (shoppingPercent < 0) {
+      const diff = -shoppingPercent;
+      activitiesPercent = Math.max(0, activitiesPercent - diff);
+      shoppingPercent = 0;
+    }
+  }
+
+  const budgetAllocation = {
+    travel: { amount: travelTotal, percentage: travelPercent },
+    food: { amount: foodTotal, percentage: foodPercent },
+    stay: { amount: stayTotal, percentage: stayPercent },
+    activities: { amount: activitiesTotal, percentage: activitiesPercent },
+    shopping: { amount: shoppingTotal, percentage: shoppingPercent }
+  };
+
+  const budgetBreakdown = {
+    transit: travelPercent,
+    stays: stayPercent,
+    food: foodPercent,
+    activities: activitiesPercent,
+    shopping: shoppingPercent
+  };
+
   console.log(`[DEBUG Same-City] Resolution summary for destination "${destination}":`);
   console.log(`  - startCity: "${startCity}" -> resolved: "${resolvedStart.city}", country: "${resolvedStart.country}"`);
   console.log(`  - destination: "${destination}" -> resolved: "${resolvedDest.city}", country: "${resolvedDest.country}", area: "${resolvedDest.area}"`);
@@ -1090,7 +1209,7 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       totalDays,
       travelStyle,
       estimatedTotalCost: {
-        amount: estCostAmount,
+        amount: calculatedTotalCost,
         currency: estCostCurrency
       },
       bestTimeAdvice
@@ -1100,6 +1219,7 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     safetyAndLogistics,
     localCurrencyNote,
     budgetBreakdown,
+    budgetAllocation,
     destination,
     startCity,
     startCountry,
@@ -1169,15 +1289,16 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       ]
     })),
     estimatedTotalCost: {
-      value: estCostAmount,
+      value: calculatedTotalCost,
       currency: estCostCurrency
     },
     summary: {
       destination,
       totalDays,
-      approxTotalCost: estCostAmount,
+      approxTotalCost: calculatedTotalCost,
       currency: estCostCurrency,
-      dailyAverageCost: Math.round(estCostAmount / totalDays)
+      dailyAverageCost: averageDailyBudget,
+      averageDailyBudget: averageDailyBudget
     }
   };
 }
@@ -2894,43 +3015,42 @@ function generatePDFBuffer(trip, userEmail) {
          .font('Helvetica-Oblique')
          .fontSize(8.5)
          .text('Disclaimer: All times and costs are estimates. Please verify schedules and pricing before traveling.', 40, yOffset);
-      
-      doc.text('TRAVNIFY takes no responsibility for availability, schedules, or pricing variances.', 40, doc.y + 4);
 
       doc.end();
-    } catch (err) {
-      reject(err);
+    } catch (error) {
+      reject(error);
     }
   });
 }
 
 async function watermarkPDF(pdfBuffer) {
   const pdfDoc = await LibPDFDocument.load(pdfBuffer);
-  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const pages = pdfDoc.getPages();
 
   for (const page of pages) {
     const { width, height } = page.getSize();
 
-    // Draw diagonal text watermark
+    // Draw diagonal text watermark (light, semi-transparent)
     page.drawText('Made by Travnify', {
-      x: width / 2 - 140,
-      y: height / 2 - 20,
-      size: 40,
-      font: font,
-      color: rgb(0.85, 0.85, 0.85),
+      x: width / 4,
+      y: height / 2,
+      size: 36,
+      font: fontBold,
+      color: rgb(0.8, 0.8, 0.8),
       rotate: degrees(45),
-      opacity: 0.25,
+      opacity: 0.20,
     });
 
-    // Draw footer watermark
-    page.drawText('Made by Travnify - travnify.com', {
-      x: width - 200,
-      y: 20,
-      size: 9,
-      font: font,
-      color: rgb(0.6, 0.6, 0.6),
-      opacity: 0.6,
+    // Draw footer watermark (small, clearly visible bottom-left)
+    page.drawText('Made by Travnify • travnify.com', {
+      x: 40,
+      y: 30,
+      size: 10,
+      font: fontRegular,
+      color: rgb(0.5, 0.5, 0.5),
+      opacity: 0.8,
     });
   }
 
@@ -3002,6 +3122,7 @@ module.exports = {
   deleteTrip,
   downloadTripPDF,
   generateMockItinerary,
+  normalizeItinerary,
   // Public aliases for testing
   findGlobalDestinationPublic: (queryText) => findGlobalDestination({ queryText })
 };

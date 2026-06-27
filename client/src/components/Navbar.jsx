@@ -151,8 +151,34 @@ export default function Navbar({ activeTab, setActiveTab, user, onLogout, openAu
                 <div style={{ padding: '0.6rem 1rem', fontSize: '0.78rem', color: '#94A3B8', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                   Logged in as <strong style={{ color: '#475569' }}>{user.email}</strong>
                   {user.isPremium && (
-                    <div style={{ marginTop: '0.4rem', color: '#F26430', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                      <Shield size={12} fill="#F26430" /> Premium Active
+                    <div style={{ marginTop: '0.4rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                      <div style={{ color: '#F26430', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                        <Shield size={12} fill="#F26430" /> Premium {user.subscriptionType === 'yearly' ? 'Yearly' : 'Monthly'}
+                      </div>
+                      {user.subscriptionEnd && (
+                        <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                          {user.subscriptionStatus === 'cancelled' ? 'Expires: ' : 'Renewal: '}
+                          {new Date(user.subscriptionEnd).toLocaleDateString()}
+                        </div>
+                      )}
+                      <button 
+                        onClick={() => { setDropdownOpen(false); handleNavClick('premium'); }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#F26430',
+                          padding: '0',
+                          textAlign: 'left',
+                          fontSize: '0.72rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                          marginTop: '0.2rem',
+                          outline: 'none'
+                        }}
+                      >
+                        Manage / Cancel Subscription
+                      </button>
                     </div>
                   )}
                   {user.role === 'admin' && (

@@ -51,11 +51,27 @@ const app = express();
 
 
 // Midlewares
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173', // dev
+  'http://localhost:5000', // dev alt (if needed)
+  'https://travnify.vercel.app' // production frontend (replace if your domain is different)
+];
+
 app.use(cors({
-  origin: (origin, callback) => callback(null, true),
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf ? buf.toString() : '';
+  }
+}));
 
 // Resource-level middleware: allow if user owns the trip OR is admin
 function tripOwnerOrAdmin(req, res, next) {
@@ -111,6 +127,12 @@ app.post('/api/discover/best-for-activity', authController.authenticateToken, va
 app.post('/api/subscribe/order', authController.authenticateToken, paymentController.createOrder);
 app.post('/api/subscribe/verify', authController.authenticateToken, paymentController.verifyPayment);
 app.post('/api/payments/create-order', authController.authenticateToken, paymentController.createOrder);
+
+// Subscription & Autopay Billing
+app.post('/api/billing/create-subscription', authController.authenticateToken, paymentController.createSubscription);
+app.post('/api/billing/verify-subscription', authController.authenticateToken, paymentController.verifySubscription);
+app.post('/api/billing/cancel-subscription', authController.authenticateToken, paymentController.cancelSubscription);
+app.post('/api/billing/razorpay-webhook', paymentController.razorpayWebhook);
 // Diagnostic Endpoint for Sentry error capturing (only public in development, requires admin in production)
 app.get('/api/debug-sentry-error', (req, res, next) => {
   if (process.env.NODE_ENV !== 'production') {

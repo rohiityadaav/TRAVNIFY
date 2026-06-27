@@ -14,10 +14,31 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
 
   if (!itinerary) return null;
 
-  const { summary, budgetBreakdown, days, localCurrencyNote } = itinerary;
+  const { summary, budgetBreakdown, budgetAllocation, tripSummary, days, localCurrencyNote } = itinerary;
   
-
   const currencySymbol = getCurrencySymbol(summary.currency);
+
+  const totalBudgetVal = tripSummary?.estimatedTotalCost?.amount || summary.approxTotalCost || 0;
+  const dailyAverageVal = summary.averageDailyBudget || summary.dailyAverageCost || 0;
+
+  // Resolve allocations or fallback to budgetBreakdown
+  let allocation = budgetAllocation;
+  if (!allocation) {
+    const totalCost = summary.approxTotalCost || 0;
+    const transPct = budgetBreakdown?.transit || budgetBreakdown?.transportPercent || 0;
+    const stayPct = budgetBreakdown?.stays || budgetBreakdown?.stayPercent || 0;
+    const foodPct = budgetBreakdown?.food || budgetBreakdown?.foodPercent || 0;
+    const actPct = budgetBreakdown?.activities || budgetBreakdown?.activitiesPercent || 0;
+    const shopPct = budgetBreakdown?.shopping || 0;
+
+    allocation = {
+      travel: { amount: Math.round(totalCost * (transPct / 100)), percentage: transPct },
+      stay: { amount: Math.round(totalCost * (stayPct / 100)), percentage: stayPct },
+      food: { amount: Math.round(totalCost * (foodPct / 100)), percentage: foodPct },
+      activities: { amount: Math.round(totalCost * (actPct / 100)), percentage: actPct },
+      shopping: { amount: Math.round(totalCost * (shopPct / 100)), percentage: shopPct }
+    };
+  }
 
   const getTypeStyle = (type) => {
     switch (type) {
@@ -113,11 +134,11 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
               <div className="metric-lbl">Duration</div>
             </div>
             <div className="metric-box">
-              <div className="metric-val">{currencySymbol}{summary.approxTotalCost.toLocaleString()}</div>
+              <div className="metric-val">{currencySymbol}{totalBudgetVal.toLocaleString()}</div>
               <div className="metric-lbl">Total Budget</div>
             </div>
             <div className="metric-box">
-              <div className="metric-val">{currencySymbol}{summary.dailyAverageCost.toLocaleString()}</div>
+              <div className="metric-val">{currencySymbol}{dailyAverageVal.toLocaleString()}</div>
               <div className="metric-lbl">Daily Average</div>
             </div>
           </div>
@@ -129,40 +150,50 @@ export default function ItineraryViewer({ itinerary, user, onSave, onRefine, onB
           <div className="breakdown-row">
             <div className="breakdown-lbls">
               <span>✈️ Transit</span>
-              <span>{budgetBreakdown.transportPercent}%</span>
+              <span>{currencySymbol}{allocation.travel.amount.toLocaleString()} ({allocation.travel.percentage}%)</span>
             </div>
             <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${budgetBreakdown.transportPercent}%`, background: '#0284C7' }}></div>
+              <div className="progress-bar-fill" style={{ width: `${allocation.travel.percentage}%`, background: '#0284C7' }}></div>
             </div>
           </div>
 
           <div className="breakdown-row" style={{ marginTop: '0.4rem' }}>
             <div className="breakdown-lbls">
               <span>🏨 Stays</span>
-              <span>{budgetBreakdown.stayPercent}%</span>
+              <span>{currencySymbol}{allocation.stay.amount.toLocaleString()} ({allocation.stay.percentage}%)</span>
             </div>
             <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${budgetBreakdown.stayPercent}%`, background: '#2C6E49' }}></div>
+              <div className="progress-bar-fill" style={{ width: `${allocation.stay.percentage}%`, background: '#2C6E49' }}></div>
             </div>
           </div>
 
           <div className="breakdown-row" style={{ marginTop: '0.4rem' }}>
             <div className="breakdown-lbls">
               <span>🍽️ Food</span>
-              <span>{budgetBreakdown.foodPercent}%</span>
+              <span>{currencySymbol}{allocation.food.amount.toLocaleString()} ({allocation.food.percentage}%)</span>
             </div>
             <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${budgetBreakdown.foodPercent}%`, background: '#E11D48' }}></div>
+              <div className="progress-bar-fill" style={{ width: `${allocation.food.percentage}%`, background: '#E11D48' }}></div>
             </div>
           </div>
 
           <div className="breakdown-row" style={{ marginTop: '0.4rem' }}>
             <div className="breakdown-lbls">
               <span>🎉 Activities</span>
-              <span>{budgetBreakdown.activitiesPercent}%</span>
+              <span>{currencySymbol}{allocation.activities.amount.toLocaleString()} ({allocation.activities.percentage}%)</span>
             </div>
             <div className="progress-bar-bg">
-              <div className="progress-bar-fill" style={{ width: `${budgetBreakdown.activitiesPercent}%`, background: '#7C3AED' }}></div>
+              <div className="progress-bar-fill" style={{ width: `${allocation.activities.percentage}%`, background: '#7C3AED' }}></div>
+            </div>
+          </div>
+
+          <div className="breakdown-row" style={{ marginTop: '0.4rem' }}>
+            <div className="breakdown-lbls">
+              <span>🛍️ Shopping / Misc</span>
+              <span>{currencySymbol}{allocation.shopping.amount.toLocaleString()} ({allocation.shopping.percentage}%)</span>
+            </div>
+            <div className="progress-bar-bg">
+              <div className="progress-bar-fill" style={{ width: `${allocation.shopping.percentage}%`, background: '#D97706' }}></div>
             </div>
           </div>
         </div>

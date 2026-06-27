@@ -2,6 +2,12 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Map, Mail, Twitter, Instagram, Linkedin, ShieldAlert, Star } from "lucide-react";
 
+export const SOCIAL_LINKS = {
+  instagram: "https://www.instagram.com/travnify/",
+  twitter: "#",
+  linkedin: "#"
+};
+
 const Footer = () => {
   return (
     <footer style={{
@@ -44,10 +50,36 @@ const Footer = () => {
             AI-powered travel planner that designs budget-disciplined, destination-aware itineraries in seconds.
           </p>
 
-          <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-            <a href="#" className="footer-link" aria-label="Twitter"><Twitter size={18} /></a>
-            <a href="#" className="footer-link" aria-label="Instagram"><Instagram size={18} /></a>
-            <a href="#" className="footer-link" aria-label="LinkedIn"><Linkedin size={18} /></a>
+          <div className="footer-social-row">
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Twitter"
+              className="footer-social-icon"
+            >
+              <Twitter size={18} />
+            </a>
+
+            <a
+              href="https://www.instagram.com/travnify/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Travnify on Instagram"
+              className="footer-social-icon"
+            >
+              <Instagram size={18} />
+            </a>
+
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="footer-social-icon"
+            >
+              <Linkedin size={18} />
+            </a>
           </div>
         </div>
 

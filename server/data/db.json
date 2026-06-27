@@ -1378,6 +1378,71 @@
         ]
       },
       "createdAt": "2026-05-21T07:40:49.938Z"
+    },
+    {
+      "id": "trp_test_watermark",
+      "userId": "3b8fb2ce-8c31-40c2-9e8c-32b0c36b8e88",
+      "destination": "Paris, France",
+      "budget": 500,
+      "currency": "EUR",
+      "startDate": "2026-07-01",
+      "endDate": "2026-07-03",
+      "interests": [
+        "sightseeing",
+        "food"
+      ],
+      "itinerary": {
+        "summary": {
+          "destination": "Paris, France",
+          "totalDays": 2,
+          "approxTotalCost": 350,
+          "dailyAverageCost": 175,
+          "currency": "EUR"
+        },
+        "days": [
+          {
+            "dayNumber": 1,
+            "location": "Paris City Center",
+            "date": "2026-07-01",
+            "blocks": [
+              {
+                "timeWindow": "09:00 - 12:00",
+                "title": "Louvre Museum Tour",
+                "description": "Explore the historic Louvre Museum, see the Mona Lisa, and wander through artistic galleries.",
+                "approxCost": {
+                  "currency": "EUR",
+                  "value": 25
+                }
+              },
+              {
+                "timeWindow": "14:00 - 17:00",
+                "title": "Tuileries Garden Walk",
+                "description": "Relax in the beautiful public gardens between the Louvre and the Place de la Concorde.",
+                "approxCost": {
+                  "currency": "EUR",
+                  "value": 0
+                }
+              }
+            ]
+          },
+          {
+            "dayNumber": 2,
+            "location": "Montmartre Neighborhood",
+            "date": "2026-07-02",
+            "blocks": [
+              {
+                "timeWindow": "10:00 - 13:00",
+                "title": "Sacre-Coeur Basilica",
+                "description": "Visit the stunning basilica on top of the Montmartre hill for amazing panoramic views of Paris.",
+                "approxCost": {
+                  "currency": "EUR",
+                  "value": 0
+                }
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "transactions": [

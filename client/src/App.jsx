@@ -402,7 +402,7 @@ export default function App() {
   const [showSkeleton, setShowSkeleton] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [tripError, setTripError] = useState(null);
-  const [fallbackWarning, setFallbackWarning] = useState(null);
+  const [isOfflinePlan, setIsOfflinePlan] = useState(false);
 
   // Debug state change listeners with precise millisecond timestamps
   useEffect(() => {
@@ -1317,6 +1317,13 @@ export default function App() {
         foodPercent: 20,
         activitiesPercent: 20
       },
+      budgetAllocation: {
+        travel: { amount: Math.round(budget * 0.25), percentage: 25 },
+        food: { amount: Math.round(budget * 0.25), percentage: 25 },
+        stay: { amount: Math.round(budget * 0.30), percentage: 30 },
+        activities: { amount: Math.round(budget * 0.15), percentage: 15 },
+        shopping: { amount: Math.round(budget * 0.05), percentage: 5 }
+      },
       destination: destName,
       days: dayByDayPlan.map(day => ({
         dayNumber: day.dayNumber,
@@ -1380,8 +1387,9 @@ export default function App() {
       }
 
       setIsGenerating(true);
-      setShowSkeleton(false);
+      setShowSkeleton(true);
       setTripError(null);
+      setIsOfflinePlan(false);
 
       // Geocode destination first to enrich details for both online and offline paths
       let resolvedDestCity = '';
@@ -1430,112 +1438,64 @@ export default function App() {
       // Check if user is Premium for long trips (> 92 days)
       if (lengthInDays > 92 && (!user || !user.isPremium)) {
         setIsGenerating(false);
+        setShowSkeleton(false);
         openPricingModal();
         return;
       }
-
-      // Clear any existing timers
-      if (skeletonTimerRef.current) {
-        clearTimeout(skeletonTimerRef.current);
-      }
-      if (fallbackTimerRef.current) {
-        clearTimeout(fallbackTimerRef.current);
-      }
-
-      let isAbortedByTimeout = false;
-
-      // Start 5-second timer for Stage 2 (skeleton screen)
-      const skeletonTimerStart = Date.now();
-      console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 5-second skeletonTimer`);
-      skeletonTimerRef.current = setTimeout(() => {
-        const elapsed = Date.now() - skeletonTimerStart;
-        console.log(`[DEBUG Loading] [${new Date().toISOString()}] skeletonTimer fired after ${elapsed}ms - setting showSkeleton=true, activeItinerary=null`);
-        setShowSkeleton(true);
-        setActiveItinerary(null);
-      }, 5000);
-
-      // Start 50-second timer for fallback (gives Render/AI pipeline ample time to complete)
-      console.log(`[DEBUG Loading] [${new Date().toISOString()}] Starting 50-second fallbackTimer`);
-      fallbackTimerRef.current = setTimeout(() => {
-        console.log(`[DEBUG Loading] [${new Date().toISOString()}] 50-second fallbackTimer fired - aborting active request and loading fallback`);
-        isAbortedByTimeout = true;
-        if (activeAbortControllerRef.current) {
-          activeAbortControllerRef.current.abort();
-        }
-        setIsGenerating(false);
-        setShowSkeleton(false);
-
-        // Final fallback: show a basic template itinerary generated on the client
-        const fallbackItinerary = generateClientItineraryTemplate(enrichedDetails);
-        fallbackItinerary.generationSource = 'client_fallback';
-        setActiveItinerary(fallbackItinerary);
-        setFallbackWarning("We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.");
-      }, 50000);
 
       const token = localStorage.getItem('token');
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const makeRequest = async (isSimplified = false) => {
-        const controller = new AbortController();
-        activeAbortControllerRef.current = controller;
+      const controller = new AbortController();
+      activeAbortControllerRef.current = controller;
 
-        const timeoutId = setTimeout(() => {
-          controller.abort();
-        }, 45000); // Align with backend's 45-second timeout
-
-        try {
-          const userLat = localStorage.getItem('userLat');
-          const userLng = localStorage.getItem('userLng');
-          const startCity = localStorage.getItem('userCity');
-          const startCountry = localStorage.getItem('userCountry');
-
-          const bodyPayload = {
-            ...enrichedDetails,
-            preferredCurrency: user?.preferredCurrency || enrichedDetails.currency || 'INR',
-            simplified: isSimplified
-          };
-          if (userLat && userLng) {
-            bodyPayload.userLat = Number(userLat);
-            bodyPayload.userLng = Number(userLng);
-          }
-          if (startCity) bodyPayload.startCity = startCity;
-          if (startCountry) bodyPayload.startCountry = startCountry;
-
-          const response = await safeFetch('/api/generateTrip', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(bodyPayload),
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          const responseJson = await response.json();
-          console.log("generateTrip response", responseJson);
-          return responseJson;
-        } catch (err) {
-          clearTimeout(timeoutId);
-          throw err;
-        }
-      };
+      const timeoutId = setTimeout(() => {
+        console.log("[DEBUG Loading] 15-second timeout reached. Aborting AI generation.");
+        controller.abort();
+      }, 15000); // 15s max timeout as requested
 
       try {
-        // First attempt
-        console.log("[DEBUG Loading] First attempt started");
-        const data = await makeRequest(false);
-        console.log("[DEBUG Loading] First attempt resolved successfully");
+        const userLat = localStorage.getItem('userLat');
+        const userLng = localStorage.getItem('userLng');
+        const startCity = localStorage.getItem('userCity');
+        const startCountry = localStorage.getItem('userCountry');
+
+        const bodyPayload = {
+          ...enrichedDetails,
+          preferredCurrency: user?.preferredCurrency || enrichedDetails.currency || 'INR',
+          simplified: false
+        };
+        if (userLat && userLng) {
+          bodyPayload.userLat = Number(userLat);
+          bodyPayload.userLng = Number(userLng);
+        }
+        if (startCity) bodyPayload.startCity = startCity;
+        if (startCountry) bodyPayload.startCountry = startCountry;
+
+        const response = await safeFetch('/api/generateTrip', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(bodyPayload),
+          signal: controller.signal
+        });
         
-        // Clear all timers on successful resolution
-        if (skeletonTimerRef.current) {
-          clearTimeout(skeletonTimerRef.current);
-          skeletonTimerRef.current = null;
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          const errorMsg = errData.error || 'AI generation failed';
+          const errObj = new Error(errorMsg);
+          errObj.code = errData.code;
+          throw errObj;
         }
-        if (fallbackTimerRef.current) {
-          clearTimeout(fallbackTimerRef.current);
-          fallbackTimerRef.current = null;
-        }
+
+        const data = await response.json();
+        console.log("generateTrip response", data);
+
         setIsGenerating(false);
         setShowSkeleton(false);
-        setFallbackWarning(null);
+        setIsOfflinePlan(false);
 
         const itineraryWithSource = {
           ...data.itinerary,
@@ -1562,24 +1522,12 @@ export default function App() {
           syncUserCredits();
         }
       } catch (err) {
-        if (isAbortedByTimeout) {
-          console.log("[DEBUG Loading] First attempt aborted because of 10s fallback timeout. Skipping retry.");
-          return;
-        }
+        clearTimeout(timeoutId);
+        console.warn('[DEBUG Loading] AI generation failed. Error:', err.message);
 
-        console.warn('[DEBUG Loading] First attempt failed. Error:', err.message);
-        
         // If it's a premium gate error from the server, handle immediately without retrying or fallback
         if (err.code === 'NEED_PREMIUM_FOR_LONG_TRIP' || err.message?.includes('NEED_PREMIUM_FOR_LONG_TRIP')) {
           console.log("[DEBUG Loading] Premium gate error - aborting and showing modal");
-          if (skeletonTimerRef.current) {
-            clearTimeout(skeletonTimerRef.current);
-            skeletonTimerRef.current = null;
-          }
-          if (fallbackTimerRef.current) {
-            clearTimeout(fallbackTimerRef.current);
-            fallbackTimerRef.current = null;
-          }
           setIsGenerating(false);
           setShowSkeleton(false);
           openPricingModal();
@@ -1587,16 +1535,8 @@ export default function App() {
         }
 
         // If it's normal credit limit error, handle immediately
-        if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED') {
+        if (err.code === 'LIMIT_EXCEEDED' || err.code === 'FREE_LIMIT_REACHED' || err.message?.includes('limit')) {
           console.log("[DEBUG Loading] Limit exceeded error - aborting and showing modal");
-          if (skeletonTimerRef.current) {
-            clearTimeout(skeletonTimerRef.current);
-            skeletonTimerRef.current = null;
-          }
-          if (fallbackTimerRef.current) {
-            clearTimeout(fallbackTimerRef.current);
-            fallbackTimerRef.current = null;
-          }
           setIsGenerating(false);
           setShowSkeleton(false);
           openPricingModal();
@@ -1604,84 +1544,26 @@ export default function App() {
           return;
         }
 
-        // Retry once with simplified flag - DO NOT reset or clear fallback/skeleton timers here.
-        console.log('[DEBUG Loading] Retrying once with simplified flag...');
-        try {
-          const data = await makeRequest(true);
-          console.log("[DEBUG Loading] Retry attempt resolved successfully");
-          
-          if (skeletonTimerRef.current) {
-            clearTimeout(skeletonTimerRef.current);
-            skeletonTimerRef.current = null;
-          }
-          if (fallbackTimerRef.current) {
-            clearTimeout(fallbackTimerRef.current);
-            fallbackTimerRef.current = null;
-          }
-          setIsGenerating(false);
-          setShowSkeleton(false);
-          setFallbackWarning(null);
+        // Otherwise load offline fallback plan
+        setIsGenerating(false);
+        setShowSkeleton(false);
 
-          const itineraryWithSource = {
-            ...data.itinerary,
-            generationSource: 'backend_retry'
-          };
-          setActiveItinerary(itineraryWithSource);
-
-          // Track plan generation success
-          trackEvent('plan_created', {
-            days: data.itinerary?.summary?.totalDays || details.days || 3,
-            destinationCount: details.destination ? details.destination.split(',').length : 1,
-            simplified: true
-          });
-          posthog.capture('trip_generated_success', {
-            destination: details.destination,
-            days: data.itinerary?.summary?.totalDays || details.days || 3,
-            budgetTier: details.budgetTier,
-            method: 'ai_retry_simplified'
-          });
-
-          if (data.user && setUser) {
-            setUser(data.user);
-          } else {
-            syncUserCredits();
-          }
-        } catch (retryErr) {
-          if (isAbortedByTimeout) {
-            console.log("[DEBUG Loading] Retry attempt aborted by timeout. Aborting flow.");
-            return;
-          }
-
-          console.error('[DEBUG Loading] Retry attempt also failed. Error:', retryErr.message);
-          
-          if (skeletonTimerRef.current) {
-            clearTimeout(skeletonTimerRef.current);
-            skeletonTimerRef.current = null;
-          }
-          if (fallbackTimerRef.current) {
-            clearTimeout(fallbackTimerRef.current);
-            fallbackTimerRef.current = null;
-          }
-          setIsGenerating(false);
-          setShowSkeleton(false);
-
-          // Final fallback: show a basic template itinerary generated on the client
-          const fallbackItinerary = generateClientItineraryTemplate(enrichedDetails);
-          fallbackItinerary.generationSource = 'client_fallback';
-          setActiveItinerary(fallbackItinerary);
-          setFallbackWarning("We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.");
-          
-          // Track fallback generation
-          trackEvent('plan_created', {
-            days: fallbackItinerary?.tripSummary?.totalDays || 3,
-            destinationCount: enrichedDetails.destination ? enrichedDetails.destination.split(',').length : 1,
-            fallback: true
-          });
-          posthog.capture('trip_generated_failed', {
-            destination: details.destination,
-            error: retryErr.message || 'Unknown generation error'
-          });
-        }
+        // Final fallback: show a basic template itinerary generated on the client
+        const fallbackItinerary = generateClientItineraryTemplate(enrichedDetails);
+        fallbackItinerary.generationSource = 'client_fallback';
+        setActiveItinerary(fallbackItinerary);
+        setIsOfflinePlan(true);
+        
+        // Track fallback generation
+        trackEvent('plan_created', {
+          days: fallbackItinerary?.tripSummary?.totalDays || 3,
+          destinationCount: enrichedDetails.destination ? enrichedDetails.destination.split(',').length : 1,
+          fallback: true
+        });
+        posthog.capture('trip_generated_failed', {
+          destination: details.destination,
+          error: err.message || 'Unknown generation error'
+        });
       }
     };
 
@@ -1812,7 +1694,7 @@ export default function App() {
     setActiveTab('plan');
     setActiveItinerary(null);
     setTripError(null);
-    setFallbackWarning(null);
+    setIsOfflinePlan(false);
     setShowShareTooltip(false);
 
     const today = new Date().toISOString().split('T')[0];
@@ -1955,66 +1837,24 @@ export default function App() {
               activeItinerary ? (
                 /* Render Generated Day Accordions */
                 <>
-                  {fallbackWarning && (
-                    <div style={{
-                      padding: '1.2rem',
-                      background: '#FFFBEB',
-                      border: '1px solid #FCD34D',
-                      borderRadius: '16px',
-                      color: '#B45309',
-                      fontSize: '0.92rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '1rem',
-                      maxWidth: '800px',
-                      margin: '1.5rem auto 1rem auto',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-                      textAlign: 'left'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <span style={{ fontSize: '1.3rem' }}>🧭</span>
-                        <div>
-                          <strong>Lighter offline plan loaded.</strong> {fallbackWarning}
-                        </div>
-                      </div>
+                  {isOfflinePlan && (
+                    <div className="offline-plan-banner">
+                      <p>
+                        🧭 Lighter offline plan loaded. We had trouble reaching our AI planner (connection timed out). We've loaded a lighter offline plan, but you can retry the AI generation.
+                      </p>
                       <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
                         <button
+                          className="retry-btn"
                           disabled={isGenerating}
-                          onClick={() => {
-                            handleGenerateTrip(activeTripDetails);
-                          }}
-                          style={{
-                            background: '#F59E0B',
-                            border: 'none',
-                            color: '#FFFFFF',
-                            padding: '0.45rem 1.2rem',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            fontSize: '0.85rem',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                            opacity: isGenerating ? 0.7 : 1,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem'
-                          }}
+                          onClick={() => handleGenerateTrip(activeTripDetails)}
                         >
                           {isGenerating && <RefreshCw size={14} className="animate-spin" />}
                           {isGenerating ? 'Retrying...' : 'Retry AI Plan'}
                         </button>
                         <button
+                          className="dismiss-btn"
                           disabled={isGenerating}
-                          onClick={() => setFallbackWarning(null)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#B45309',
-                            cursor: 'pointer',
-                            fontSize: '0.85rem',
-                            fontWeight: '600',
-                            opacity: isGenerating ? 0.5 : 1
-                          }}
+                          onClick={() => setIsOfflinePlan(false)}
                         >
                           Dismiss
                         </button>
@@ -2030,7 +1870,7 @@ export default function App() {
                     onDownloadPDF={handleDownloadPDF}
                     onBack={() => {
                       setActiveItinerary(null);
-                      setFallbackWarning(null);
+                      setIsOfflinePlan(false);
                       setShowSkeleton(false);
                       setShowShareTooltip(false);
                     }}
@@ -2050,13 +1890,8 @@ export default function App() {
                       {(() => {
                         console.log(`[DEBUG Loading] [${new Date().toISOString()}] Plan Tab Render - isGenerating: ${isGenerating}, showSkeleton: ${showSkeleton}`);
                         if (isGenerating) {
-                          if (showSkeleton) {
-                            console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning ItinerarySkeleton`);
-                            return <ItinerarySkeleton />;
-                          } else {
-                            console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning GeneratingLoader`);
-                            return <GeneratingLoader />;
-                          }
+                          console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning ItinerarySkeleton`);
+                          return <ItinerarySkeleton />;
                         } else {
                           console.log(`[DEBUG Loading] [${new Date().toISOString()}] Render branch: returning PlanTrip form`);
                           return (

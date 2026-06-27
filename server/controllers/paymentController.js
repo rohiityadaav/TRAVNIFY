@@ -290,5 +290,462 @@ async function verifyPayment(req, res) {
 
 module.exports = {
   createOrder,
-  verifyPayment
+  verifyPayment,
+  createSubscription,
+  verifySubscription,
+  cancelSubscription,
+  razorpayWebhook
 };
+
+// ----------------------------------------------------
+// EMAIL NOTIFICATION SENDER (MOCKED)
+// ----------------------------------------------------
+function sendPremiumEmailNotification(user, type, details) {
+  let subject = '';
+  let body = '';
+
+  if (type === 'activation') {
+    subject = 'Welcome to TRAVNIFY Premium! 🚀';
+    body = `Hi ${user.name || 'Traveler'},\n\nThank you for choosing TRAVNIFY Premium! Your monthly/yearly plan has been successfully activated.\n\nHere are your subscription details:\n- Plan: Premium Pass (${user.subscriptionType === 'yearly' ? 'Yearly' : 'Monthly'})\n- Status: Active\n- Renewal Date: ${details.endDate}\n\nYou now have unlimited AI trip planning, access to the hidden gems dashboard, and high-fidelity PDF exports.\n\nHappy travels,\nThe TRAVNIFY Team`;
+  } else if (type === 'renewal') {
+    subject = 'Your TRAVNIFY Premium subscription has been renewed! 🔄';
+    body = `Hi ${user.name || 'Traveler'},\n\nWe successfully processed your renewal payment. Your subscription is active for another billing cycle.\n\nNext Billing Date: ${details.endDate}\n\nThank you for exploring the world with us!\n\nThe TRAVNIFY Team`;
+  } else if (type === 'cancellation') {
+    subject = 'TRAVNIFY Premium Cancellation Confirmed 🛑';
+    body = `Hi ${user.name || 'Traveler'},\n\nYour subscription has been cancelled and scheduled to terminate on ${details.endDate}.\n\nYou will continue to enjoy Premium access until then. Once terminated, you will return to the free plan.\n\nWe hope to welcome you back soon!\n\nThe TRAVNIFY Team`;
+  }
+
+  console.log(`\n====================================================`);
+  console.log(`✉️  [MOCK EMAIL SERVICE] SENDING SUBSCRIPTION NOTIFICATION`);
+  console.log(`👉 To: ${user.email}`);
+  console.log(`👉 Subject: ${subject}`);
+  console.log(`👉 Body:\n${body}`);
+  console.log(`====================================================\n`);
+  return true;
+}
+
+// ----------------------------------------------------
+// CREATE SUBSCRIPTION
+// ----------------------------------------------------
+async function createSubscription(req, res) {
+  try {
+    const { plan } = req.body;
+    if (plan !== 'monthly' && plan !== 'yearly') {
+      return res.status(400).json({ error: 'Invalid plan. Must be monthly or yearly.' });
+    }
+
+    const user = await db.users.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Map plan to Razorpay plan ID from env variables strictly
+    const planId = plan === 'yearly'
+      ? process.env.RAZORPAY_PLAN_YEARLY
+      : process.env.RAZORPAY_PLAN_MONTHLY;
+
+    if (!planId) {
+      console.error(`[Razorpay Subscription] Plan ID missing in environment variables for plan style: ${plan}`);
+      return res.status(500).json({ error: 'Subscription plan is not configured in the server environment.' });
+    }
+
+    let subscriptionId = `sub_mock_${Math.random().toString(36).substring(2, 11)}`;
+    let isSandbox = true;
+
+    if (razorpayInstance) {
+      try {
+        const sub = await razorpayInstance.subscriptions.create({
+          plan_id: planId,
+          customer_notify: 1,
+          total_count: plan === 'yearly' ? 10 : 120, // number of cycles (10 years)
+          quantity: 1,
+          notes: {
+            userId: user.id
+          }
+        });
+        subscriptionId = sub.id;
+        isSandbox = false;
+      } catch (err) {
+        console.error('Razorpay SDK subscription creation failed, falling back to Sandbox simulation:', err.message);
+      }
+    }
+
+    // Save initial details in user profile
+    await db.users.update(user.id, {
+      subscriptionType: plan,
+      razorpaySubscriptionId: subscriptionId,
+      subscriptionStatus: 'created',
+      isPremium: false // Set false initially, verification or webhook will activate
+    });
+
+    // Also store a transaction in our local DB for tracking
+    const planPrices = PLAN_PRICES[plan === 'yearly' ? 'premiumYearly' : 'premiumMonthly'];
+    const currency = user.preferredCurrency || 'INR';
+    const amount = planPrices[currency] ?? planPrices['INR'];
+
+    let amountInMinorUnits;
+    if (ZERO_DECIMAL_CURRENCIES.has(currency)) {
+      amountInMinorUnits = Math.round(amount);
+    } else {
+      amountInMinorUnits = Math.round(amount * 100);
+    }
+
+    const transaction = {
+      id: generateId('tx'),
+      userId: user.id,
+      orderId: subscriptionId,
+      paymentId: '',
+      amount: amount,
+      currency: currency,
+      status: 'created',
+      createdAt: new Date().toISOString()
+    };
+    db.transactions.create(transaction);
+
+    return res.json({
+      success: true,
+      sandbox: isSandbox,
+      subscription_id: subscriptionId,
+      keyId: config.RAZORPAY_KEY_ID || 'rzp_test_mock_id_travnify',
+      amount: amountInMinorUnits,
+      currency: currency,
+      user: {
+        name: user.name,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Create subscription error:', error);
+    return res.status(500).json({ error: 'An error occurred creating subscription.' });
+  }
+}
+
+// ----------------------------------------------------
+// VERIFY SUBSCRIPTION
+// ----------------------------------------------------
+async function verifySubscription(req, res) {
+  try {
+    const { razorpay_subscription_id, razorpay_payment_id, razorpay_signature, plan } = req.body;
+
+    if (!razorpay_subscription_id) {
+      return res.status(400).json({ error: 'Subscription ID is required.' });
+    }
+
+    const user = await db.users.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // 1. Sandbox simulation check
+    if (razorpay_subscription_id.startsWith('sub_mock_') || !razorpay_signature) {
+      console.log(`Verifying subscription in Sandbox Mode for user: ${user.email}`);
+
+      const startDate = new Date();
+      const endDate = new Date();
+      if (plan === 'yearly') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      // Update user premium privileges
+      const updatedUser = await db.users.update(user.id, {
+        isPremium: true,
+        subscriptionType: plan || 'monthly',
+        subscriptionStart: startDate.toISOString(),
+        subscriptionEnd: endDate.toISOString(),
+        razorpaySubscriptionId: razorpay_subscription_id,
+        subscriptionStatus: 'active'
+      });
+
+      // Update associated transaction
+      const txList = db.transactions.findAll();
+      const tx = txList.find(t => t.orderId === razorpay_subscription_id);
+      if (tx) {
+        db.transactions.update(tx.id, {
+          paymentId: razorpay_payment_id || `pay_sandbox_${Math.random().toString(36).substring(2, 10)}`,
+          status: 'paid'
+        });
+      }
+
+      sendPremiumEmailNotification(updatedUser, 'activation', { endDate: endDate.toLocaleDateString() });
+
+      const userWithoutHash = {
+        ...updatedUser,
+        premiumPlanType: updatedUser.subscriptionType === 'yearly' ? 'yearly' : (updatedUser.subscriptionType === 'monthly' ? 'monthly' : null),
+        premiumExpiresAt: updatedUser.subscriptionEnd || null,
+        freeCreditsResetInMinutes: 0
+      };
+      delete userWithoutHash.passwordHash;
+
+      return res.json({
+        success: true,
+        message: 'Subscription successfully activated via Sandbox Simulator!',
+        user: userWithoutHash
+      });
+    }
+
+    // 2. Production Signature Verification
+    let isVerified = false;
+    if (config.RAZORPAY_KEY_SECRET) {
+      try {
+        const generated_signature = crypto
+          .createHmac('sha256', config.RAZORPAY_KEY_SECRET)
+          .update(razorpay_payment_id + '|' + razorpay_subscription_id)
+          .digest('hex');
+        isVerified = (generated_signature === razorpay_signature);
+      } catch (sdkError) {
+        console.error('Signature calculation failed:', sdkError.message);
+      }
+    }
+
+    if (!isVerified) {
+      return res.status(400).json({ error: 'Subscription payment signature verification failed.' });
+    }
+
+    const startDate = new Date();
+    const endDate = new Date();
+    if (plan === 'yearly') {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      endDate.setMonth(endDate.getMonth() + 1);
+    }
+
+    const updatedUser = await db.users.update(user.id, {
+      isPremium: true,
+      subscriptionType: plan || 'monthly',
+      subscriptionStart: startDate.toISOString(),
+      subscriptionEnd: endDate.toISOString(),
+      razorpaySubscriptionId: razorpay_subscription_id,
+      subscriptionStatus: 'active'
+    });
+
+    const txList = db.transactions.findAll();
+    const tx = txList.find(t => t.orderId === razorpay_subscription_id);
+    if (tx) {
+      db.transactions.update(tx.id, {
+        paymentId: razorpay_payment_id,
+        status: 'paid'
+      });
+    }
+
+    sendPremiumEmailNotification(updatedUser, 'activation', { endDate: endDate.toLocaleDateString() });
+
+    const userWithoutHash = {
+      ...updatedUser,
+      premiumPlanType: updatedUser.subscriptionType === 'yearly' ? 'yearly' : (updatedUser.subscriptionType === 'monthly' ? 'monthly' : null),
+      premiumExpiresAt: updatedUser.subscriptionEnd || null,
+      freeCreditsResetInMinutes: 0
+    };
+    delete userWithoutHash.passwordHash;
+
+    return res.json({
+      success: true,
+      message: 'Subscription successfully verified and activated!',
+      user: userWithoutHash
+    });
+
+  } catch (error) {
+    console.error('Verify subscription error:', error);
+    return res.status(500).json({ error: 'An error occurred during subscription verification.' });
+  }
+}
+
+// ----------------------------------------------------
+// CANCEL SUBSCRIPTION
+// ----------------------------------------------------
+async function cancelSubscription(req, res) {
+  try {
+    const user = await db.users.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const subId = user.razorpaySubscriptionId;
+    if (!subId) {
+      return res.status(400).json({ error: 'No active subscription found.' });
+    }
+
+    // 1. Sandbox simulation cancellation
+    if (subId.startsWith('sub_mock_')) {
+      console.log(`Cancelling subscription in Sandbox Mode for user: ${user.email}`);
+      const updatedUser = await db.users.update(user.id, {
+        subscriptionStatus: 'cancelled'
+        // Premium access stays active until period end (handled by db.js users.findById self-healing check)
+      });
+
+      sendPremiumEmailNotification(updatedUser, 'cancellation', { endDate: new Date(user.subscriptionEnd).toLocaleDateString() });
+
+      const userWithoutHash = {
+        ...updatedUser,
+        premiumPlanType: updatedUser.subscriptionType === 'yearly' ? 'yearly' : (updatedUser.subscriptionType === 'monthly' ? 'monthly' : null),
+        premiumExpiresAt: updatedUser.subscriptionEnd || null,
+        freeCreditsResetInMinutes: 0
+      };
+      delete userWithoutHash.passwordHash;
+
+      return res.json({
+        success: true,
+        message: 'Subscription successfully scheduled to cancel at billing cycle end.',
+        user: userWithoutHash
+      });
+    }
+
+    // 2. Production cancellation call
+    if (razorpayInstance) {
+      try {
+        await razorpayInstance.subscriptions.cancel(subId, {
+          cancel_at_cycle_end: 1
+        });
+      } catch (err) {
+        console.error('Razorpay SDK subscription cancel failed:', err.message);
+        return res.status(500).json({ error: `Razorpay cancellation failed: ${err.message}` });
+      }
+    }
+
+    const updatedUser = await db.users.update(user.id, {
+      subscriptionStatus: 'cancelled'
+    });
+
+    sendPremiumEmailNotification(updatedUser, 'cancellation', { endDate: new Date(user.subscriptionEnd).toLocaleDateString() });
+
+    const userWithoutHash = {
+      ...updatedUser,
+      premiumPlanType: updatedUser.subscriptionType === 'yearly' ? 'yearly' : (updatedUser.subscriptionType === 'monthly' ? 'monthly' : null),
+      premiumExpiresAt: updatedUser.subscriptionEnd || null,
+      freeCreditsResetInMinutes: 0
+    };
+    delete userWithoutHash.passwordHash;
+
+    return res.json({
+      success: true,
+      message: 'Subscription successfully scheduled to cancel at billing cycle end.',
+      user: userWithoutHash
+    });
+
+  } catch (error) {
+    console.error('Cancel subscription error:', error);
+    return res.status(500).json({ error: 'An error occurred during subscription cancellation.' });
+  }
+}
+
+// ----------------------------------------------------
+// RAZORPAY SUBSCRIPTIONS WEBHOOK HANDLER
+// ----------------------------------------------------
+async function razorpayWebhook(req, res) {
+  try {
+    const signature = req.headers['x-razorpay-signature'];
+    if (!signature) {
+      return res.status(400).json({ error: 'Missing x-razorpay-signature header' });
+    }
+
+    // Verify signature
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || 'travnify_webhook_secret_2026';
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(req.rawBody || '')
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      console.warn('[Webhook] Webhook signature validation failed.');
+      return res.status(400).json({ error: 'Invalid webhook signature.' });
+    }
+
+    const payload = req.body;
+    console.log(`[Webhook] Processing event: ${payload.event}`);
+
+    const subEntity = payload.payload?.subscription?.entity;
+    if (!subEntity) {
+      return res.status(200).json({ message: 'Event acknowledged, no subscription entity.' });
+    }
+
+    const subId = subEntity.id;
+    let userId = subEntity.notes?.userId;
+    let user = null;
+
+    if (userId) {
+      user = await db.users.findById(userId);
+    }
+    if (!user) {
+      user = await db.users.findBySubscriptionId(subId);
+    }
+
+    if (!user) {
+      console.warn(`[Webhook] User not found for subscription ID: ${subId}`);
+      return res.status(200).json({ message: 'Event acknowledged, but user profile was not located.' });
+    }
+
+    const event = payload.event;
+
+    if (event === 'subscription.activated') {
+      const startAt = subEntity.current_start ? new Date(subEntity.current_start * 1000) : new Date();
+      const endAt = subEntity.current_end ? new Date(subEntity.current_end * 1000) : new Date();
+
+      await db.users.update(user.id, {
+        isPremium: true,
+        subscriptionStatus: 'active',
+        subscriptionStart: startAt.toISOString(),
+        subscriptionEnd: endAt.toISOString(),
+        razorpaySubscriptionId: subId
+      });
+
+      console.log(`[Webhook] Activated Premium status for ${user.email} (sub: ${subId})`);
+      sendPremiumEmailNotification(user, 'activation', { endDate: endAt.toLocaleDateString() });
+
+    } else if (event === 'subscription.charged') {
+      const startAt = subEntity.current_start ? new Date(subEntity.current_start * 1000) : new Date();
+      const endAt = subEntity.current_end ? new Date(subEntity.current_end * 1000) : new Date();
+
+      await db.users.update(user.id, {
+        isPremium: true,
+        subscriptionStatus: 'active',
+        subscriptionStart: startAt.toISOString(),
+        subscriptionEnd: endAt.toISOString()
+      });
+
+      // Log renewal payment transaction
+      const paymentEntity = payload.payload?.payment?.entity;
+      const amount = paymentEntity ? paymentEntity.amount / 100 : (subEntity.plan_amount || 0);
+      const currency = paymentEntity ? paymentEntity.currency : (subEntity.currency || 'INR');
+
+      const transaction = {
+        id: generateId('tx'),
+        userId: user.id,
+        orderId: subId,
+        paymentId: paymentEntity?.id || `pay_renewal_${generateId()}`,
+        amount: amount,
+        currency: currency,
+        status: 'paid',
+        createdAt: new Date().toISOString()
+      };
+      db.transactions.create(transaction);
+
+      console.log(`[Webhook] Processed renewal payment for ${user.email} (sub: ${subId})`);
+      sendPremiumEmailNotification(user, 'renewal', { endDate: endAt.toLocaleDateString() });
+
+    } else if (['subscription.paused', 'subscription.cancelled', 'subscription.halted'].includes(event)) {
+      const endAt = subEntity.current_end ? new Date(subEntity.current_end * 1000) : new Date();
+      const now = new Date();
+      const statusType = event.replace('subscription.', ''); // 'paused', 'cancelled', 'halted'
+
+      // Check if paid cycle end date has passed to deactivate immediately
+      const isExpired = now > endAt;
+
+      await db.users.update(user.id, {
+        isPremium: !isExpired,
+        subscriptionStatus: statusType
+      });
+
+      console.log(`[Webhook] Subscription ${subId} status updated to ${statusType} (Expired: ${isExpired})`);
+
+      if (event === 'subscription.cancelled') {
+        sendPremiumEmailNotification(user, 'cancellation', { endDate: endAt.toLocaleDateString() });
+      }
+    }
+
+    return res.status(200).json({ status: 'ok' });
+  } catch (error) {
+    console.error('Webhook endpoint error:', error);
+    return res.status(500).json({ error: 'An error occurred processing webhook.' });
+  }
+}

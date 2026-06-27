@@ -1566,9 +1566,84 @@ select.form-input {
   color: #4b5563;
 }
 
+.footer-social-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 0.5rem;
+}
+
+.footer-social-icon {
+  display: inline-flex;
+  align-items: center;
+  color: #9ca3af;
+  transition: var(--transition-smooth);
+}
+
+.footer-social-icon:hover {
+  color: #4b5563;
+}
+
 .footer-copy {
   font-size: 0.8rem;
   color: var(--text-light);
+}
+
+.offline-plan-banner {
+  padding: 1.2rem;
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: 16px;
+  color: #B45309;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 800px;
+  margin: 1.5rem auto 1rem auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  text-align: left;
+}
+
+.offline-plan-banner p {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.offline-plan-banner button.retry-btn {
+  background: #F59E0B;
+  border: none;
+  color: #FFFFFF;
+  padding: 0.45rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: opacity 0.2s;
+}
+
+.offline-plan-banner button.retry-btn:hover {
+  opacity: 0.9;
+}
+
+.offline-plan-banner button.dismiss-btn {
+  background: none;
+  border: none;
+  color: #B45309;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.offline-plan-banner button.dismiss-btn:hover {
+  opacity: 0.8;
 }
 
 /* --- KEYFRAME ANIMATIONS --- */

@@ -10,6 +10,8 @@ export default function Premium({ setActiveTab }) {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelSuccessMsg, setCancelSuccessMsg] = useState('');
 
   // 1. Determine active currency from user context (default to USD)
   const currency = user?.currency || 'USD';
@@ -51,23 +53,22 @@ export default function Premium({ setActiveTab }) {
     try {
       const token = localStorage.getItem('token');
       
-      // Call backend to create Razorpay order
-      const orderResponse = await safeFetch('/api/payments/create-order', {
+      // Call backend to create Razorpay subscription
+      const orderResponse = await safeFetch('/api/billing/create-subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          planId: activePlanId,
-          currency: currency
+          plan: billingPeriod
         })
       });
 
       const orderData = await orderResponse.json();
       
       if (!orderResponse.ok) {
-        throw new Error(orderData.error || 'Failed to initialize payment order.');
+        throw new Error(orderData.error || 'Failed to initialize subscription.');
       }
 
       // Check for Sandbox Simulation Mode
@@ -77,18 +78,17 @@ export default function Premium({ setActiveTab }) {
         // Simulating loading state for mock checkout
         setTimeout(async () => {
           try {
-            const verifyRes = await safeFetch('/api/payments/verify', {
+            const verifyRes = await safeFetch('/api/billing/verify-subscription', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
               },
               body: JSON.stringify({
-                razorpay_order_id: orderData.orderId,
+                razorpay_subscription_id: orderData.subscription_id,
                 razorpay_payment_id: `pay_sandbox_${Math.random().toString(36).substring(2, 10)}`,
                 razorpay_signature: '', // Sandbox simulation accepts empty signature
-                planId: activePlanId,
-                billingPeriod: billingPeriod
+                plan: billingPeriod
               })
             });
 
@@ -99,7 +99,7 @@ export default function Premium({ setActiveTab }) {
 
             // Sync user state
             setUser(verifyData.user);
-            trackEvent('premium_upgraded', { plan: activePlanId, currency: currency, sandbox: true });
+            trackEvent('premium_upgraded', { plan: billingPeriod, currency: currency, sandbox: true });
             setPaymentSuccess(true);
           } catch (err) {
             setErrorMsg(err.message);
@@ -116,12 +116,11 @@ export default function Premium({ setActiveTab }) {
 
         const options = {
           key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
+          subscription_id: orderData.subscription_id,
+          recurring: 1,
           name: "TRAVNIFY Premium",
           description: `Unlock Premium Membership (${billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'})`,
           image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23F26430'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/%3E%3C/svg%3E",
-          order_id: orderData.orderId,
           prefill: {
             name: orderData.user?.name || '',
             email: orderData.user?.email || ''
@@ -132,28 +131,27 @@ export default function Premium({ setActiveTab }) {
           handler: async function (response) {
             try {
               setIsLoading(true);
-              const verifyRes = await safeFetch('/api/payments/verify', {
+              const verifyRes = await safeFetch('/api/billing/verify-subscription', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_subscription_id: response.razorpay_subscription_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  planId: activePlanId,
-                  billingPeriod: billingPeriod
+                  plan: billingPeriod
                 })
               });
 
               const verifyData = await verifyRes.json();
               if (verifyRes.ok) {
                 setUser(verifyData.user);
-                trackEvent('premium_upgraded', { plan: activePlanId, currency: currency, sandbox: false });
+                trackEvent('premium_upgraded', { plan: billingPeriod, currency: currency, sandbox: false });
                 setPaymentSuccess(true);
               } else {
-                setErrorMsg(verifyData.error || 'Payment signature verification failed.');
+                setErrorMsg(verifyData.error || 'Subscription verification failed.');
               }
             } catch (err) {
               setErrorMsg('Verification Error: ' + err.message);
@@ -175,7 +173,38 @@ export default function Premium({ setActiveTab }) {
 
     } catch (err) {
       setErrorMsg(err.message);
-      setIsLoading(false);
+      setIsLoading(true);
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm('Are you sure you want to cancel your Premium subscription? You will retain Premium access until the end of your current billing cycle.')) {
+      return;
+    }
+
+    setIsCancelling(true);
+    setErrorMsg('');
+    setCancelSuccessMsg('');
+    try {
+      const token = localStorage.getItem('token');
+      const res = await safeFetch('/api/billing/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to cancel subscription.');
+      }
+      setUser(data.user);
+      setCancelSuccessMsg('Your subscription has been successfully cancelled. It will not renew at the end of the billing period.');
+      trackEvent('premium_subscription_cancelled');
+    } catch (err) {
+      setErrorMsg('Cancellation failed: ' + err.message);
+    } finally {
+      setIsCancelling(false);
     }
   };
 
@@ -193,6 +222,13 @@ export default function Premium({ setActiveTab }) {
   ];
 
   if (paymentSuccess || (user && user.isPremium && !paymentSuccess)) {
+    const planText = user?.subscriptionType === 'yearly' ? 'Yearly Pass' : 'Monthly Pass';
+    const amountSymbol = user?.preferredCurrency === 'USD' ? '$' : '₹';
+    const planAmount = user?.subscriptionType === 'yearly'
+      ? (user?.preferredCurrency === 'USD' ? '49' : '999')
+      : (user?.preferredCurrency === 'USD' ? '5' : '199');
+    const billingAmountStr = `${amountSymbol}${planAmount} per ${user?.subscriptionType === 'yearly' ? 'year' : 'month'}`;
+
     return (
       <div className="premium-success-card" style={{ maxWidth: '600px', margin: '3rem auto', textAlign: 'center', padding: '3rem 2rem', background: '#FFFFFF', borderRadius: '16px', boxShadow: 'var(--card-shadow)', border: '1px solid rgba(16, 185, 129, 0.15)' }}>
         <div style={{ background: 'rgba(16, 185, 129, 0.1)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
@@ -203,13 +239,51 @@ export default function Premium({ setActiveTab }) {
           Welcome to the inner circle! All premium privileges are now unlocked. You can now refine itineraries endlessly, access exclusive Hidden Gems, and save maps to PDF.
         </p>
 
-        <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)', textAlign: 'left', marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.9rem' }}>
+        <div style={{ background: '#F8FAFC', padding: '1.2rem', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.02)', textAlign: 'left', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.92rem' }}>
           <div><strong>Active Account:</strong> {user?.email}</div>
-          <div><strong>License Type:</strong> Premium {user?.subscriptionType === 'yearly' ? 'Yearly' : 'Monthly'}</div>
+          <div><strong>License Type:</strong> Travnify Premium ({planText})</div>
+          <div><strong>Billing Amount:</strong> {billingAmountStr}</div>
           {user?.subscriptionEnd && (
-            <div><strong>Renewal Date:</strong> {new Date(user.subscriptionEnd).toLocaleDateString()}</div>
+            <div>
+              <strong>{user?.subscriptionStatus === 'cancelled' ? 'Expires On:' : 'Next Renewal Date:'}</strong>{' '}
+              {new Date(user.subscriptionEnd).toLocaleDateString()}
+            </div>
           )}
+          <div>
+            <strong>Status:</strong>{' '}
+            <span style={{ 
+              textTransform: 'capitalize', 
+              color: user?.subscriptionStatus === 'cancelled' ? '#EF4444' : '#10B981', 
+              fontWeight: '700' 
+            }}>
+              {user?.subscriptionStatus || 'active'}
+            </span>
+          </div>
         </div>
+
+        {cancelSuccessMsg && (
+          <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '1rem', color: '#10B981', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+            {cancelSuccessMsg}
+          </div>
+        )}
+
+        {errorMsg && (
+          <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '1rem', color: 'var(--danger)', fontSize: '0.9rem', marginBottom: '1.5rem', textAlign: 'left' }}>
+            {errorMsg}
+          </div>
+        )}
+
+        {user?.subscriptionStatus !== 'cancelled' ? (
+          <button 
+            className={`btn btn-secondary ${isCancelling ? 'btn-disabled' : ''}`}
+            onClick={handleCancelSubscription}
+            disabled={isCancelling}
+            style={{ width: '100%', borderColor: '#EF4444', color: '#EF4444', marginBottom: '1rem' }}
+          >
+            {isCancelling ? <RefreshCw size={18} className="animate-spin" style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'middle' }} /> : null}
+            <span>Cancel Subscription</span>
+          </button>
+        ) : null}
 
         <button className="btn btn-primary" onClick={() => setActiveTab('plan')} style={{ width: '100%' }}>
           <span>Start Premium Planning</span>
@@ -369,6 +443,18 @@ export default function Premium({ setActiveTab }) {
               ) : null}
               <span>{isLoading ? 'Processing Order...' : `Get Premium Pass`}</span>
             </button>
+
+            {/* Compliance Disclaimer */}
+            <p style={{
+              fontSize: '0.74rem',
+              color: '#64748B',
+              textAlign: 'center',
+              lineHeight: '1.4',
+              margin: '0.6rem auto 0 auto',
+              maxWidth: '380px'
+            }}>
+              Renews automatically every {periodLabel}. You can cancel anytime from your account settings or payment app.
+            </p>
 
           </div>
 
