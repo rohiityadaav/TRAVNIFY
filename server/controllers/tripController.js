@@ -843,9 +843,18 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
     if (rawBlock.places && Array.isArray(rawBlock.places) && rawBlock.places.length > 0) {
       let allocatedPlacesSum = 0;
       rawBlock.places.forEach((p) => {
-        const placeCost = Number(p.approx_cost || p.approxCost || p.approx_value || p.approxValue) || 0;
-        allocatedPlacesSum += placeCost;
+        let placeCost = Number(p.approx_cost || p.approxCost || p.approx_value || p.approxValue) || 0;
         const cat = getCategoryForPlace(p);
+        if (cat === 'shopping' && placeCost === 0) {
+          const currency = p.currency || estCostCurrency || 'INR';
+          if (currency === 'USD') placeCost = 30;
+          else if (currency === 'EUR') placeCost = 30;
+          else if (currency === 'GBP') placeCost = 25;
+          else if (currency === 'JPY') placeCost = 3000;
+          else placeCost = 1000;
+          p.approx_cost = placeCost;
+        }
+        allocatedPlacesSum += placeCost;
         addCategoryAmount(cat, placeCost);
       });
 
@@ -880,7 +889,20 @@ function normalizeItinerary(itinerary, startDate, parsedBudget, activeCurrency, 
       let currency = estCostCurrency;
 
       if (block.places && Array.isArray(block.places)) {
-        amount = block.places.reduce((sum, p) => sum + (Number(p.approx_cost || p.approxCost || p.approx_value || p.approxValue) || 0), 0);
+        amount = block.places.reduce((sum, p) => {
+          let placeCost = Number(p.approx_cost || p.approxCost || p.approx_value || p.approxValue) || 0;
+          const cat = getCategoryForPlace(p);
+          if (cat === 'shopping' && placeCost === 0) {
+            const currency = p.currency || estCostCurrency || 'INR';
+            if (currency === 'USD') placeCost = 30;
+            else if (currency === 'EUR') placeCost = 30;
+            else if (currency === 'GBP') placeCost = 25;
+            else if (currency === 'JPY') placeCost = 3000;
+            else placeCost = 1000;
+            p.approx_cost = placeCost;
+          }
+          return sum + placeCost;
+        }, 0);
       } else if (block.estimatedCost && typeof block.estimatedCost === 'object') {
         amount = Number(block.estimatedCost.amount || block.estimatedCost.value) || 0;
         currency = block.estimatedCost.currency || estCostCurrency;
