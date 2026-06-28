@@ -233,6 +233,10 @@ export default function AuthModal({
       trackEvent('signup_completed', { method: 'google' });
     } catch (err) {
       console.error("Auth error", err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setAuthError('Login cancelled');
+        return;
+      }
       setAuthError(err.code || err.message || 'Google sign-in failed.');
     } finally {
       setIsLoading(false);

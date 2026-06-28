@@ -54,10 +54,11 @@ const app = express();
 const ALLOWED_ORIGINS = [
   'http://localhost:5173', // dev
   'http://localhost:5000', // dev alt (if needed)
-  'https://travnify.vercel.app' // production frontend (replace if your domain is different)
+  'https://travnify.vercel.app', // production frontend (replace if your domain is different)
+  'https://travnify-ghns.vercel.app' // CURRENT live frontend
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
     if (!origin || ALLOWED_ORIGINS.includes(origin)) {
       callback(null, true);
@@ -66,6 +67,21 @@ app.use(cors({
     }
   },
   credentials: true
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable preflight for all routes
+app.options('/api/auth/firebase-sync', cors({
+  origin: (origin, callback) => {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({
   verify: (req, res, buf) => {
